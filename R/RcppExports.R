@@ -7,11 +7,11 @@
 #' @param Fx numeric vector of cdf probabilities.
 #' @param param parameters for pnull
 #' @param qnull An R function, the quantile function under the null hypothesis.
-#' @param doMethod A character vector of methods to include
 #' @keywords internal
 #' @return A numeric vector with test statistics
-TS_cont <- function(x, Fx, param, qnull, doMethod = as.character( c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))) {
-    .Call(`_Rgof_TS_cont`, x, Fx, param, qnull, doMethod)
+#' @export
+TS_cont <- function(x, Fx, param, qnull) {
+    .Call(`_Rgof_TS_cont`, x, Fx, param, qnull)
 }
 
 #' Find test statistics for discrete data
@@ -20,11 +20,10 @@ TS_cont <- function(x, Fx, param, qnull, doMethod = as.character( c("KS", "K", "
 #' @param p A numeric vector of probabilities.
 #' @param nm A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.
 #' @param vals A numeric vector with the values of the discrete rv.
-#' @param doMethod A character vector of methods to include
 #' @keywords internal
 #' @return A vector with test statistics
-TS_disc <- function(x, p, nm, vals, doMethod = as.character( c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))) {
-    .Call(`_Rgof_TS_disc`, x, p, nm, vals, doMethod)
+TS_disc <- function(x, p, nm, vals) {
+    .Call(`_Rgof_TS_disc`, x, p, nm, vals)
 }
 
 #' count occurances in bins. Useful for power calculations. Replaces hist command from R.
@@ -125,31 +124,31 @@ chi_test_disc <- function(x, pnull, param, nbins = as.integer( c(100, 10)), form
 #' 
 #' @param x A numeric vector of data
 #' @param pnull R function (cdf)
-#' @param phat  function to set or estimate parameters of pnull
 #' @param rnull R function (generate data under null hypothesis)
 #' @param qnull R function (quantiles under null hypothesis)
-#' @param B (=5000) Number of simulation runs  
-#' @param doMethod List methods to include
+#' @param phat  function to set or estimate parameters of pnull 
+#' @param TS function that calculates test statistics
+#' @param B (=5000) Number of simulation runs 
 #' @keywords internal
 #' @return A matrix of numbers
-gof_cont <- function(x, pnull, phat, rnull, qnull, B = 5000L, doMethod = as.character( c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))) {
-    .Call(`_Rgof_gof_cont`, x, pnull, phat, rnull, qnull, B, doMethod)
+gof_cont <- function(x, pnull, rnull, qnull, phat, TS, B = 5000L) {
+    .Call(`_Rgof_gof_cont`, x, pnull, rnull, qnull, phat, TS, B)
 }
 
 #' run gof tests for discrete data
 #' 
 #' @param x an integer vector of counts
 #' @param pnull cumulative distribution function under the null hypothesis
-#' @param vals numeric vector of values of discrete random variables.
 #' @param rnull R function (generate data under null hypothesis)
+#' @param vals numeric vector of values of discrete random variables.
 #' @param phat function to estimate parameters
+#' @param TS function that calculates test statistics
 #' @param rate =0 rate of Poisson if sample size is random, 0 otherwise.
 #' @param B (=5000) Number of simulation runs  
-#' @param doMethod List methods to include
 #' @keywords internal
 #' @return A matrix of numbers
-gof_disc <- function(x, pnull, vals, rnull, phat, rate = 0, B = 5000L, doMethod = as.character( c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))) {
-    .Call(`_Rgof_gof_disc`, x, pnull, vals, rnull, phat, rate, B, doMethod)
+gof_disc <- function(x, pnull, rnull, vals, phat, TS, rate = 0, B = 5000L) {
+    .Call(`_Rgof_gof_disc`, x, pnull, rnull, vals, phat, TS, rate, B)
 }
 
 #' calculate a matrix of numbers needed for Zhangs tests for discrete data
@@ -164,11 +163,12 @@ nm_calc <- function(n) {
 #' find power of gof tests for continuous data
 #' 
 #' @param pnull R function (cdf)
-#' @param phat  function to estimate parameters from the data
 #' @param rnull R function (generate data under null hypothesis)
+#' @param qnull R function (quantiles under null hypothesis)
 #' @param ralt  R function to generate data under alternative
 #' @param param_alt parameters of ralt
-#' @param qnull R function (quantiles under null hypothesis)
+#' @param phat  function to estimate parameters from the data
+#' @param TS function to calculate test statistics
 #' @param nbins =c(100,10) number of bins to use
 #' @param rate rate of Poisson if sample size is random
 #' @param Range =(-99999, 99999) limits of possible observations, if any
@@ -176,25 +176,26 @@ nm_calc <- function(n) {
 #' @param alpha =0.05, type I error of test 
 #' @keywords internal
 #' @return A matrix of powers
-power_cont <- function(pnull, phat, rnull, ralt, param_alt, qnull, nbins = as.integer( c(100, 10)), rate = 0.0, Range = as.numeric( c(-99999, 99999)), B = as.integer( c(1000, 1000)), alpha = 0.05) {
-    .Call(`_Rgof_power_cont`, pnull, phat, rnull, ralt, param_alt, qnull, nbins, rate, Range, B, alpha)
+power_cont <- function(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, Range = as.numeric( c(-99999, 99999)), B = as.integer( c(1000, 1000)), alpha = 0.05) {
+    .Call(`_Rgof_power_cont`, pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins, rate, Range, B, alpha)
 }
 
 #' find power of gof tests for discrete data
 #' 
 #' @param pnull R function (cdf)
-#' @param phat  function to estimate parameters from the data
 #' @param rnull R function (generate data under null hypothesis)
+#' @param vals vector of values of discrete random variable
 #' @param ralt  R function to generate data under alternative
 #' @param param_alt parameters of function ralt
-#' @param vals vector of values of discrete random variable
+#' @param phat  function to estimate parameters from the data
+#' @param TS function to calculate test statistics
 #' @param nbins =c(100,10) number of bins to use 
 #' @param rate rate of Poisson if sample size is random, 0 otherwise
 #' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
 #' @param alpha =0.05, type I error of test 
 #' @keywords internal
 #' @return A matrix of powers
-power_disc <- function(pnull, phat, rnull, ralt, param_alt, vals, nbins = as.integer( c(100, 10)), rate = 0.0, B = as.integer( c(1000, 1000)), alpha = 0.05) {
-    .Call(`_Rgof_power_disc`, pnull, phat, rnull, ralt, param_alt, vals, nbins, rate, B, alpha)
+power_disc <- function(pnull, rnull, vals, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, B = as.integer( c(1000, 1000)), alpha = 0.05) {
+    .Call(`_Rgof_power_disc`, pnull, rnull, vals, ralt, param_alt, phat, TS, nbins, rate, B, alpha)
 }
 

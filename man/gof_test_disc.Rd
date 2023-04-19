@@ -10,6 +10,7 @@ gof_test_disc(
   rnull,
   vals,
   phat,
+  TS,
   nbins = c(100, 10),
   rate = 0,
   B = 5000,
@@ -26,6 +27,8 @@ gof_test_disc(
 \item{vals}{a vector of values of discrete random variables}
 
 \item{phat}{a function to estimate parameters from the data}
+
+\item{TS}{user supplied function to find test statistics}
 
 \item{nbins}{=c(100, 10) number of bins for chi-square tests}
 
@@ -47,7 +50,7 @@ vals=0:10
 pnull = function() pbinom(0:10, 10, 0.5)
 rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
 x = rnull() 
-gof_test_disc(x, pnull, rnull, vals)
+gof_test_disc(x, pnull, rnull, vals, doMethod="all")
 # Tests to see whether data comes from a binomial distribution with the success probability 
 # estimated from the data.
 pnull = function(p=0.5) pbinom(0:10, 10, ifelse(p>0&&p<1,p,0.001))

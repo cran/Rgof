@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include "TS_cont.h"
 
 using namespace Rcpp;
 
@@ -7,43 +6,47 @@ using namespace Rcpp;
 //' 
 //' @param x A numeric vector of data
 //' @param pnull R function (cdf)
-//' @param phat  function to set or estimate parameters of pnull
 //' @param rnull R function (generate data under null hypothesis)
 //' @param qnull R function (quantiles under null hypothesis)
-//' @param B (=5000) Number of simulation runs  
-//' @param doMethod List methods to include
+//' @param phat  function to set or estimate parameters of pnull 
+//' @param TS function that calculates test statistics
+//' @param B (=5000) Number of simulation runs 
 //' @keywords internal
 //' @return A matrix of numbers
 // [[Rcpp::export]]
 Rcpp::NumericMatrix gof_cont(
         Rcpp::NumericVector x, 
         Rcpp::Function pnull,
-        Rcpp::Function phat,
         Rcpp::Function rnull, 
-        Rcpp::Function qnull, 
-        int B=5000,
-        Rcpp::CharacterVector doMethod=Rcpp::CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1")
-        ) {
-  int const nummethods=9;
+        Rcpp::Function qnull,
+        Rcpp::Function phat, 
+        Rcpp::Function TS,
+        int B=5000) {
   int n=x.size(), i, j;
-  NumericVector xsim(n), TS_data(nummethods),TS_sim(nummethods), pvals(nummethods), Fx(x.size());
+  NumericVector Fx(x.size());
+  NumericVector psim=phat(x);
+  for(i=0;i<n;++i) Fx(i)=(1.0+i)/(2.0+i);
+  NumericVector TS_data=TS(x, Fx, 1.0, qnull);
+  int const nummethods=TS_data.size();
+  Rcpp::CharacterVector allMethods=TS_data.names();
+  NumericVector xsim(n), TS_sim(nummethods), pvals(nummethods);
   NumericMatrix out(2, nummethods);
-  colnames(out) = CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1");
+  colnames(out) = allMethods;
   Rcpp::Environment base("package:base");
   Rcpp::Function formals_r = base["formals"];
   NumericVector p=phat(x);
   Rcpp::List res_pnull = formals_r(Rcpp::_["fun"]=pnull);
   if(res_pnull.size()==1) Fx=pnull(x);
   else Fx=pnull(x, p);
-  TS_data=TS_cont(x, Fx, p, qnull, doMethod);
+  TS_data=TS(x, Fx, p, qnull);
   Rcpp::List res_rnull = formals_r(Rcpp::_["fun"]=rnull);
   for(i=0;i<B;++i) {
     if(res_rnull.size()==0) xsim=rnull();
     else xsim=rnull(p);
-    NumericVector psim=phat(xsim);
-    if(res_pnull.size()==1) Fx=pnull(xsim);
-    else Fx=pnull(xsim, psim);
-    TS_sim=TS_cont(xsim, Fx, psim, qnull, doMethod);
+    psim=phat(xsim);
+    if(res_pnull.size()==1) Fx=pnull(xsim);    
+    else Fx=pnull(xsim, psim);    
+    TS_sim=TS(xsim, Fx, psim, qnull);
     for(j=0;j<nummethods;++j) {
       if(TS_data(j)<TS_sim(j)) pvals(j)=pvals(j)+1;
     }

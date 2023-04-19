@@ -6,11 +6,12 @@
 \usage{
 power_disc(
   pnull,
-  phat,
   rnull,
+  vals,
   ralt,
   param_alt,
-  vals,
+  phat,
+  TS,
   nbins = as.integer(c(100, 10)),
   rate = 0,
   B = as.integer(c(1000, 1000)),
@@ -20,15 +21,17 @@ power_disc(
 \arguments{
 \item{pnull}{R function (cdf)}
 
-\item{phat}{function to estimate parameters from the data}
-
 \item{rnull}{R function (generate data under null hypothesis)}
+
+\item{vals}{vector of values of discrete random variable}
 
 \item{ralt}{R function to generate data under alternative}
 
 \item{param_alt}{parameters of function ralt}
 
-\item{vals}{vector of values of discrete random variable}
+\item{phat}{function to estimate parameters from the data}
+
+\item{TS}{function to calculate test statistics}
 
 \item{nbins}{=c(100,10) number of bins to use}
 

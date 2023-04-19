@@ -11,6 +11,7 @@ gof_power_disc(
   ralt,
   param_alt,
   phat,
+  TS,
   alpha = 0.05,
   B = c(1000, 1000),
   nbins = c(100, 10),
@@ -30,6 +31,8 @@ gof_power_disc(
 \item{param_alt}{vector of parameter values for distribution under alternative hypothesis}
 
 \item{phat}{function to estimate parameters from the data}
+
+\item{TS}{user supplied function to find test statistics}
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 

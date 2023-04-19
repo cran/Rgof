@@ -6,11 +6,12 @@
 \usage{
 power_cont(
   pnull,
-  phat,
   rnull,
+  qnull,
   ralt,
   param_alt,
-  qnull,
+  phat,
+  TS,
   nbins = as.integer(c(100, 10)),
   rate = 0,
   Range = as.numeric(c(-99999, 99999)),
@@ -21,15 +22,17 @@ power_cont(
 \arguments{
 \item{pnull}{R function (cdf)}
 
-\item{phat}{function to estimate parameters from the data}
-
 \item{rnull}{R function (generate data under null hypothesis)}
+
+\item{qnull}{R function (quantiles under null hypothesis)}
 
 \item{ralt}{R function to generate data under alternative}
 
 \item{param_alt}{parameters of ralt}
 
-\item{qnull}{R function (quantiles under null hypothesis)}
+\item{phat}{function to estimate parameters from the data}
+
+\item{TS}{function to calculate test statistics}
 
 \item{nbins}{=c(100,10) number of bins to use}
 

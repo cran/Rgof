@@ -10,6 +10,7 @@ gof_test_cont(
   rnull,
   qnull,
   phat,
+  TS,
   nbins = c(100, 10),
   rate = 0,
   Range = c(-Inf, Inf),
@@ -27,6 +28,8 @@ gof_test_cont(
 \item{qnull}{routine to calculate quantiles under null hypothesis}
 
 \item{phat}{function to estimate parameters from the data}
+
+\item{TS}{user supplied function to find test statistics}
 
 \item{nbins}{=c(100, 10) number of bins for chi-square tests}
 
@@ -50,12 +53,12 @@ pnull = function(x) pnorm(x)
 qnull = function(x) qnorm(x)
 rnull = function()  rnorm(100)
 x = rnorm(100) 
-gof_test_cont(x, pnull, rnull, qnull)
+gof_test_cont(x, pnull, rnull, qnull, doMethod="all")
 # Tests to see whether data comes from a normal distribution with 
 # mean and standard deviation estimated from the data.
 pnull = function(x, p=c(0, 1)) pnorm(x, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  ifelse(p[2]>0.001, p[2], 0.001))
-rnull = function(p=c(0, 1))  rnorm(1000, p[1], ifelse(p[2]>0.001, p[2], 0.001))
+rnull = function(p=c(0, 1))  rnorm(100, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 phat = function(x) c(mean(x), sd(x))
 gof_test_cont(x, pnull, rnull, qnull, phat)
 

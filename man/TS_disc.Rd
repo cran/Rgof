@@ -4,13 +4,7 @@
 \alias{TS_disc}
 \title{Find test statistics for discrete data}
 \usage{
-TS_disc(
-  x,
-  p,
-  nm,
-  vals,
-  doMethod = as.character(c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))
-)
+TS_disc(x, p, nm, vals)
 }
 \arguments{
 \item{x}{An integer vector.}
@@ -20,8 +14,6 @@ TS_disc(
 \item{nm}{A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.}
 
 \item{vals}{A numeric vector with the values of the discrete rv.}
-
-\item{doMethod}{A character vector of methods to include}
 }
 \value{
 A vector with test statistics

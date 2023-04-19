@@ -5,6 +5,7 @@
 #' @param  ralt function to generate data under  alternative hypothesis
 #' @param  param_alt  vector of parameter values for distribution under alternative hypothesis
 #' @param  phat  function to estimate parameters from the data
+#' @param  TS user supplied function to find test statistics
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any
 #' @param  B =c(1000, 1000), number of simulation runs to find power and null distribution
@@ -18,7 +19,7 @@
 #' # true data comes from a normal distribution with mean different from 0.
 #' pnull = function(x) pnorm(x)
 #' qnull = function(x) qnorm(x)
-#' rnull = function()  rnorm(100)
+#' rnull = function()  rnorm(50)
 #' ralt = function(mu)  rnorm(50, mu)
 #' gof_power_cont(pnull, rnull, qnull, ralt, c(0.25, 0.5), B=c(500, 500))
 #' # Power of tests when null hypothesis specifies normal distribution and 
@@ -27,41 +28,56 @@
 #' # true data comes from a normal distribution with mean different from 0.
 #' pnull = function(x, p=c(0, 1)) pnorm(x, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 #' qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  ifelse(p[2]>0.001, p[2], 0.001))
-#' rnull = function(p=c(0, 1))  rnorm(1000, p[1], ifelse(p[2]>0.001, p[2], 0.001))
+#' rnull = function(p=c(0, 1))  rnorm(50, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 #' phat = function(x) c(mean(x), sd(x))
-#' \donttest{gof_power_cont(pnull, rnull, qnull, ralt, c(0, 1), phat)}
+#' \donttest{gof_power_cont(pnull, rnull, qnull, ralt, c(0, 1), phat, B=c(200, 200), maxProcessor=2)}
 
-gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
+gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS, 
         alpha=0.05, Range  =c(-Inf, Inf), B=c(1000, 1000),nbins=c(100,10), 
         rate=0, maxProcessors) {
-
-    doMethod = c("KS", "K","AD", "CvM",  "W", "ZA", "ZK",  "ZC", "Wassp1",    
+  # Do some sanity checks and setups 
+  if(missing(qnull) && missing(phat)) check.functions(pnull, rnull)
+  if(!missing(qnull) && missing(phat)) check.functions(pnull, rnull, qnull)
+  if(missing(qnull) && !missing(phat)) check.functions(pnull, rnull, phat=phat)
+  if(!missing(qnull) && !missing(phat)) check.functions(pnull, rnull, qnull, phat)
+  if(missing(qnull)) qnull=function(x, p)  -99
+  if(is.infinite(Range[1])) Range[1]=-99999
+  if(is.infinite(Range[2])) Range[2]=99999  
+  if(missing(TS)) TS =  TS_cont
+  else { # can't do parallel processing
+    if(substr(deparse(TS)[2], 1, 5)==".Call") {
+      message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
+      maxProcessors=1
+    }  
+  }
+  # Find out how many (non-chi-square) methods are implemented and what they are called
+  x=ralt(param_alt[1])
+  TS_data=TS(x, (1:length(x))/(length(x)+1), 1, qnull)
+  nummethods = length(TS_data)
+  methods = c(names(TS_data),    
             "EP large Pearson", "ES large Pearson", "EP small Pearson", "ES small Pearson",
         paste0(c("EP large LR", "ES large LR", "EP small LR", "ES small LR"),"-", ifelse(rate==0, "m", "p")) 
     )
-    if(missing(qnull) && missing(phat)) check.functions(pnull, rnull)
-    if(!missing(qnull) && missing(phat)) check.functions(pnull, rnull, qnull)
-    if(missing(qnull) && !missing(phat)) check.functions(pnull, rnull, phat=phat)
-    if(!missing(qnull) && !missing(phat)) check.functions(pnull, rnull, qnull, phat)
-    if(missing(qnull)) qnull=function(x, p)  -99
-    if(is.infinite(Range[1])) Range[1]=-99999
-    if(is.infinite(Range[2])) Range[2]=99999    
+
     if(!missing(phat) && is.function(phat)) {
+      
 # With parameter estimation    
       if(!missing(maxProcessors) && maxProcessors==1) {
          out = power_cont(pnull = pnull,
-                          phat = phat,
-                          rnull = rnull, 
+                          rnull = rnull,
+                          qnull = qnull,  
                           ralt = ralt, 
                           param_alt = param_alt, 
-                          qnull = qnull, 
+                          phat = phat,
+                          TS = TS,
                           nbins = nbins,
                           rate = rate,
                           Range = Range,
                           B = B,
                           alpha = alpha)
          rownames(out) = param_alt 
-         colnames(out) = doMethod  
+         colnames(out) = methods
+         if(is.matrix(out) & nrow(out)==1) out=out[1, ]
          return(out)
     }  
     if(missing(maxProcessors)) m=parallel::detectCores()-1
@@ -70,11 +86,12 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
     z=parallel::clusterCall(cl, 
                           power_cont, 
                               pnull = pnull,
-                              phat = phat, 
-                              rnull = rnull, 
+                              rnull = rnull,
+                              qnull = qnull,  
                               ralt = ralt, 
                               param_alt = param_alt, 
-                              qnull = qnull,
+                              phat = phat,
+                              TS = TS,
                               nbins = nbins,
                               rate = rate,
                               Range = Range,
@@ -84,8 +101,9 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
       # Average power of cores
       out=0*z[[1]]
       for(i in 1:m) out=out+z[[i]]
-      colnames(out)=doMethod
+      colnames(out)=methods
       rownames(out)=param_alt 
+      if(is.matrix(out) & nrow(out)==1) out=out[1, ]
       return(out/m)
     }
 # No parameter estimation   
@@ -95,20 +113,20 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
     else param=0
     res_pnull=formals(pnull)
     res_rnull=formals(rnull)
-    TS = matrix(0, B[2], 9)    
+    TS_data = matrix(0, B[2], nummethods)    
     for(i in 1:B[2]) {
       if(length(res_rnull)==0) x=rnull()
       else x=rnull(x, param)
       if(length(res_pnull)==1) Fx=pnull(x)
       else Fx=pnull(x, param)
-      TS[i, ]=TS_cont(x, Fx, 0, qnull, doMethod)
+      TS_data[i, ]=TS(x, Fx, 0, qnull)
     }  
-    crit = apply(TS, 2, stats::quantile, probs=1-alpha)
+    crit = apply(TS_data, 2, stats::quantile, probs=1-alpha)
 # power calculations:
     npar_alt = length(param_alt)
-    A = matrix(0, B[1], 9)
-    TS = list(1:npar_alt)
-    for(i in 1:npar_alt) TS[[i]] = A
+    A = matrix(0, B[1], nummethods)
+    TS_alt = list(1:npar_alt)
+    for(i in 1:npar_alt) TS_alt[[i]] = A
     A = matrix(0, B[1], 8)
     chi.p.value = list(1:npar_alt)
     Range=ifelse(is.infinite(Range),-99, Range)
@@ -118,7 +136,7 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
            x = ralt(param_alt[j])
            if(length(res_pnull)==1) Fx=pnull(x)
            else Fx=pnull(x, param)
-           TS[[j]][i, ] = TS_cont(x, Fx, param, qnull, doMethod)
+           TS_alt[[j]][i, ] = TS(x, Fx, param, qnull)
            chi.p.value[[j]][i, 1:4] = 
               chi_test_cont(x, pnull, param, "Pearson", rate, nbins, Range, 0)[, 3]
            chi.p.value[[j]][i, 5:8] = 
@@ -126,17 +144,17 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat,
         }  
     }
 
-    pwr = matrix(0, npar_alt, 17)
-    colnames(pwr) = doMethod
+    pwr = matrix(0, npar_alt, nummethods+8)
+    colnames(pwr) = methods
     rownames(pwr) = param_alt
     for(i in 1:npar_alt) {
-       for(j in 1:9) {
-          pwr[i, j] = sum(TS[[i]][, j]>crit[j])/B[1]
+       for(j in 1:nummethods) {
+          pwr[i, j] = sum(TS_alt[[i]][, j]>crit[j])/B[1]
        } 
        for(j in 1:8) {
-          pwr[i, 9+j] = sum(chi.p.value[[i]][,j]<alpha)/B[1]
+          pwr[i, nummethods+j] = sum(chi.p.value[[i]][,j]<alpha)/B[1]
       }         
     }
-
+    if(npar_alt==1) pwr=pwr[1, ]
     pwr
 }

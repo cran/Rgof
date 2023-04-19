@@ -5,8 +5,7 @@
 Rcpp::NumericVector TS_disc(Rcpp::IntegerVector x, 
                             Rcpp::NumericVector p,
                             Rcpp::NumericMatrix nm,
-                            Rcpp::NumericVector vals,
-                            Rcpp::CharacterVector doMethod
+                            Rcpp::NumericVector vals
                       );
 
 #endif

@@ -11,6 +11,7 @@ gof_power_cont(
   ralt,
   param_alt,
   phat,
+  TS,
   alpha = 0.05,
   Range = c(-Inf, Inf),
   B = c(1000, 1000),
@@ -31,6 +32,8 @@ gof_power_cont(
 \item{param_alt}{vector of parameter values for distribution under alternative hypothesis}
 
 \item{phat}{function to estimate parameters from the data}
+
+\item{TS}{user supplied function to find test statistics}
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
@@ -55,7 +58,7 @@ Find the power of various gof tests for continuous data.
 # true data comes from a normal distribution with mean different from 0.
 pnull = function(x) pnorm(x)
 qnull = function(x) qnorm(x)
-rnull = function()  rnorm(100)
+rnull = function()  rnorm(50)
 ralt = function(mu)  rnorm(50, mu)
 gof_power_cont(pnull, rnull, qnull, ralt, c(0.25, 0.5), B=c(500, 500))
 # Power of tests when null hypothesis specifies normal distribution and 
@@ -64,7 +67,7 @@ gof_power_cont(pnull, rnull, qnull, ralt, c(0.25, 0.5), B=c(500, 500))
 # true data comes from a normal distribution with mean different from 0.
 pnull = function(x, p=c(0, 1)) pnorm(x, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  ifelse(p[2]>0.001, p[2], 0.001))
-rnull = function(p=c(0, 1))  rnorm(1000, p[1], ifelse(p[2]>0.001, p[2], 0.001))
+rnull = function(p=c(0, 1))  rnorm(50, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 phat = function(x) c(mean(x), sd(x))
-\donttest{gof_power_cont(pnull, rnull, qnull, ralt, c(0, 1), phat)}
+\donttest{gof_power_cont(pnull, rnull, qnull, ralt, c(0, 1), phat, B=c(200, 200), maxProcessor=2)}
 }

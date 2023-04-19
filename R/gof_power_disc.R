@@ -5,6 +5,7 @@
 #' @param  ralt function to generate data under  alternative hypothesis
 #' @param  param_alt  vector of parameter values for distribution under alternative hypothesis
 #' @param  phat  function to estimate parameters from the data
+#' @param  TS user supplied function to find test statistics
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  B =c(1000, 1000), number of simulation runs to find power and null distribution
 #' @param  nbins =c(100,10), number of bins for chisquare tests.
@@ -28,30 +29,41 @@
 #' phat = function(x) mean(rep(0:10, x))/10
 #' gof_power_disc(pnull, rnull, vals, ralt, phat, param_alt=0.6, B=c(100, 100), maxProcessors = 2)
 
-gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat, 
+gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat, TS, 
         alpha=0.05, B=c(1000, 1000),  nbins=c(100,10), 
         rate=0, maxProcessors) {
-    doMethodTS = c("KS", "K","AD", "CvM",  "W", "ZA", "ZK",  "ZC", "Wassp1")    
-    doMethodchi = c("chi large Pearson", "chi small Pearson", 
-                  paste0(c("chi large LR", "chi small LR"),"-", ifelse(rate==0, "m", "p"))) 
-    doMethod = c(doMethodTS, doMethodchi)
+
     if(!missing(phat)) check.functions(pnull, rnull, vals=vals, phat=phat)
     if(missing(phat)) check.functions(pnull, rnull, vals=vals)
+    if(missing(TS)) TS =  TS_disc
+    else {
+      if(substr(deparse(TS)[2], 1, 5)==".Call") {
+        message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
+        maxProcessors=1
+      }  
+    }
+    x = ralt(param_alt[1])
+    TS_data = TS(x, (1:length(x))/length(x), nm_calc(sum(x)), vals)
+    nummethods = length(TS_data)
+    methods = c(names(TS_data), "chi large Pearson", "chi small Pearson", 
+                paste0(c("chi large LR", "chi small LR"),"-", ifelse(rate==0, "m", "p")))
+
     if(!missing(phat) && is.function(phat)) {
       if(!missing(maxProcessors) && maxProcessors==1) {
         out = power_disc(pnull = pnull,
-                         phat = phat,   
                          rnull = rnull, 
+                         vals = vals,
                          ralt = ralt, 
                          param_alt = param_alt, 
-                         vals = vals,
+                         phat = phat,
+                         TS = TS,
                          nbins = nbins,
                          rate = rate,
                          B = B,
                          alpha = alpha)
         rownames(out) = param_alt 
-        colnames(out) = doMethod
-        out = out[, doMethod!="ZK"]  
+        colnames(out) = methods
+        if(is.matrix(out) && length(param_alt)==1) out=out[1, ]
         return(out)
       }  
       if(missing(maxProcessors)) m=parallel::detectCores()-1
@@ -60,11 +72,12 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat,
       z=parallel::clusterCall(cl, 
                     power_disc, 
                          pnull = pnull,
-                         phat = phat,   
                          rnull = rnull, 
-                         ralt = ralt, 
-                         param_alt = param_alt,
                          vals = vals,
+                         ralt = ralt, 
+                         param_alt = param_alt, 
+                         phat = phat,   
+                         TS = TS,
                          nbins = nbins,
                          rate = rate,
                          B = c(round(B[1])/m, B[2]),
@@ -74,8 +87,8 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat,
       out=0*z[[1]]
       for(i in 1:m) out=out+z[[i]]
       rownames(out) = param_alt 
-      colnames(out) = doMethod
-      out = out[, doMethod!="ZK"]
+      colnames(out) = methods
+      if(is.matrix(out) && length(param_alt)==1) out=out[1, ]
       return(out/m)
     }
 # No parameter estimation    
@@ -88,18 +101,18 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat,
     res_rnull=formals(rnull)
     if(length(res_rnull)==0) nm = nm_calc(sum(rnull()))    
     else nm = nm_calc(sum(rnull(param)))    
-    TS = matrix(0, B[2], 9)    
+    TS_data = matrix(0, B[2], nummethods)    
     for(i in 1:B[2]) {
       x = rnull()
       if(rate>0) nm = nm_calc(x)    
-      TS[i, ]=TS_disc(x, p, nm, vals, doMethod)
+      TS_data[i, ]=TS(x, p, nm, vals)
     }  
-    crit = apply(TS, 2, stats::quantile, probs=1-alpha)
+    crit = apply(TS_data, 2, stats::quantile, probs=1-alpha)
 # power calculations:  
     npar_alt=length(param_alt)
-    A = matrix(0, B[1], 9)
-    TS = list(1:npar_alt)
-    for(i in 1:npar_alt) TS[[i]] = A
+    A = matrix(0, B[1], nummethods)
+    TS_sim = list(1:npar_alt)
+    for(i in 1:npar_alt) TS_sim[[i]] = A
     A = matrix(0, B[1], 4)
     chi.p.value = list(1:npar_alt)
     for(i in 1:npar_alt) chi.p.value[[i]] = A
@@ -107,22 +120,22 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat,
       for(j in 1:npar_alt) {
         x = ralt(param_alt[j])
         if(rate>0) nm = nm_calc(sum(x))    
-        TS[[j]][i, ] = TS_disc(x, p, nm, vals)      
+        TS_sim[[j]][i, ] = TS(x, p, nm, vals)      
         chi.p.value[[j]][i, 1:2] = chi_test_disc(x, pnull, param, nbins, "Pearson", rate, 0)[, 3]
         chi.p.value[[j]][i, 3:4] = chi_test_disc(x, pnull, param, nbins, "LR", rate, 0)[, 3]
       }  
     }
-    pwr = matrix(0, npar_alt, length(doMethod))
-    colnames(pwr) = doMethod
+    pwr = matrix(0, npar_alt, length(methods))
+    colnames(pwr) = methods
     rownames(pwr) = param_alt
     for(i in seq_along(param_alt)) {
-      for(j in 1:9) {
-        pwr[i, j] = sum(TS[[i]][, j]>crit[j])/B[1]
+      for(j in 1:nummethods) {
+        pwr[i, j] = sum(TS_sim[[i]][, j]>crit[j])/B[1]
       } 
       for(j in 1:4) {
-        pwr[i, 9+j] = sum(chi.p.value[[i]][, j]<alpha)/B[1]
+        pwr[i, nummethods+j] = sum(chi.p.value[[i]][, j]<alpha)/B[1]
       }
     }  
-    pwr = pwr[, doMethod!="ZK"]
+    if(npar_alt==1) pwr=pwr[1, ]
     pwr
 }

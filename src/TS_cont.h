@@ -5,8 +5,7 @@
 Rcpp::NumericVector TS_cont(Rcpp::NumericVector x, 
                             Rcpp::NumericVector Fx,
                             Rcpp::NumericVector param, 
-                            Rcpp::Function qnull,
-                            Rcpp::CharacterVector doMethod
+                            Rcpp::Function qnull
                       );
 
 #endif

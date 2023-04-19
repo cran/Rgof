@@ -30,6 +30,7 @@ The highlights of this package are:
 -  it uses Rcpp and parallel programming to be very fast.  
 -  it includes routines that make it very easy to estimate the power of the different tests for specific situations.  
 -  it allows for the possibility that the sample size was a draw from a Poisson random variable.  
+-  it allows the user to add more tests.  
 -  it includes a routine to draw the usual power graph.
 
 ```{r}
@@ -410,6 +411,35 @@ ralt = function(df=1) {
   x[1:100]
 }  
 gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100, 200), maxProcessor=2)
+```
+
+### Running other tests
+
+Its is very easy for a user to add other goodness-of-fit tests to the package. This can be done by editing the routines *TS_cont** and/or **TS_disc**, which are located in the folder *examples* in the Rgod library folder. Or a user can write their own version of these files.
+
+As an example let's say we want to run a test based on a variation of the Cramer vonMises test, namely 
+
+$$\int_{-\infty}^{\infty} \vert F(x) - \hat{F}(x) \vert dF(x)$$
+first we create a routine to calculated this test statistic:
+
+```{r}
+cvm.abs = function(x, p, nm=0, vals) {
+   z=sum(abs( (1:length(x))/length(x)-p)*diff(c(0,p)) )
+   names(z) = "CvM abs"
+   z
+}
+```
+
+This routine has to have four arguments x, p, nm and vals, just like TS_disc. Also, the output vector has to have names.
+
+Now we can run
+
+```{r}
+vals=0:10
+pnull = function() pbinom(0:10, 10, 0.5)
+rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
+x = rnull()
+gof_test_disc(x, pnull, rnull, vals, TS=cvm.abs, doMethod="all")
 ```
 
 # References 

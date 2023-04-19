@@ -4,30 +4,22 @@
 \alias{gof_cont}
 \title{run gof tests for continuous data}
 \usage{
-gof_cont(
-  x,
-  pnull,
-  phat,
-  rnull,
-  qnull,
-  B = 5000L,
-  doMethod = as.character(c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))
-)
+gof_cont(x, pnull, rnull, qnull, phat, TS, B = 5000L)
 }
 \arguments{
 \item{x}{A numeric vector of data}
 
 \item{pnull}{R function (cdf)}
 
-\item{phat}{function to set or estimate parameters of pnull}
-
 \item{rnull}{R function (generate data under null hypothesis)}
 
 \item{qnull}{R function (quantiles under null hypothesis)}
 
-\item{B}{(=5000) Number of simulation runs}
+\item{phat}{function to set or estimate parameters of pnull}
 
-\item{doMethod}{List methods to include}
+\item{TS}{function that calculates test statistics}
+
+\item{B}{(=5000) Number of simulation runs}
 }
 \value{
 A matrix of numbers

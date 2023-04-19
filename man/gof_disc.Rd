@@ -4,33 +4,24 @@
 \alias{gof_disc}
 \title{run gof tests for discrete data}
 \usage{
-gof_disc(
-  x,
-  pnull,
-  vals,
-  rnull,
-  phat,
-  rate = 0,
-  B = 5000L,
-  doMethod = as.character(c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))
-)
+gof_disc(x, pnull, rnull, vals, phat, TS, rate = 0, B = 5000L)
 }
 \arguments{
 \item{x}{an integer vector of counts}
 
 \item{pnull}{cumulative distribution function under the null hypothesis}
 
-\item{vals}{numeric vector of values of discrete random variables.}
-
 \item{rnull}{R function (generate data under null hypothesis)}
 
+\item{vals}{numeric vector of values of discrete random variables.}
+
 \item{phat}{function to estimate parameters}
+
+\item{TS}{function that calculates test statistics}
 
 \item{rate}{=0 rate of Poisson if sample size is random, 0 otherwise.}
 
 \item{B}{(=5000) Number of simulation runs}
-
-\item{doMethod}{List methods to include}
 }
 \value{
 A matrix of numbers

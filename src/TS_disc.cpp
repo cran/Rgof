@@ -7,25 +7,22 @@ using namespace Rcpp;
 //' @param p A numeric vector of probabilities.
 //' @param nm A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.
 //' @param vals A numeric vector with the values of the discrete rv.
-//' @param doMethod A character vector of methods to include
 //' @keywords internal
 //' @return A vector with test statistics
 // [[Rcpp::export]]
 NumericVector TS_disc(IntegerVector x, 
                       NumericVector p,
                       NumericMatrix nm,  
-                      NumericVector vals,                      
-                      CharacterVector doMethod= CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1")) {
-  
-  int const nummethods=9;
+                      NumericVector vals) {
+    
+  Rcpp::CharacterVector methods=CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZC", "Wassp1");    
+  int const nummethods=methods.size();
   int k=x.size(), n, i;
   NumericVector TS(nummethods), ecdf(k), Fx(k);
   NumericMatrix logF(k, 4);
   IntegerVector cumx(k), cumx1(k);
   double tmp, tmp1;
-  
-  TS.names() =  CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1");
-  
+  TS.names() =  methods;
 
   /*  Find sample size, cumulative sum of x and a vector used in various calculations*/
   
@@ -68,8 +65,6 @@ NumericVector TS_disc(IntegerVector x,
   for(i=1;i<k;++i) ecdf[i] = ecdf[i-1] + x[i]/double(n);
   
   /*  Kolmogorov-Smirnov and Kuiper*/
-  LogicalVector H=in(CharacterVector::create("KS", "K"), doMethod);
-  if( (H[0]==TRUE) || (H[1]==TRUE) ) {
     double mx = 0;
     double Mx = 0;
     for(i=0;i<k-1;++i) {
@@ -77,40 +72,28 @@ NumericVector TS_disc(IntegerVector x,
       if(tmp<0 && std::abs(tmp)>std::abs(mx)) mx=std::abs(tmp);
       if(tmp>0 && std::abs(tmp)>std::abs(Mx)) Mx=std::abs(tmp);      
     }
-    if(H[0]==TRUE) {
-      if(std::abs(mx)>std::abs(Mx)) TS(0)=std::abs(mx);
-      else TS(0)=std::abs(Mx);
-    }
-    if(H[1]==TRUE) TS(1)=Mx+mx;   
-  }
+    if(std::abs(mx)>std::abs(Mx)) TS(0)=std::abs(mx);
+    else TS(0)=std::abs(Mx);
+    TS(1)=Mx+mx; 
   
   /* Anderson-Darling */
  
-;
-  if(in(CharacterVector::create("AD"), doMethod)[0]==TRUE) {   
    tmp = (ecdf[0]-Fx[0])*(ecdf[0]-Fx[0])/(1-Fx[0]);
     for(i=1;i<k-1;++i) {
       tmp = tmp + (ecdf[i]-Fx[i])*(ecdf[i]-Fx[i])/Fx[i]/(1-Fx[i])*(Fx[i]-Fx[i-1]); 
     }
     TS(2)=n*tmp;
-  }
 
   /* Cramer-von Mises */
   
-  if( in(CharacterVector::create("CvM"), doMethod)[0]==TRUE ) {
     tmp = (ecdf[0]-Fx[0])*(ecdf[0]-Fx[0])*Fx[0];
-    tmp1 = x[0]*Fx[0];
     for(i=1;i<k;++i) {
       tmp = tmp + (ecdf[i]-Fx[i])*(ecdf[i]-Fx[i])*(Fx[i]-Fx[i-1]);
-      tmp1 = tmp1 + x[i]*Fx[i];
     }
     TS(3) = 1/(12.0*n)+n*tmp;
-  }
 
-  
   /* Wilson*/
   
-  if( in(CharacterVector::create("W"), doMethod)[0]==TRUE ) {
     tmp = double(n)*(4.0*n*n-1)/3.0-4.0*n*cumx[0]*(cumx[0]-1)*Fx[0]-4.0*n*x[0]*Fx[0]+4.0*n*n*x[0]*Fx[0]*Fx[0];
     tmp1 = x[0]*Fx[0];
     for(i=1;i<k;++i) {
@@ -118,33 +101,23 @@ NumericVector TS_disc(IntegerVector x,
       tmp1 = tmp1 + x[i]*Fx[i];
     }
     TS(4) = 1/(12.0*n)+tmp/4/n/n - n*(tmp1/n-0.5)*(tmp1/n-0.5);
-  }
- 
+
   /* Zhang's Methods */
   
-  H=in(CharacterVector::create("ZA", "ZK", "ZC"), doMethod);
-  if( (H[0]==TRUE) || (H[1]==TRUE) || (H[2]==TRUE) ) {
-    
     TS(5) = 0.0;
     TS(6) = 0.0;
-    TS(7) = 0.0;
     tmp=0.0;
     for(i=0; i<k; ++i) {
         if(x[i]>0) {
             TS(5) = TS(5) - (nm(cumx[i], 0)-nm(cumx[i-1], 0))*logF(i, 0) - (nm(cumx[i], 1)-nm(cumx[i-1], 1))*logF(i, 1);
-            TS(7) = TS(7) + x[i]*logF(i, 2)*logF(i, 2) - 2*(nm(cumx[i], 2)-nm(cumx[i-1], 2))*logF(i, 2) + (nm(cumx[i], 3)-nm(cumx[i-1], 3));          
+            TS(6) = TS(6) + x[i]*logF(i, 2)*logF(i, 2) - 2*(nm(cumx[i], 2)-nm(cumx[i-1], 2))*logF(i, 2) + (nm(cumx[i], 3)-nm(cumx[i-1], 3));          
         }
     }
-    if(in(CharacterVector::create("ZA"), doMethod)[0]==FALSE) TS(5)=0.0;
-    if(in(CharacterVector::create("ZK"), doMethod)[0]==FALSE) TS(6)=0.0;
-    if(in(CharacterVector::create("ZC"), doMethod)[0]==FALSE) TS(7)=0.0;
-  }
-  
-  if(in(CharacterVector::create("Wassp1"), doMethod)[0]==TRUE) {
-    TS(8)=0.0;
+
+
+    TS(7)=0.0;
     for(i=0;i<k-1;++i) 
-      TS(8) = TS(8) + std::abs(cumx[i]/double(n)-Fx[i])*(vals[i+1]-vals[i]);
-  }
-  
+      TS(7) = TS(7) + std::abs(cumx[i]/double(n)-Fx[i])*(vals[i+1]-vals[i]);
+
   return TS;
 }

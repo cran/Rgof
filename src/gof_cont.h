@@ -5,11 +5,11 @@
 Rcpp::NumericMatrix gof_cont(
         Rcpp::NumericVector x, 
         Rcpp::Function pnull,
-        Rcpp::Function phat,
         Rcpp::Function rnull, 
-        Rcpp::Function qnull, 
-        int B=5000,
-        Rcpp::CharacterVector doMethod=Rcpp::CharacterVector::create("KS", "Kuiper", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1")
+        Rcpp::Function qnull,
+        Rcpp::Function phat, 
+        Rcpp::Function TS_cont_alt,        
+        int B=5000
         );
 
 #endif

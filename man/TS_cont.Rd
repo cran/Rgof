@@ -4,13 +4,7 @@
 \alias{TS_cont}
 \title{Find test statistics for continuous data}
 \usage{
-TS_cont(
-  x,
-  Fx,
-  param,
-  qnull,
-  doMethod = as.character(c("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1"))
-)
+TS_cont(x, Fx, param, qnull)
 }
 \arguments{
 \item{x}{A numeric vector.}
@@ -20,8 +14,6 @@ TS_cont(
 \item{param}{parameters for pnull}
 
 \item{qnull}{An R function, the quantile function under the null hypothesis.}
-
-\item{doMethod}{A character vector of methods to include}
 }
 \value{
 A numeric vector with test statistics

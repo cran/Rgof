@@ -172,3 +172,17 @@ ralt = function(df=1) {
 }  
 gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100, 200), maxProcessor=2)
 
+## -----------------------------------------------------------------------------
+cvm.abs = function(x, p, nm=0, vals) {
+   z=sum(abs( (1:length(x))/length(x)-p)*diff(c(0,p)) )
+   names(z) = "CvM abs"
+   z
+}
+
+## -----------------------------------------------------------------------------
+vals=0:10
+pnull = function() pbinom(0:10, 10, 0.5)
+rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
+x = rnull()
+gof_test_disc(x, pnull, rnull, vals, TS=cvm.abs, doMethod="all")
+
