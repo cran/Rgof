@@ -9,7 +9,8 @@ Rcpp::NumericMatrix chi_test_disc (
     Rcpp::IntegerVector nbins= Rcpp::IntegerVector::create(100, 10),
     std::string formula="Pearson",
     double rate=0.0,
-    int Minimize=0
+    int Minimize=0,
+    double minexpcount=2.0
   );
 
 #endif

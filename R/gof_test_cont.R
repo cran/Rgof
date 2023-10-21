@@ -9,6 +9,8 @@
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any, for chi-square tests
 #' @param  B   =5000  number of simulation runs
+#' @param  minexpcount =2 minimal expected bin count required
+#' @param  maxProcessors =1number of processors to use in parallel processing. If missing single processor is used.
 #' @param  doMethod Methods to include in tests
 #' @return A list with vectors of test statistics and p values
 #' @export
@@ -28,14 +30,23 @@
 #' gof_test_cont(x, pnull, rnull, qnull, phat)
 #' 
 gof_test_cont <- function(x, pnull,  rnull, qnull, phat, TS, 
-       nbins=c(100, 10), rate=0, Range=c(-Inf, Inf), B=5000,  doMethod="Default") {
+       nbins=c(100, 10), rate=0, Range=c(-Inf, Inf), B=5000,  
+       minexpcount=2.0, maxProcessors=1, doMethod="Default") {
 
   if(missing(qnull) && missing(phat)) check.functions(pnull, rnull)
   if(!missing(qnull) && missing(phat)) check.functions(pnull, rnull, qnull)
   if(missing(qnull) && !missing(phat)) check.functions(pnull, rnull, phat=phat)
   if(!missing(qnull) && !missing(phat)) check.functions(pnull, rnull, qnull, phat)  
 
+  NewTS = FALSE
   if(missing(TS)) TS = TS_cont
+  else {
+    NewTS=TRUE
+    if(is.null(names(TS(x)))) {
+      message("result of TS has to be a named vector")
+      return(NULL)
+    } 
+  }  
 # if phat or qnull is missing, create it
   Minimize = 1
   if(missing(phat)) {
@@ -51,7 +62,6 @@ gof_test_cont <- function(x, pnull,  rnull, qnull, phat, TS,
   TS_data=TS(x, (1:length(x))/(length(x)+1), phat(x), qnull)
   nummethods = length(TS_data)
   doMethodTS = names(TS_data)
-
   doMethodchi = c("EP large Pearson", "ES large Pearson", "EP small Pearson", "ES small Pearson",
         paste0(c("EP large LR", "ES large LR", "EP small LR", "ES small LR"),"-", ifelse(rate==0, "m", "p")) 
   )
@@ -63,17 +73,41 @@ gof_test_cont <- function(x, pnull,  rnull, qnull, phat, TS,
     if(doMethod[1]=="Default") doMethod = c("W", "ZK", "ZC", "Wassp1", "EP small Pearson","ES small Pearson")      
     if(doMethod[1]=="all") doMethod = allMethods     
   } 
-
-  if(any(doMethod %in% allMethods[1:nummethods]))
-      out[ ,1:nummethods] = gof_cont(x, pnull, rnull, qnull, phat, TS, B)
+  if(NewTS) {
+    allMethods=doMethodTS
+    doMethod=doMethodTS
+  }
+  if(any(doMethod %in% allMethods[1:nummethods])) {
+      if(maxProcessors==1)
+          out[ ,1:nummethods] = gof_cont(x, pnull, rnull, qnull, phat, TS, B)
+      else {
+        m=maxProcessors
+        cl = parallel::makeCluster(m)
+        z=parallel::clusterCall(cl, 
+                                gof_cont, 
+                                x = x,
+                                pnull = pnull,
+                                rnull = rnull,
+                                qnull = qnull,  
+                                phat = phat,
+                                TS = TS,
+                                B = B/m
+        )
+        parallel::stopCluster(cl)
+        # Average power of cores
+        tmp=0*z[[1]]
+        for(i in 1:m) tmp=tmp+z[[i]]
+        out[ ,1:nummethods] = tmp/m  
+      }
+  }
   if(any(doMethod %in% allMethods[nummethods+1:8])) {  
       if(is.infinite(Range[1])) Range[1]=-99999
       if(is.infinite(Range[2])) Range[2]=99999
       out[ , nummethods+1:4] = t(chi_test_cont(x, pnull, phat(x),  formula="Pearson", 
-                  nbins=nbins, Range=Range, Minimize=Minimize)[,c(1, 3)])
-      out[ , nummethods+5:8] = t(chi_test_cont(x, pnull, phat(x),  formula="LR", rate=rate,
-                    nbins=nbins, Range=Range, Minimize=Minimize)[,c(1, 3)])
-  }  
+               rate, nbins, Range, Minimize,  minexpcount)[,c(1, 3)])
+      out[ , nummethods+5:8] = t(chi_test_cont(x, pnull, phat(x),  formula="LR", 
+              rate, nbins, Range, Minimize,  minexpcount)[,c(1, 3)])
+  } 
 
   out = round(out[, doMethod, drop=FALSE], 4)
   list(Statistics=out[1, ], p.value=out[2, ])

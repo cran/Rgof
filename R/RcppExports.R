@@ -9,7 +9,6 @@
 #' @param qnull An R function, the quantile function under the null hypothesis.
 #' @keywords internal
 #' @return A numeric vector with test statistics
-#' @export
 TS_cont <- function(x, Fx, param, qnull) {
     .Call(`_Rgof_TS_cont`, x, Fx, param, qnull)
 }
@@ -44,10 +43,11 @@ bincounter_cpp <- function(x, bins) {
 #' @param  k =10, number of bins
 #' @param  which =1, 1=equal probability bins, 2-equal size bins
 #' @param Range =(-99999,99999) limits of possible observations, if any
+#' @param minexpcount =2 minimal expected bin count required
 #' @keywords internal
 #' @return A vectors of bin edges
-binner_cont <- function(x, pnull, param, k = 10L, which = 1L, Range = as.numeric( c(-99999,99999))) {
-    .Call(`_Rgof_binner_cont`, x, pnull, param, k, which, Range)
+binner_cont <- function(x, pnull, param, k = 10L, which = 1L, Range = as.numeric( c(-99999,99999)), minexpcount = 2) {
+    .Call(`_Rgof_binner_cont`, x, pnull, param, k, which, Range, minexpcount)
 }
 
 #' routine to bin discrete data and assure expected counts>5 
@@ -55,10 +55,11 @@ binner_cont <- function(x, pnull, param, k = 10L, which = 1L, Range = as.numeric
 #' @param  x An integer vector of counts.
 #' @param  p cumulative distribution function values at vals
 #' @param  k number of desired bins
+#' @param  minexpcount =2 minimal expected bin count required
 #' @keywords internal
 #' @return An integer vector of indices
-binner_disc <- function(x, p, k = 10L) {
-    .Call(`_Rgof_binner_disc`, x, p, k)
+binner_disc <- function(x, p, k = 10L, minexpcount = 2) {
+    .Call(`_Rgof_binner_disc`, x, p, k, minexpcount)
 }
 
 #' chi square statistic for continuous data
@@ -99,10 +100,11 @@ chi_stat_disc <- function(param, x, pnull, bins, formula, rate = 0.0) {
 #' @param  rate rate of Poisson if sample size is random
 #' @param  Range  =(-99999, 99999) limits of possible observations, if any
 #' @param  Minimize Should minimum chi square be found?
+#' @param minexpcount =2 minimal expected bin count required
 #' @keywords internal
 #' @return A numeric matrix of test statistics, degrees of freedom and p values
-chi_test_cont <- function(x, pnull, param, formula = "Pearson", rate = 0.0, nbins = as.integer( c(100, 10)), Range = as.numeric( c(-99999, 99999)), Minimize = 0L) {
-    .Call(`_Rgof_chi_test_cont`, x, pnull, param, formula, rate, nbins, Range, Minimize)
+chi_test_cont <- function(x, pnull, param, formula = "Pearson", rate = 0.0, nbins = as.integer( c(100, 10)), Range = as.numeric( c(-99999, 99999)), Minimize = 0L, minexpcount = 2.0) {
+    .Call(`_Rgof_chi_test_cont`, x, pnull, param, formula, rate, nbins, Range, Minimize, minexpcount)
 }
 
 #'
@@ -114,10 +116,11 @@ chi_test_cont <- function(x, pnull, param, formula = "Pearson", rate = 0.0, nbin
 #' @param  formula type of chi square formula to use
 #' @param  rate rate of Poisson if sample size is random, 0 otherwise
 #' @param  Minimize Should minimum chi square be found?
+#' @param minexpcount =2 minimal expected bin count required
 #' @keywords internal
 #' @return A numeric matrix of test statistics, degrees of freedom and p values
-chi_test_disc <- function(x, pnull, param, nbins = as.integer( c(100, 10)), formula = "Pearson", rate = 0.0, Minimize = 0L) {
-    .Call(`_Rgof_chi_test_disc`, x, pnull, param, nbins, formula, rate, Minimize)
+chi_test_disc <- function(x, pnull, param, nbins = as.integer( c(100, 10)), formula = "Pearson", rate = 0.0, Minimize = 0L, minexpcount = 2.0) {
+    .Call(`_Rgof_chi_test_disc`, x, pnull, param, nbins, formula, rate, Minimize, minexpcount)
 }
 
 #' run gof tests for continuous data
@@ -174,10 +177,11 @@ nm_calc <- function(n) {
 #' @param Range =(-99999, 99999) limits of possible observations, if any
 #' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
 #' @param alpha =0.05, type I error of test 
+#' @param minexpcount =2 minimal expected bin count required
 #' @keywords internal
 #' @return A matrix of powers
-power_cont <- function(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, Range = as.numeric( c(-99999, 99999)), B = as.integer( c(1000, 1000)), alpha = 0.05) {
-    .Call(`_Rgof_power_cont`, pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins, rate, Range, B, alpha)
+power_cont <- function(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, Range = as.numeric( c(-99999, 99999)), B = as.integer( c(1000, 1000)), alpha = 0.05, minexpcount = 2.0) {
+    .Call(`_Rgof_power_cont`, pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins, rate, Range, B, alpha, minexpcount)
 }
 
 #' find power of gof tests for discrete data
@@ -192,10 +196,11 @@ power_cont <- function(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins = a
 #' @param nbins =c(100,10) number of bins to use 
 #' @param rate rate of Poisson if sample size is random, 0 otherwise
 #' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
-#' @param alpha =0.05, type I error of test 
+#' @param alpha =0.05, type I error of test
+#' @param minexpcount =2 minimal expected bin count required 
 #' @keywords internal
 #' @return A matrix of powers
-power_disc <- function(pnull, rnull, vals, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, B = as.integer( c(1000, 1000)), alpha = 0.05) {
-    .Call(`_Rgof_power_disc`, pnull, rnull, vals, ralt, param_alt, phat, TS, nbins, rate, B, alpha)
+power_disc <- function(pnull, rnull, vals, ralt, param_alt, phat, TS, nbins = as.integer( c(100, 10)), rate = 0.0, B = as.integer( c(1000, 1000)), alpha = 0.05, minexpcount = 2.0) {
+    .Call(`_Rgof_power_disc`, pnull, rnull, vals, ralt, param_alt, phat, TS, nbins, rate, B, alpha, minexpcount)
 }
 

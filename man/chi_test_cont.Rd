@@ -12,7 +12,8 @@ chi_test_cont(
   rate = 0,
   nbins = as.integer(c(100, 10)),
   Range = as.numeric(c(-99999, 99999)),
-  Minimize = 0L
+  Minimize = 0L,
+  minexpcount = 2
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ chi_test_cont(
 \item{Range}{=(-99999, 99999) limits of possible observations, if any}
 
 \item{Minimize}{Should minimum chi square be found?}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A numeric matrix of test statistics, degrees of freedom and p values

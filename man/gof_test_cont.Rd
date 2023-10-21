@@ -15,6 +15,8 @@ gof_test_cont(
   rate = 0,
   Range = c(-Inf, Inf),
   B = 5000,
+  minexpcount = 2,
+  maxProcessors = 1,
   doMethod = "Default"
 )
 }
@@ -38,6 +40,10 @@ gof_test_cont(
 \item{Range}{=c(-Inf, Inf) limits of possible observations, if any, for chi-square tests}
 
 \item{B}{=5000  number of simulation runs}
+
+\item{minexpcount}{=2 minimal expected bin count required}
+
+\item{maxProcessors}{=1number of processors to use in parallel processing. If missing single processor is used.}
 
 \item{doMethod}{Methods to include in tests}
 }

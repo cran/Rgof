@@ -10,7 +10,8 @@ binner_cont(
   param,
   k = 10L,
   which = 1L,
-  Range = as.numeric(c(-99999, 99999))
+  Range = as.numeric(c(-99999, 99999)),
+  minexpcount = 2
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ binner_cont(
 \item{which}{=1, 1=equal probability bins, 2-equal size bins}
 
 \item{Range}{=(-99999,99999) limits of possible observations, if any}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A vectors of bin edges

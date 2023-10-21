@@ -12,6 +12,7 @@ using namespace Rcpp;
 //' @param  formula type of chi square formula to use
 //' @param  rate rate of Poisson if sample size is random, 0 otherwise
 //' @param  Minimize Should minimum chi square be found?
+//' @param minexpcount =2 minimal expected bin count required
 //' @keywords internal
 //' @return A numeric matrix of test statistics, degrees of freedom and p values
 // [[Rcpp::export]]
@@ -22,7 +23,8 @@ Rcpp::NumericMatrix chi_test_disc (
     Rcpp::IntegerVector nbins= Rcpp::IntegerVector::create(100, 10),
     std::string formula="Pearson",
     double rate=0.0,
-    int Minimize=0) {
+    int Minimize=0,
+    double minexpcount=2.0) {
   int i, nb;
   Rcpp::NumericMatrix out(2, 3);
   Rcpp::NumericVector p(x.size());
@@ -37,7 +39,7 @@ Rcpp::NumericMatrix chi_test_disc (
   for(i=0;i<=1;++i) {
     nb = nbins[i];
     if(nb>x.size()) nb=x.size();
-    IntegerVector bins = binner_disc(x, p, nb);
+    IntegerVector bins = binner_disc(x, p, nb, minexpcount);
     if(Minimize==0) {
        out(i, 0) = chi_stat_disc(param, x, pnull, bins, formula, rate);         
        out(i, 1) = bins.size()-1;

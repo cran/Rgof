@@ -9,6 +9,7 @@ using namespace Rcpp;
 //' @param  k =10, number of bins
 //' @param  which =1, 1=equal probability bins, 2-equal size bins
 //' @param Range =(-99999,99999) limits of possible observations, if any
+//' @param minexpcount =2 minimal expected bin count required
 //' @keywords internal
 //' @return A vectors of bin edges
 // [[Rcpp::export]]
@@ -18,8 +19,9 @@ Rcpp::NumericVector binner_cont(
     Rcpp::NumericVector param, 
     int k=10,
     int which=1,
-    Rcpp::NumericVector Range=Rcpp::NumericVector::create(-99999,99999)) {
-  const int minE=2;  
+    Rcpp::NumericVector Range=Rcpp::NumericVector::create(-99999,99999),
+    double minexpcount=2) {
+
   int n=x.size(), i;
   NumericVector bins(k+1), E(k);  
   if(Range[0]!=-99999) bins[0]=Range[0];
@@ -40,7 +42,7 @@ Rcpp::NumericVector binner_cont(
   else p=pnull(bins, param);
   for(i=0;i<k;++i) E[i] = n*(p[i+1]-p[i])/(p[k]-p[0]);   
   
-  while ( min(E)<minE ) {
+  while ( min(E)<minexpcount ) {
     int whichmin=0;
     double tmp=E[0];
     for(i=1;i<E.size();++i) {

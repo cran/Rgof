@@ -15,7 +15,8 @@ power_disc(
   nbins = as.integer(c(100, 10)),
   rate = 0,
   B = as.integer(c(1000, 1000)),
-  alpha = 0.05
+  alpha = 0.05,
+  minexpcount = 2
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ power_disc(
 \item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
 
 \item{alpha}{=0.05, type I error of test}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A matrix of powers

@@ -5,6 +5,7 @@
 Rcpp::IntegerVector binner_disc(
       Rcpp::IntegerVector x, 
       Rcpp::NumericVector p, 
-      int k=10);
+      int k=10,
+      double minexpcount=2);
 
 #endif

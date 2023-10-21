@@ -9,7 +9,6 @@ using namespace Rcpp;
 //' @param qnull An R function, the quantile function under the null hypothesis.
 //' @keywords internal
 //' @return A numeric vector with test statistics
-//' @export
 // [[Rcpp::export]]
 Rcpp::NumericVector TS_cont(
         Rcpp::NumericVector x, 

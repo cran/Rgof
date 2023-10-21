@@ -10,6 +10,7 @@ Rcpp::NumericMatrix chi_test_cont (
     double rate=0.0,
     Rcpp::IntegerVector nbins= Rcpp::IntegerVector::create(100, 10),
     Rcpp::NumericVector Range=Rcpp::NumericVector::create(-99, -99),
-    int Minimize=0);
+    int Minimize=0,
+    double minexpcount=2.0);
 
 #endif

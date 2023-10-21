@@ -18,7 +18,8 @@ using namespace Rcpp;
 //' @param nbins =c(100,10) number of bins to use 
 //' @param rate rate of Poisson if sample size is random, 0 otherwise
 //' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
-//' @param alpha =0.05, type I error of test 
+//' @param alpha =0.05, type I error of test
+//' @param minexpcount =2 minimal expected bin count required 
 //' @keywords internal
 //' @return A matrix of powers
 // [[Rcpp::export]]
@@ -33,7 +34,8 @@ Rcpp::NumericMatrix power_disc(
         Rcpp::IntegerVector nbins=Rcpp::IntegerVector::create(100, 10), 
         double rate=0.0,
         Rcpp::IntegerVector B=Rcpp::IntegerVector::create(1000, 1000), 
-        const double alpha=0.05) {
+        const double alpha=0.05,
+        double minexpcount=2.0) {
   
   int  i, j, k, np=param_alt.size();
   IntegerVector x=ralt(param_alt(0));
@@ -58,10 +60,10 @@ Rcpp::NumericMatrix power_disc(
         if(tmp1(1,k)<alpha)  out(j, k) = out(j, k)+1;
       NumericVector param=phat(x);           
       NumericMatrix tmp2 = chi_test_disc(x, pnull, param,  
-                nbins, "Pearson", rate, 1);
+                nbins, "Pearson", rate, 1, minexpcount);
       for(k=0;k<2;++k) 
         if(tmp2(k, 2)<alpha) out(j, nummethods+k) = out(j, nummethods+k)+1; 
-      tmp2 = chi_test_disc(x, pnull, param, nbins, "LR", rate, 1);
+      tmp2 = chi_test_disc(x, pnull, param, nbins, "LR", rate, 1, minexpcount);
       for(k=0;k<2;++k) 
           if(tmp2(k, 2)<alpha) out(j, nummethods+2+k) = out(j, nummethods+2+k)+1;   
   }    

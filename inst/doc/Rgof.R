@@ -173,9 +173,34 @@ ralt = function(df=1) {
 gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100, 200), maxProcessor=2)
 
 ## -----------------------------------------------------------------------------
-cvm.abs = function(x, p, nm=0, vals) {
-   z=sum(abs( (1:length(x))/length(x)-p)*diff(c(0,p)) )
-   names(z) = "CvM abs"
+myTS = function(x, Fx, param, qnull) {
+   x=sort(x)
+   Fx=Fx= (1:length(x))/length(x)
+   out = sum(abs(x-Fx))
+   names(out) = "CvM alt"
+   out
+}
+
+## -----------------------------------------------------------------------------
+pnull = function(x) punif(x)
+qnull = function(x) qunif(x)
+rnull = function() runif(500)
+x = rnull()
+Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=myTS)
+
+## -----------------------------------------------------------------------------
+ralt = function(slope) {
+  if(slope==0) y=runif(500)
+    else y=(slope-1+sqrt((1-slope)^2+4*slope* runif(500)))/2/slope
+}
+
+## -----------------------------------------------------------------------------
+gof_power_cont(pnull, rnull, qnull, ralt, TS=myTS, param_alt=seq(0, 0.5, length=5), Range=c(0,1))
+
+## -----------------------------------------------------------------------------
+myTS = function(x, p, nm=0, vals) {
+   z= sum(x*vals)/sum(x) - sum(p*vals)
+   names(z) = "Means"
    z
 }
 
@@ -184,5 +209,9 @@ vals=0:10
 pnull = function() pbinom(0:10, 10, 0.5)
 rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
 x = rnull()
-gof_test_disc(x, pnull, rnull, vals, TS=cvm.abs, doMethod="all")
+gof_test_disc(x, pnull, rnull, vals, TS=myTS)
+
+## -----------------------------------------------------------------------------
+ralt = function(p) table(c(0:10, rbinom(1000, 10, p)))-1
+gof_power_disc(pnull, rnull, vals, ralt, TS=myTS, param_alt=c(0.5, 0.51, 0.52, 0.53))
 

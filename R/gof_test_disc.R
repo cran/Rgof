@@ -8,6 +8,8 @@
 #' @param  nbins =c(100, 10) number of bins for chi-square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  B   =5000  number of simulation runs
+#' @param  minexpcount =2 minimal expected bin count required
+#' @param  maxProcessors =1 number of processors to use in parallel processing. If missing single processor is used.
 #' @param  doMethod Methods to include in tests
 #' @return A numeric matrix of test statistics and p values
 #' @export
@@ -26,9 +28,18 @@
 #' gof_test_disc(x, pnull, rnull, vals, phat)  
 
 gof_test_disc <- function(x, pnull, rnull, vals, phat, TS,  
-     nbins=c(100, 10), rate=0, B=5000, doMethod="Default") {
+     nbins=c(100, 10), rate=0, B=5000, minexpcount=2.0, 
+     maxProcessors=1, doMethod="Default") {
 
+  NewTS = FALSE
   if(missing(TS)) TS = TS_disc
+  else {
+    NewTS=TRUE
+    if(is.null(names(TS(x, (1:length(x))/length(x), nm_calc(sum(x)), vals)))) {
+      message("result of TS has to be a named vector")
+      return(NULL)
+    } 
+  }
   TS_data = TS(x, (1:length(x))/length(x), nm_calc(sum(x)), vals)
   nummethods = length(TS_data)
   doMethodTS = names(TS_data)
@@ -41,7 +52,11 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat, TS,
     if(doMethod[1]=="Default") doMethod =c("K", "AD", "ZA", "ZC")
     if(doMethod[1]=="all") doMethod = allMethods      
   }  
-
+  if(NewTS) {
+    allMethods=doMethodTS
+    doMethod=doMethodTS
+  }
+  
   if(!missing(phat)) check.functions(pnull, rnull, vals=vals, phat=phat, x=x)
   if(missing(phat)) check.functions(pnull, rnull, vals=vals, x=x)  
   
@@ -51,14 +66,36 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat, TS,
     phat = function(x) 0
   }
 
-  if(any(doMethod %in% allMethods[1:nummethods]))
-      out[ ,1:nummethods] = gof_disc(x=x, pnull=pnull, 
-          rnull=rnull, vals=vals, phat=phat, TS=TS, rate=rate, B=B)
+  if(any(doMethod %in% allMethods[1:nummethods])) {
+     if(maxProcessors==1)
+        out[ ,1:nummethods] = gof_disc(x, pnull, rnull, vals, phat, TS, rate, B)
+     else {
+        m = maxProcessors
+        cl = parallel::makeCluster(m)
+        z=parallel::clusterCall(cl, 
+                            gof_disc, 
+                            x = x,
+                            pnull = pnull,
+                            rnull = rnull,
+                            vals = vals,  
+                            phat = phat,
+                            TS = TS,
+                            rate=rate,
+                            B = B/m
+       )
+       parallel::stopCluster(cl)
+       #  Average power of cores
+       tmp=0*z[[1]]
+       for(i in 1:m) tmp=tmp+z[[i]]
+       out[ ,1:nummethods] = tmp/m  
+     }
+  }
+
   if(any(doMethod %in% allMethods[nummethods+1:4])) {  
       out[ , nummethods+1:2] = t(chi_test_disc(x=x, pnull=pnull, phat(x), 
-            nbins, "Pearson", rate, Minimize)[,c(1, 3)])
+            nbins, "Pearson", rate, Minimize, minexpcount)[,c(1, 3)])
       out[ , nummethods+3:4] = t(chi_test_disc(x=x, pnull=pnull, phat(x), 
-          nbins, "LR", rate, Minimize)[,c(1, 3)])      
+          nbins, "LR", rate, Minimize, minexpcount)[,c(1, 3)])      
   } 
   out = round(out[, doMethod, drop=FALSE], 4)
   list(Statistics=out[1, ], p.value=out[2, ])

@@ -12,6 +12,7 @@
 #' @param  nbins =c(100,10), number of bins for chi square tests.
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  maxProcessors maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing
+#' @param  minexpcount =2 minimal expected bin count required
 #' @return A numeric matrix of power values.
 #' @export 
 #' @examples
@@ -34,7 +35,7 @@
 
 gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS, 
         alpha=0.05, Range  =c(-Inf, Inf), B=c(1000, 1000),nbins=c(100,10), 
-        rate=0, maxProcessors) {
+        rate=0, maxProcessors, minexpcount=2.0) {
   # Do some sanity checks and setups 
   if(missing(qnull) && missing(phat)) check.functions(pnull, rnull)
   if(!missing(qnull) && missing(phat)) check.functions(pnull, rnull, qnull)
@@ -43,16 +44,25 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS,
   if(missing(qnull)) qnull=function(x, p)  -99
   if(is.infinite(Range[1])) Range[1]=-99999
   if(is.infinite(Range[2])) Range[2]=99999  
+  NewTS=FALSE
   if(missing(TS)) TS =  TS_cont
   else { # can't do parallel processing
     if(substr(deparse(TS)[2], 1, 5)==".Call") {
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
       maxProcessors=1
     }  
+    NewTS=TRUE
   }
   # Find out how many (non-chi-square) methods are implemented and what they are called
   x=ralt(param_alt[1])
   TS_data=TS(x, (1:length(x))/(length(x)+1), 1, qnull)
+  if(NewTS) {
+     if(is.null(names(TS_data))) {
+        message("result of TS has to be a named vector")
+        return(NULL)
+     }   
+     NamesNewTS=names(TS_data)
+  }  
   nummethods = length(TS_data)
   methods = c(names(TS_data),    
             "EP large Pearson", "ES large Pearson", "EP small Pearson", "ES small Pearson",
@@ -74,9 +84,12 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS,
                           rate = rate,
                           Range = Range,
                           B = B,
-                          alpha = alpha)
+                          alpha = alpha,
+                          minexpcount=minexpcount
+                          )
          rownames(out) = param_alt 
          colnames(out) = methods
+         if(NewTS) out=out[ , NamesNewTS, drop=FALSE]
          if(is.matrix(out) & nrow(out)==1) out=out[1, ]
          return(out)
     }  
@@ -96,13 +109,16 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS,
                               rate = rate,
                               Range = Range,
                               B = c(round(B[1])/m, B[2]),
-                              alpha = alpha)
+                              alpha = alpha,
+                              minexpcount=minexpcount
+                          )
       parallel::stopCluster(cl)
       # Average power of cores
       out=0*z[[1]]
       for(i in 1:m) out=out+z[[i]]
       colnames(out)=methods
       rownames(out)=param_alt 
+      if(NewTS) out=out[ , NamesNewTS, drop=FALSE]
       if(is.matrix(out) & nrow(out)==1) out=out[1, ]
       return(out/m)
     }
@@ -138,23 +154,24 @@ gof_power_cont=function(pnull, rnull, qnull, ralt, param_alt, phat, TS,
            else Fx=pnull(x, param)
            TS_alt[[j]][i, ] = TS(x, Fx, param, qnull)
            chi.p.value[[j]][i, 1:4] = 
-              chi_test_cont(x, pnull, param, "Pearson", rate, nbins, Range, 0)[, 3]
+              chi_test_cont(x, pnull, param, "Pearson", rate, nbins, Range, 0, minexpcount)[, 3]
            chi.p.value[[j]][i, 5:8] = 
-             chi_test_cont(x, pnull, param, "LR", rate, nbins, Range, 0)[, 3]           
+             chi_test_cont(x, pnull, param, "LR", rate, nbins, Range, 0, minexpcount)[, 3]           
         }  
     }
 
-    pwr = matrix(0, npar_alt, nummethods+8)
-    colnames(pwr) = methods
-    rownames(pwr) = param_alt
+    out = matrix(0, npar_alt, nummethods+8)
+    colnames(out) = methods
+    rownames(out) = param_alt
     for(i in 1:npar_alt) {
        for(j in 1:nummethods) {
-          pwr[i, j] = sum(TS_alt[[i]][, j]>crit[j])/B[1]
+          out[i, j] = sum(TS_alt[[i]][, j]>crit[j])/B[1]
        } 
        for(j in 1:8) {
-          pwr[i, nummethods+j] = sum(chi.p.value[[i]][,j]<alpha)/B[1]
+          out[i, nummethods+j] = sum(chi.p.value[[i]][,j]<alpha)/B[1]
       }         
     }
-    if(npar_alt==1) pwr=pwr[1, ]
-    pwr
+    if(NewTS) out=out[ , NamesNewTS, drop=FALSE]
+    if(npar_alt==1) out=out[1, ]
+    out
 }

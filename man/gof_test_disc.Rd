@@ -14,6 +14,8 @@ gof_test_disc(
   nbins = c(100, 10),
   rate = 0,
   B = 5000,
+  minexpcount = 2,
+  maxProcessors = 1,
   doMethod = "Default"
 )
 }
@@ -35,6 +37,10 @@ gof_test_disc(
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
 \item{B}{=5000  number of simulation runs}
+
+\item{minexpcount}{=2 minimal expected bin count required}
+
+\item{maxProcessors}{=1 number of processors to use in parallel processing. If missing single processor is used.}
 
 \item{doMethod}{Methods to include in tests}
 }

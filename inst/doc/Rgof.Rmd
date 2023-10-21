@@ -415,22 +415,62 @@ gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100
 
 ### Running other tests
 
-Its is very easy for a user to add other goodness-of-fit tests to the package. This can be done by editing the routines *TS_cont** and/or **TS_disc**, which are located in the folder *examples* in the Rgod library folder. Or a user can write their own version of these files.
+Its is very easy for a user to add other goodness-of-fit tests to the package. This can be done by editing the routines *TS_cont** and/or **TS_disc**, which are located in the folder *examples* in the Rgof library folder. Or a user can write their own version of these files.
 
-As an example let's say we want to run a test based on a variation of the Cramer vonMises test, namely 
+**Example 1**
+
+Say we wish to use a test that is a variant of the Cramer-vonMises test, using the integrated absolute difference of the empirical and the theoretical distribution function:
 
 $$\int_{-\infty}^{\infty} \vert F(x) - \hat{F}(x) \vert dF(x)$$
-first we create a routine to calculated this test statistic:
 
 ```{r}
-cvm.abs = function(x, p, nm=0, vals) {
-   z=sum(abs( (1:length(x))/length(x)-p)*diff(c(0,p)) )
-   names(z) = "CvM abs"
+myTS = function(x, Fx, param, qnull) {
+   x=sort(x)
+   Fx=Fx= (1:length(x))/length(x)
+   out = sum(abs(x-Fx))
+   names(out) = "CvM alt"
+   out
+}
+```
+
+This routine has to have four arguments x, Fx, param and qnull, just like TS_cont. Note that the return object has to be a **named** vector. 
+
+Then we can run this test with
+
+```{r}
+pnull = function(x) punif(x)
+qnull = function(x) qunif(x)
+rnull = function() runif(500)
+x = rnull()
+Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=myTS)
+```
+
+Say we want to find the power of this test when the true distribution is a linear:
+
+```{r}
+ralt = function(slope) {
+  if(slope==0) y=runif(500)
+    else y=(slope-1+sqrt((1-slope)^2+4*slope* runif(500)))/2/slope
+}
+```
+
+```{r}
+gof_power_cont(pnull, rnull, qnull, ralt, TS=myTS, param_alt=seq(0, 0.5, length=5), Range=c(0,1))
+```
+
+**Example 2**
+
+As an example for discrete data consider a test based simply on the means:
+
+```{r}
+myTS = function(x, p, nm=0, vals) {
+   z= sum(x*vals)/sum(x) - sum(p*vals)
+   names(z) = "Means"
    z
 }
 ```
 
-This routine has to have four arguments x, p, nm and vals, just like TS_disc. Also, the output vector has to have names.
+Again the routine has to have four arguments x, p, nm and vals, just like TS_disc, and the output vector has to have names.
 
 Now we can run
 
@@ -439,7 +479,14 @@ vals=0:10
 pnull = function() pbinom(0:10, 10, 0.5)
 rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
 x = rnull()
-gof_test_disc(x, pnull, rnull, vals, TS=cvm.abs, doMethod="all")
+gof_test_disc(x, pnull, rnull, vals, TS=myTS)
+```
+
+and for power calculations we can run
+
+```{r}
+ralt = function(p) table(c(0:10, rbinom(1000, 10, p)))-1
+gof_power_disc(pnull, rnull, vals, ralt, TS=myTS, param_alt=c(0.5, 0.51, 0.52, 0.53))
 ```
 
 # References 

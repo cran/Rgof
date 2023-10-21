@@ -51,8 +51,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // binner_cont
-Rcpp::NumericVector binner_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, int k, int which, Rcpp::NumericVector Range);
-RcppExport SEXP _Rgof_binner_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP kSEXP, SEXP whichSEXP, SEXP RangeSEXP) {
+Rcpp::NumericVector binner_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, int k, int which, Rcpp::NumericVector Range, double minexpcount);
+RcppExport SEXP _Rgof_binner_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP kSEXP, SEXP whichSEXP, SEXP RangeSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,20 +62,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type which(whichSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Range(RangeSEXP);
-    rcpp_result_gen = Rcpp::wrap(binner_cont(x, pnull, param, k, which, Range));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(binner_cont(x, pnull, param, k, which, Range, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
 // binner_disc
-Rcpp::IntegerVector binner_disc(Rcpp::IntegerVector x, Rcpp::NumericVector p, int k);
-RcppExport SEXP _Rgof_binner_disc(SEXP xSEXP, SEXP pSEXP, SEXP kSEXP) {
+Rcpp::IntegerVector binner_disc(Rcpp::IntegerVector x, Rcpp::NumericVector p, int k, double minexpcount);
+RcppExport SEXP _Rgof_binner_disc(SEXP xSEXP, SEXP pSEXP, SEXP kSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type p(pSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(binner_disc(x, p, k));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(binner_disc(x, p, k, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -112,8 +114,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // chi_test_cont
-Rcpp::NumericMatrix chi_test_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, std::string formula, double rate, Rcpp::IntegerVector nbins, Rcpp::NumericVector Range, int Minimize);
-RcppExport SEXP _Rgof_chi_test_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP formulaSEXP, SEXP rateSEXP, SEXP nbinsSEXP, SEXP RangeSEXP, SEXP MinimizeSEXP) {
+Rcpp::NumericMatrix chi_test_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, std::string formula, double rate, Rcpp::IntegerVector nbins, Rcpp::NumericVector Range, int Minimize, double minexpcount);
+RcppExport SEXP _Rgof_chi_test_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP formulaSEXP, SEXP rateSEXP, SEXP nbinsSEXP, SEXP RangeSEXP, SEXP MinimizeSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -125,13 +127,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type nbins(nbinsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Range(RangeSEXP);
     Rcpp::traits::input_parameter< int >::type Minimize(MinimizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(chi_test_cont(x, pnull, param, formula, rate, nbins, Range, Minimize));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(chi_test_cont(x, pnull, param, formula, rate, nbins, Range, Minimize, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
 // chi_test_disc
-Rcpp::NumericMatrix chi_test_disc(Rcpp::IntegerVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::IntegerVector nbins, std::string formula, double rate, int Minimize);
-RcppExport SEXP _Rgof_chi_test_disc(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP nbinsSEXP, SEXP formulaSEXP, SEXP rateSEXP, SEXP MinimizeSEXP) {
+Rcpp::NumericMatrix chi_test_disc(Rcpp::IntegerVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::IntegerVector nbins, std::string formula, double rate, int Minimize, double minexpcount);
+RcppExport SEXP _Rgof_chi_test_disc(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP nbinsSEXP, SEXP formulaSEXP, SEXP rateSEXP, SEXP MinimizeSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -142,7 +145,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type formula(formulaSEXP);
     Rcpp::traits::input_parameter< double >::type rate(rateSEXP);
     Rcpp::traits::input_parameter< int >::type Minimize(MinimizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(chi_test_disc(x, pnull, param, nbins, formula, rate, Minimize));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(chi_test_disc(x, pnull, param, nbins, formula, rate, Minimize, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -193,8 +197,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // power_cont
-Rcpp::NumericMatrix power_cont(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::Function qnull, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, Rcpp::IntegerVector nbins, double rate, Rcpp::NumericVector Range, Rcpp::IntegerVector B, const double alpha);
-RcppExport SEXP _Rgof_power_cont(SEXP pnullSEXP, SEXP rnullSEXP, SEXP qnullSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP nbinsSEXP, SEXP rateSEXP, SEXP RangeSEXP, SEXP BSEXP, SEXP alphaSEXP) {
+Rcpp::NumericMatrix power_cont(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::Function qnull, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, Rcpp::IntegerVector nbins, double rate, Rcpp::NumericVector Range, Rcpp::IntegerVector B, const double alpha, double minexpcount);
+RcppExport SEXP _Rgof_power_cont(SEXP pnullSEXP, SEXP rnullSEXP, SEXP qnullSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP nbinsSEXP, SEXP rateSEXP, SEXP RangeSEXP, SEXP BSEXP, SEXP alphaSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -210,13 +214,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Range(RangeSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type B(BSEXP);
     Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_cont(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins, rate, Range, B, alpha));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(power_cont(pnull, rnull, qnull, ralt, param_alt, phat, TS, nbins, rate, Range, B, alpha, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
 // power_disc
-Rcpp::NumericMatrix power_disc(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, Rcpp::IntegerVector nbins, double rate, Rcpp::IntegerVector B, const double alpha);
-RcppExport SEXP _Rgof_power_disc(SEXP pnullSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP nbinsSEXP, SEXP rateSEXP, SEXP BSEXP, SEXP alphaSEXP) {
+Rcpp::NumericMatrix power_disc(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, Rcpp::IntegerVector nbins, double rate, Rcpp::IntegerVector B, const double alpha, double minexpcount);
+RcppExport SEXP _Rgof_power_disc(SEXP pnullSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP nbinsSEXP, SEXP rateSEXP, SEXP BSEXP, SEXP alphaSEXP, SEXP minexpcountSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -231,7 +236,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type rate(rateSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type B(BSEXP);
     Rcpp::traits::input_parameter< const double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_disc(pnull, rnull, vals, ralt, param_alt, phat, TS, nbins, rate, B, alpha));
+    Rcpp::traits::input_parameter< double >::type minexpcount(minexpcountSEXP);
+    rcpp_result_gen = Rcpp::wrap(power_disc(pnull, rnull, vals, ralt, param_alt, phat, TS, nbins, rate, B, alpha, minexpcount));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -240,17 +246,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Rgof_TS_cont", (DL_FUNC) &_Rgof_TS_cont, 4},
     {"_Rgof_TS_disc", (DL_FUNC) &_Rgof_TS_disc, 4},
     {"_Rgof_bincounter_cpp", (DL_FUNC) &_Rgof_bincounter_cpp, 2},
-    {"_Rgof_binner_cont", (DL_FUNC) &_Rgof_binner_cont, 6},
-    {"_Rgof_binner_disc", (DL_FUNC) &_Rgof_binner_disc, 3},
+    {"_Rgof_binner_cont", (DL_FUNC) &_Rgof_binner_cont, 7},
+    {"_Rgof_binner_disc", (DL_FUNC) &_Rgof_binner_disc, 4},
     {"_Rgof_chi_stat_cont", (DL_FUNC) &_Rgof_chi_stat_cont, 6},
     {"_Rgof_chi_stat_disc", (DL_FUNC) &_Rgof_chi_stat_disc, 6},
-    {"_Rgof_chi_test_cont", (DL_FUNC) &_Rgof_chi_test_cont, 8},
-    {"_Rgof_chi_test_disc", (DL_FUNC) &_Rgof_chi_test_disc, 7},
+    {"_Rgof_chi_test_cont", (DL_FUNC) &_Rgof_chi_test_cont, 9},
+    {"_Rgof_chi_test_disc", (DL_FUNC) &_Rgof_chi_test_disc, 8},
     {"_Rgof_gof_cont", (DL_FUNC) &_Rgof_gof_cont, 7},
     {"_Rgof_gof_disc", (DL_FUNC) &_Rgof_gof_disc, 8},
     {"_Rgof_nm_calc", (DL_FUNC) &_Rgof_nm_calc, 1},
-    {"_Rgof_power_cont", (DL_FUNC) &_Rgof_power_cont, 12},
-    {"_Rgof_power_disc", (DL_FUNC) &_Rgof_power_disc, 11},
+    {"_Rgof_power_cont", (DL_FUNC) &_Rgof_power_cont, 13},
+    {"_Rgof_power_disc", (DL_FUNC) &_Rgof_power_disc, 12},
     {NULL, NULL, 0}
 };
 

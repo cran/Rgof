@@ -17,7 +17,8 @@ gof_power_cont(
   B = c(1000, 1000),
   nbins = c(100, 10),
   rate = 0,
-  maxProcessors
+  maxProcessors,
+  minexpcount = 2
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ gof_power_cont(
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
 \item{maxProcessors}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A numeric matrix of power values.

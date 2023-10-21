@@ -20,6 +20,7 @@ using namespace Rcpp;
 //' @param Range =(-99999, 99999) limits of possible observations, if any
 //' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
 //' @param alpha =0.05, type I error of test 
+//' @param minexpcount =2 minimal expected bin count required
 //' @keywords internal
 //' @return A matrix of powers
 // [[Rcpp::export]]
@@ -35,7 +36,8 @@ Rcpp::NumericMatrix power_cont(
         double rate=0.0,
         Rcpp::NumericVector Range=Rcpp::NumericVector::create(-99999, 99999),
         Rcpp::IntegerVector B=Rcpp::IntegerVector::create(1000, 1000), 
-        const double alpha=0.05) {
+        const double alpha=0.05,
+        double minexpcount=2.0) {
   
   int  i, j, k, np=param_alt.size();
   NumericVector x=ralt(param_alt[0]);
@@ -61,11 +63,11 @@ Rcpp::NumericMatrix power_cont(
             if(tmp1(1,k)<alpha) out(j, k) = out(j, k)+1;            
          NumericVector param=phat(x);     
          NumericMatrix tmp2 = chi_test_cont(x, pnull, 
-                  param, "Pearson", rate, nbins, Range, 1);        
+                  param, "Pearson", rate, nbins, Range, 1, minexpcount);        
          for(k=0;k<4;++k) 
            if(tmp2(k, 2)<alpha) out(j, nummethods+k) = out(j, nummethods+k)+1;
          tmp2 = chi_test_cont(x, pnull, 
-                  param, "LR", rate, nbins, Range, 1);        
+                  param, "LR", rate, nbins, Range, 1, minexpcount);        
          for(k=0;k<4;++k) 
              if(tmp2(k, 2)<alpha) out(j, nummethods+4+k) = out(j, nummethods+4+k)+1;           
          }

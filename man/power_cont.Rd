@@ -16,7 +16,8 @@ power_cont(
   rate = 0,
   Range = as.numeric(c(-99999, 99999)),
   B = as.integer(c(1000, 1000)),
-  alpha = 0.05
+  alpha = 0.05,
+  minexpcount = 2
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ power_cont(
 \item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
 
 \item{alpha}{=0.05, type I error of test}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A matrix of powers

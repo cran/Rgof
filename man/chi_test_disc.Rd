@@ -11,7 +11,8 @@ chi_test_disc(
   nbins = as.integer(c(100, 10)),
   formula = "Pearson",
   rate = 0,
-  Minimize = 0L
+  Minimize = 0L,
+  minexpcount = 2
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ chi_test_disc(
 \item{rate}{rate of Poisson if sample size is random, 0 otherwise}
 
 \item{Minimize}{Should minimum chi square be found?}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A numeric matrix of test statistics, degrees of freedom and p values

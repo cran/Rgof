@@ -4,7 +4,7 @@
 \alias{binner_disc}
 \title{routine to bin discrete data and assure expected counts>5}
 \usage{
-binner_disc(x, p, k = 10L)
+binner_disc(x, p, k = 10L, minexpcount = 2)
 }
 \arguments{
 \item{x}{An integer vector of counts.}
@@ -12,6 +12,8 @@ binner_disc(x, p, k = 10L)
 \item{p}{cumulative distribution function values at vals}
 
 \item{k}{number of desired bins}
+
+\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 An integer vector of indices
