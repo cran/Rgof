@@ -4,20 +4,21 @@ using namespace Rcpp;
 //' Find test statistics for discrete data
 //' 
 //' @param x An integer vector.
-//' @param p A numeric vector of probabilities.
+//' @param Fx A numeric vector of cumulative probabilities.
 //' @param nm A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.
 //' @param vals A numeric vector with the values of the discrete rv.
+//' @keywords internal
 //' @return A vector with test statistics
 // [[Rcpp::export]]
 NumericVector TS_disc(IntegerVector x, 
-                      NumericVector p,
+                      NumericVector Fx,
                       NumericMatrix nm,  
                       NumericVector vals) {
     
   Rcpp::CharacterVector methods=CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZC", "Wassp1");    
   int const nummethods=methods.size();
   int k=x.size(), n, i;
-  NumericVector TS(nummethods), ecdf(k), Fx(k);
+  NumericVector TS(nummethods), ecdf(k);
   NumericMatrix logF(k, 4);
   IntegerVector cumx(k), cumx1(k);
   double tmp, tmp1;
@@ -36,15 +37,11 @@ NumericVector TS_disc(IntegerVector x,
     }  
   }
 
-/* find matrix nm if not provided */
-
   /* Ecdf, distribution function and its logs evaluated at data vals*/
   
   double mFx=0.0;
-  for(i=0;i<k;++i) {
-     Fx(i)=p(i);
-     if(p(i)>mFx && p(i)<1) mFx=p(i);  
-  }   
+  for(i=0;i<k;++i) if(Fx(i)>mFx && Fx(i)<1) mFx=Fx(i);  
+  
   for(i=0;i<k;++i) {
     logF(i, 0) = log(Fx[i]);
     if(Fx[i]<1) {
@@ -86,10 +83,8 @@ NumericVector TS_disc(IntegerVector x,
   /* Cramer-von Mises */
   
     tmp = (ecdf[0]-Fx[0])*(ecdf[0]-Fx[0])*Fx[0];
-    tmp1 = x[0]*Fx[0];
     for(i=1;i<k;++i) {
       tmp = tmp + (ecdf[i]-Fx[i])*(ecdf[i]-Fx[i])*(Fx[i]-Fx[i-1]);
-      tmp1 = tmp1 + x[i]*Fx[i];
     }
     TS(3) = 1/(12.0*n)+n*tmp;
 

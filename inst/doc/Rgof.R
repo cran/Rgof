@@ -173,10 +173,10 @@ ralt = function(df=1) {
 gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100, 200), maxProcessor=2)
 
 ## -----------------------------------------------------------------------------
-myTS = function(x, Fx, param, qnull) {
-   x=sort(x)
-   Fx=Fx= (1:length(x))/length(x)
-   out = sum(abs(x-Fx))
+newTS_cont = function(x, Fx, param, qnull) {
+   Fx=sort(Fx)
+   n=length(x)
+   out = sum(abs( (2*1:n-1)/2/n-Fx ))
    names(out) = "CvM alt"
    out
 }
@@ -186,7 +186,7 @@ pnull = function(x) punif(x)
 qnull = function(x) qunif(x)
 rnull = function() runif(500)
 x = rnull()
-Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=myTS)
+Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=newTS_cont)
 
 ## -----------------------------------------------------------------------------
 ralt = function(slope) {
@@ -195,23 +195,20 @@ ralt = function(slope) {
 }
 
 ## -----------------------------------------------------------------------------
-gof_power_cont(pnull, rnull, qnull, ralt, TS=myTS, param_alt=seq(0, 0.5, length=5), Range=c(0,1))
+gof_power_cont(pnull, rnull, qnull, ralt, TS=newTS_cont, param_alt=round(seq(0, 0.5, length=5), 3), Range=c(0,1))
 
 ## -----------------------------------------------------------------------------
-myTS = function(x, p, nm=0, vals) {
-   z= sum(x*vals)/sum(x) - sum(p*vals)
-   names(z) = "Means"
-   z
-}
-
-## -----------------------------------------------------------------------------
-vals=0:10
-pnull = function() pbinom(0:10, 10, 0.5)
-rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
+vals=1:50/51
+pnull = function() (1:50)/50
+rnull = function() c(rmultinom(1, 500, rep(1/50,50)))
 x = rnull()
-gof_test_disc(x, pnull, rnull, vals, TS=myTS)
+gof_test_disc(x, pnull, rnull, vals, TS=newTS_disc)
 
 ## -----------------------------------------------------------------------------
-ralt = function(p) table(c(0:10, rbinom(1000, 10, p)))-1
-gof_power_disc(pnull, rnull, vals, ralt, TS=myTS, param_alt=c(0.5, 0.51, 0.52, 0.53))
+ralt = function(slope) {
+    if(slope==0) p=rep(1/50, 50)
+    else p=diff(slope * (0:50/50)^2 + (1 - slope) * 0:50/50)  
+  c(rmultinom(1, 500, p))
+}
+gof_power_disc(pnull, rnull, vals, ralt, TS=newTS_disc, param_alt=round(seq(0, 0.5, length=5), 3))
 

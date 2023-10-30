@@ -87,7 +87,7 @@ These methods can be used for both discrete and histogram data. The main differe
 
 #### Simple Null Hypothesis
 
-We generate a data set of size 1000 from a Binomial distribution with n=20 and success probability p, and then test $H_0:F=Bin(20, 0.5)$.
+We generate a data set of size 1000 from a Binomial distribution with n=20 and success probability 0.5, and then test $H_0:F=Bin(20, 0.5)$.
 
 
 ```{r}
@@ -119,7 +119,7 @@ Arguments of *gof_test_disc*:
 
 -  pnull:  function to find values of cumulative distribution function for each value of vals. Function has no arguments.
 
--  rnull:  function to generate data from density. Function has no arguments. Function needs to insure that output is a vector with same length as vals.
+-  rnull:  function to generate data from true density. Function has no arguments. Function needs to insure that output is a vector with same length as vals.
 
 -  vals: all possible values of discrete random variable, that is all x with $P(X=x)>0$
 
@@ -415,25 +415,26 @@ gof_power_cont(pnull, rnull, qnull, ralt, c(2, 50), phat, Range=c(-5,5), B=c(100
 
 ### Running other tests
 
-Its is very easy for a user to add other goodness-of-fit tests to the package. This can be done by editing the routines *TS_cont** and/or **TS_disc**, which are located in the folder *examples* in the Rgof library folder. Or a user can write their own version of these files.
+Its is very easy for a user to add other goodness-of-fit tests to the package. This can be done by editing the routines **TS_cont** and/or **TS_disc**, which are located in the folder *inst/examples* in the Rgof library folder. Or a user can write their own version of these files.
 
-**Example 1**
+**Example**
 
 Say we wish to use a test that is a variant of the Cramer-vonMises test, using the integrated absolute difference of the empirical and the theoretical distribution function:
 
 $$\int_{-\infty}^{\infty} \vert F(x) - \hat{F}(x) \vert dF(x)$$
+For continuous data we have the routine
 
 ```{r}
-myTS = function(x, Fx, param, qnull) {
-   x=sort(x)
-   Fx=Fx= (1:length(x))/length(x)
-   out = sum(abs(x-Fx))
+newTS_cont = function(x, Fx, param, qnull) {
+   Fx=sort(Fx)
+   n=length(x)
+   out = sum(abs( (2*1:n-1)/2/n-Fx ))
    names(out) = "CvM alt"
    out
 }
 ```
 
-This routine has to have four arguments x, Fx, param and qnull, just like TS_cont. Note that the return object has to be a **named** vector. 
+This routine has to have four arguments x, Fx, param and qnull, just like TS_cont. Note that the return object has to be a **named** vector. Also, the arguments param and qnull are likely not needed for the calculation of the new test statistic but need to be present for consistency reasons.
 
 Then we can run this test with
 
@@ -442,7 +443,7 @@ pnull = function(x) punif(x)
 qnull = function(x) qunif(x)
 rnull = function() runif(500)
 x = rnull()
-Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=myTS)
+Rgof::gof_test_cont(x, pnull, rnull, qnull, TS=newTS_cont)
 ```
 
 Say we want to find the power of this test when the true distribution is a linear:
@@ -455,38 +456,64 @@ ralt = function(slope) {
 ```
 
 ```{r}
-gof_power_cont(pnull, rnull, qnull, ralt, TS=myTS, param_alt=seq(0, 0.5, length=5), Range=c(0,1))
+gof_power_cont(pnull, rnull, qnull, ralt, TS=newTS_cont, param_alt=round(seq(0, 0.5, length=5), 3), Range=c(0,1))
 ```
 
-**Example 2**
+for discrete data we write the routine using Rcpp:
 
-As an example for discrete data consider a test based simply on the means:
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+// [[Rcpp::export]]
+NumericVector newTS_disc(IntegerVector x, 
+                      NumericVector Fx,
+                      NumericMatrix nm,  
+                      NumericVector vals) {
+    
+  Rcpp::CharacterVector methods=CharacterVector::create("CvM alt");    
+  int const nummethods=methods.size();
+  int k=x.size(), n, i;
+  NumericVector TS(nummethods), ecdf(k);
+  double tmp;
+  TS.names() =  methods;
 
-```{r}
-myTS = function(x, p, nm=0, vals) {
-   z= sum(x*vals)/sum(x) - sum(p*vals)
-   names(z) = "Means"
-   z
+  n=0;
+  for(i=0;i<k;++i) n = n + x[i];
+  ecdf(0) = double(x(0))/double(n);  
+  for(i=1;i<k;++i) {
+    ecdf(i) = ecdf(i-1) + x(i)/double(n);
+  }
+
+  tmp = std::abs(ecdf[0]-Fx(0))*Fx(0);
+  for(i=1;i<k;++i) 
+     tmp = tmp + std::abs(ecdf(i)-Fx(i))*(Fx(i)-Fx(i-1));
+  TS(0) = tmp;
+ 
+  return TS;
 }
 ```
 
-Again the routine has to have four arguments x, p, nm and vals, just like TS_disc, and the output vector has to have names.
+Again the routine has to have four arguments x, Fx, nm and vals, just like TS_disc, and the output vector has to have names. Aagin, the arguments nm and vals are likely not needed for the calculation of the new test statistic but need to be present for consistency reasons.
 
-Now we can run
+Note that one drawback of writing the routine in Rcpp is that it is then not possible to used multiple processors.
 
 ```{r}
-vals=0:10
-pnull = function() pbinom(0:10, 10, 0.5)
-rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
+vals=1:50/51
+pnull = function() (1:50)/50
+rnull = function() c(rmultinom(1, 500, rep(1/50,50)))
 x = rnull()
-gof_test_disc(x, pnull, rnull, vals, TS=myTS)
+gof_test_disc(x, pnull, rnull, vals, TS=newTS_disc)
 ```
 
 and for power calculations we can run
 
 ```{r}
-ralt = function(p) table(c(0:10, rbinom(1000, 10, p)))-1
-gof_power_disc(pnull, rnull, vals, ralt, TS=myTS, param_alt=c(0.5, 0.51, 0.52, 0.53))
+ralt = function(slope) {
+    if(slope==0) p=rep(1/50, 50)
+    else p=diff(slope * (0:50/50)^2 + (1 - slope) * 0:50/50)  
+  c(rmultinom(1, 500, p))
+}
+gof_power_disc(pnull, rnull, vals, ralt, TS=newTS_disc, param_alt=round(seq(0, 0.5, length=5), 3))
 ```
 
 # References 

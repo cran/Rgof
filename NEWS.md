@@ -1,3 +1,6 @@
+# Rgof 1.2.2
+    October 25, 2023. Some minor bug fixes and some additions to the vignette.
+
 # Rgof 1.2.1
     October 21, 2023. Some minor bug fixes.
     

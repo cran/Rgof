@@ -25,16 +25,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // TS_disc
-NumericVector TS_disc(IntegerVector x, NumericVector p, NumericMatrix nm, NumericVector vals);
-RcppExport SEXP _Rgof_TS_disc(SEXP xSEXP, SEXP pSEXP, SEXP nmSEXP, SEXP valsSEXP) {
+NumericVector TS_disc(IntegerVector x, NumericVector Fx, NumericMatrix nm, NumericVector vals);
+RcppExport SEXP _Rgof_TS_disc(SEXP xSEXP, SEXP FxSEXP, SEXP nmSEXP, SEXP valsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type p(pSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Fx(FxSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type nm(nmSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
-    rcpp_result_gen = Rcpp::wrap(TS_disc(x, p, nm, vals));
+    rcpp_result_gen = Rcpp::wrap(TS_disc(x, Fx, nm, vals));
     return rcpp_result_gen;
 END_RCPP
 }

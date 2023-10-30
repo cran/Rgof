@@ -63,7 +63,7 @@ Rcpp::NumericVector TS_cont(
     }
     TS(3) = 1/(12.0*n)+tmp;
     TS(4) = TS(3) - n*(tmp1/n-0.5)*(tmp1/n-0.5);
-    
+
   /* Zhang's Methods */
 
     TS(5) = 0.0;

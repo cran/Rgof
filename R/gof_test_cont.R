@@ -42,7 +42,7 @@ gof_test_cont <- function(x, pnull,  rnull, qnull, phat, TS,
   if(missing(TS)) TS = TS_cont
   else {
     NewTS=TRUE
-    if(is.null(names(TS(x)))) {
+    if(is.null(names(TS(x, (1:length(x))/(length(x)+1), phat(x), qnull)))) {
       message("result of TS has to be a named vector")
       return(NULL)
     } 

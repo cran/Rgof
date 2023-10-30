@@ -16,13 +16,13 @@ TS_cont <- function(x, Fx, param, qnull) {
 #' Find test statistics for discrete data
 #' 
 #' @param x An integer vector.
-#' @param p A numeric vector of probabilities.
+#' @param Fx A numeric vector of cumulative probabilities.
 #' @param nm A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.
 #' @param vals A numeric vector with the values of the discrete rv.
 #' @keywords internal
 #' @return A vector with test statistics
-TS_disc <- function(x, p, nm, vals) {
-    .Call(`_Rgof_TS_disc`, x, p, nm, vals)
+TS_disc <- function(x, Fx, nm, vals) {
+    .Call(`_Rgof_TS_disc`, x, Fx, nm, vals)
 }
 
 #' count occurances in bins. Useful for power calculations. Replaces hist command from R.

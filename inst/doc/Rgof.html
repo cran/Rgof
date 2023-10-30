@@ -480,7 +480,7 @@ ignore the <em>vals</em> argument.</p>
 <div id="simple-null-hypothesis" class="section level4">
 <h4>Simple Null Hypothesis</h4>
 <p>We generate a data set of size 1000 from a Binomial distribution with
-n=20 and success probability p, and then test <span class="math inline">\(H_0:F=Bin(20, 0.5)\)</span>.</p>
+n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:F=Bin(20, 0.5)\)</span>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span> <span class="co">#possible values of random variable</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pnull<span class="ot">=</span><span class="cf">function</span>()  <span class="fu">pbinom</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)  <span class="co"># cumulative distribution function (cdf)</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
@@ -523,8 +523,8 @@ n=20 and success probability p, and then test <span class="math inline">\(H_0:F=
 for each value of vals, possibly 0.</p></li>
 <li><p>pnull: function to find values of cumulative distribution
 function for each value of vals. Function has no arguments.</p></li>
-<li><p>rnull: function to generate data from density. Function has no
-arguments. Function needs to insure that output is a vector with same
+<li><p>rnull: function to generate data from true density. Function has
+no arguments. Function needs to insure that output is a vector with same
 length as vals.</p></li>
 <li><p>vals: all possible values of discrete random variable, that is
 all x with <span class="math inline">\(P(X=x)&gt;0\)</span></p></li>
@@ -853,11 +853,11 @@ find the null distribution.</p></li>
 <span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">gof_power_disc</span>(pnull, rnull, vals, ralt, <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), phat,</span>
 <span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>        <span class="at">B=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">200</span>), <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessors =</span> <span class="dv">2</span>)</span>
 <span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt;       KS    K   AD  CvM    W   ZA   ZC Wassp1 chi large Pearson</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.03 0.04 0.05 0.04 0.07 0.04 0.06   0.05              0.04</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.06 0.06 0.04 0.04 0.01 0.04 0.06   0.03              0.03</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.06 0.06 0.04 0.08 0.05 0.05 0.04   0.06              0.02</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.05 0.06 0.07 0.07 0.03 0.05 0.00   0.06              0.03</span></span>
 <span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co">#&gt;     chi small Pearson chi large LR-m chi small LR-m</span></span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; 0.5              0.01           0.03           0.01</span></span>
-<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a><span class="co">#&gt; 0.6              0.01           0.03           0.01</span></span></code></pre></div>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; 0.5              0.06           0.02           0.06</span></span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a><span class="co">#&gt; 0.6              0.02           0.03           0.02</span></span></code></pre></div>
 <p>Note that power estimation in the case of a composite hypothesis (aka
 with parameters estimated) is much slower than the simple hypothesis
 case.</p>
@@ -870,9 +870,9 @@ case.</p>
 <span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;                KS                 K                AD               CvM </span></span>
 <span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;              1.00              1.00              1.00              1.00 </span></span>
 <span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt;                 W                ZA                ZC            Wassp1 </span></span>
-<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt;              0.66              1.00              0.00              1.00 </span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt;              0.63              1.00              0.00              1.00 </span></span>
 <span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt; chi large Pearson chi small Pearson    chi large LR-m    chi small LR-m </span></span>
-<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt;              0.27              0.06              0.24              0.06</span></span></code></pre></div>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt;              0.23              0.09              0.17              0.10</span></span></code></pre></div>
 </div>
 </div>
 <div id="continuous-datamodel" class="section level3">
@@ -903,15 +903,15 @@ case.</p>
 <span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>phat <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="fu">mean</span>(x), <span class="fu">sd</span>(x))</span>
 <span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="fu">gof_power_cont</span>(pnull, rnull, qnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), phat, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">200</span>),</span>
 <span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a>               <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
-<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt;     KS    K   AD  CvM    W   ZA ZK   ZC Wassp1 EP large Pearson</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 0 0.95 0.89 0.06 0.05 0.04 0.56  0 0.03      1             0.03</span></span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 1 0.95 0.92 0.02 0.03 0.03 0.55  0 0.02      1             0.02</span></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt;     KS    K   AD  CvM    W   ZA   ZK   ZC Wassp1 EP large Pearson</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 0 0.94 0.90 0.08 0.09 0.09 0.64 0.01 0.01      1             0.06</span></span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 1 0.97 0.89 0.09 0.06 0.06 0.60 0.02 0.03      1             0.04</span></span>
 <span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt;   ES large Pearson EP small Pearson ES small Pearson EP large LR-m</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 0             0.03             0.06             0.06          0.03</span></span>
-<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 1             0.05             0.04             0.03          0.01</span></span>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 0             0.03             0.09             0.04          0.04</span></span>
+<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 1             0.04             0.08             0.04          0.02</span></span>
 <span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a><span class="co">#&gt;   ES large LR-m EP small LR-m ES small LR-m</span></span>
-<span id="cb29-15"><a href="#cb29-15" tabindex="-1"></a><span class="co">#&gt; 0          0.03          0.04          0.06</span></span>
-<span id="cb29-16"><a href="#cb29-16" tabindex="-1"></a><span class="co">#&gt; 1          0.05          0.04          0.03</span></span></code></pre></div>
+<span id="cb29-15"><a href="#cb29-15" tabindex="-1"></a><span class="co">#&gt; 0          0.04          0.06          0.05</span></span>
+<span id="cb29-16"><a href="#cb29-16" tabindex="-1"></a><span class="co">#&gt; 1          0.03          0.06          0.04</span></span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">df=</span><span class="dv">1</span>) {</span>
 <span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co"># t distribution truncated at +- 5  </span></span>
 <span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>  x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">1000</span>, df)</span>
@@ -920,96 +920,130 @@ case.</p>
 <span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>}  </span>
 <span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="fu">gof_power_cont</span>(pnull, rnull, qnull, ralt, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">50</span>), phat, <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>), <span class="at">B=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">200</span>), <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
 <span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a><span class="co">#&gt;      KS    K   AD  CvM    W   ZA   ZK   ZC Wassp1 EP large Pearson</span></span>
-<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt; 2  1.00 1.00 0.64 0.60 0.61 0.94 0.21 0.23      1             0.11</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 50 0.97 0.92 0.04 0.02 0.03 0.57 0.02 0.00      1             0.04</span></span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt; 2  1.00 1.00 0.63 0.61 0.62 0.96 0.27 0.17      1             0.19</span></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 50 0.96 0.94 0.04 0.06 0.04 0.69 0.00 0.02      1             0.09</span></span>
 <span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt;    ES large Pearson EP small Pearson ES small Pearson EP large LR-m</span></span>
-<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 2              0.23             0.15             0.29          0.07</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 50             0.07             0.09             0.06          0.02</span></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 2              0.28             0.24             0.36          0.10</span></span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 50             0.00             0.11             0.03          0.03</span></span>
 <span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a><span class="co">#&gt;    ES large LR-m EP small LR-m ES small LR-m</span></span>
-<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a><span class="co">#&gt; 2           0.23          0.11          0.29</span></span>
-<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a><span class="co">#&gt; 50          0.09          0.04          0.03</span></span></code></pre></div>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a><span class="co">#&gt; 2           0.24          0.21          0.37</span></span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a><span class="co">#&gt; 50          0.01          0.07          0.03</span></span></code></pre></div>
 </div>
 </div>
 <div id="running-other-tests" class="section level3">
 <h3>Running other tests</h3>
 <p>Its is very easy for a user to add other goodness-of-fit tests to the
-package. This can be done by editing the routines *TS_cont<strong>
-and/or </strong>TS_disc**, which are located in the folder
-<em>examples</em> in the Rgof library folder. Or a user can write their
-own version of these files.</p>
-<p><strong>Example 1</strong></p>
+package. This can be done by editing the routines
+<strong>TS_cont</strong> and/or <strong>TS_disc</strong>, which are
+located in the folder <em>inst/examples</em> in the Rgof library folder.
+Or a user can write their own version of these files.</p>
+<p><strong>Example</strong></p>
 <p>Say we wish to use a test that is a variant of the Cramer-vonMises
 test, using the integrated absolute difference of the empirical and the
 theoretical distribution function:</p>
 <p><span class="math display">\[\int_{-\infty}^{\infty} \vert F(x) -
-\hat{F}(x) \vert dF(x)\]</span></p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>myTS <span class="ot">=</span> <span class="cf">function</span>(x, Fx, param, qnull) {</span>
-<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>   x<span class="ot">=</span><span class="fu">sort</span>(x)</span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>   Fx<span class="ot">=</span>Fx<span class="ot">=</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(x))<span class="sc">/</span><span class="fu">length</span>(x)</span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>   out <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">abs</span>(x<span class="sc">-</span>Fx))</span>
+\hat{F}(x) \vert dF(x)\]</span> For continuous data we have the
+routine</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>newTS_cont <span class="ot">=</span> <span class="cf">function</span>(x, Fx, param, qnull) {</span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>   Fx<span class="ot">=</span><span class="fu">sort</span>(Fx)</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>   n<span class="ot">=</span><span class="fu">length</span>(x)</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>   out <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">abs</span>( (<span class="dv">2</span><span class="sc">*</span><span class="dv">1</span><span class="sc">:</span>n<span class="dv">-1</span>)<span class="sc">/</span><span class="dv">2</span><span class="sc">/</span>n<span class="sc">-</span>Fx ))</span>
 <span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>   <span class="fu">names</span>(out) <span class="ot">=</span> <span class="st">&quot;CvM alt&quot;</span></span>
 <span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>   out</span>
 <span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>}</span></code></pre></div>
 <p>This routine has to have four arguments x, Fx, param and qnull, just
 like TS_cont. Note that the return object has to be a
-<strong>named</strong> vector.</p>
+<strong>named</strong> vector. Also, the arguments param and qnull are
+likely not needed for the calculation of the new test statistic but need
+to be present for consistency reasons.</p>
 <p>Then we can run this test with</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">punif</span>(x)</span>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>qnull <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">qunif</span>(x)</span>
 <span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">runif</span>(<span class="dv">500</span>)</span>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test_cont</span>(x, pnull, rnull, qnull, <span class="at">TS=</span>myTS)</span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test_cont</span>(x, pnull, rnull, qnull, <span class="at">TS=</span>newTS_cont)</span>
 <span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; $Statistics</span></span>
 <span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt;  6.6026 </span></span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt;  6.9863 </span></span>
 <span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
 <span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a><span class="co">#&gt;  0.4478</span></span></code></pre></div>
+<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a><span class="co">#&gt;  0.3946</span></span></code></pre></div>
 <p>Say we want to find the power of this test when the true distribution
 is a linear:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(slope) {</span>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="cf">if</span>(slope<span class="sc">==</span><span class="dv">0</span>) y<span class="ot">=</span><span class="fu">runif</span>(<span class="dv">500</span>)</span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    <span class="cf">else</span> y<span class="ot">=</span>(slope<span class="dv">-1</span><span class="sc">+</span><span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">-</span>slope)<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span><span class="dv">4</span><span class="sc">*</span>slope<span class="sc">*</span> <span class="fu">runif</span>(<span class="dv">500</span>)))<span class="sc">/</span><span class="dv">2</span><span class="sc">/</span>slope</span>
 <span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">gof_power_cont</span>(pnull, rnull, qnull, ralt, <span class="at">TS=</span>myTS, <span class="at">param_alt=</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">5</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">gof_power_cont</span>(pnull, rnull, qnull, ralt, <span class="at">TS=</span>newTS_cont, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">5</span>), <span class="dv">3</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
 <span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; 0       0.055</span></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 0.125   0.324</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0.25    0.881</span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; 0       0.049</span></span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 0.125   0.337</span></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0.25    0.893</span></span>
 <span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 0.375   0.998</span></span>
 <span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="co">#&gt; 0.5     1.000</span></span></code></pre></div>
-<p><strong>Example 2</strong></p>
-<p>As an example for discrete data consider a test based simply on the
-means:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>myTS <span class="ot">=</span> <span class="cf">function</span>(x, p, <span class="at">nm=</span><span class="dv">0</span>, vals) {</span>
-<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>   z<span class="ot">=</span> <span class="fu">sum</span>(x<span class="sc">*</span>vals)<span class="sc">/</span><span class="fu">sum</span>(x) <span class="sc">-</span> <span class="fu">sum</span>(p<span class="sc">*</span>vals)</span>
-<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a>   <span class="fu">names</span>(z) <span class="ot">=</span> <span class="st">&quot;Means&quot;</span></span>
-<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a>   z</span>
-<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>}</span></code></pre></div>
-<p>Again the routine has to have four arguments x, p, nm and vals, just
-like TS_disc, and the output vector has to have names.</p>
-<p>Now we can run</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">10</span></span>
-<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">pbinom</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="fl">0.5</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">10</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span></span>
+<p>for discrete data we write the routine using Rcpp:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> Rcpp<span class="op">;</span></span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a>NumericVector newTS_disc<span class="op">(</span>IntegerVector x<span class="op">,</span> </span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>                      NumericVector Fx<span class="op">,</span></span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a>                      NumericMatrix nm<span class="op">,</span>  </span>
+<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a>                      NumericVector vals<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a>    </span>
+<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a>  Rcpp<span class="op">::</span>CharacterVector methods<span class="op">=</span>CharacterVector<span class="op">::</span>create<span class="op">(</span><span class="st">&quot;CvM alt&quot;</span><span class="op">);</span>    </span>
+<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a>  <span class="dt">int</span> <span class="at">const</span> nummethods<span class="op">=</span>methods<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a>  <span class="dt">int</span> k<span class="op">=</span>x<span class="op">.</span>size<span class="op">(),</span> n<span class="op">,</span> i<span class="op">;</span></span>
+<span id="cb35-12"><a href="#cb35-12" tabindex="-1"></a>  NumericVector TS<span class="op">(</span>nummethods<span class="op">),</span> ecdf<span class="op">(</span>k<span class="op">);</span></span>
+<span id="cb35-13"><a href="#cb35-13" tabindex="-1"></a>  <span class="dt">double</span> tmp<span class="op">;</span></span>
+<span id="cb35-14"><a href="#cb35-14" tabindex="-1"></a>  TS<span class="op">.</span>names<span class="op">()</span> <span class="op">=</span>  methods<span class="op">;</span></span>
+<span id="cb35-15"><a href="#cb35-15" tabindex="-1"></a></span>
+<span id="cb35-16"><a href="#cb35-16" tabindex="-1"></a>  n<span class="op">=</span><span class="dv">0</span><span class="op">;</span></span>
+<span id="cb35-17"><a href="#cb35-17" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> n <span class="op">=</span> n <span class="op">+</span> x<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb35-18"><a href="#cb35-18" tabindex="-1"></a>  ecdf<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="dt">double</span><span class="op">(</span>x<span class="op">(</span><span class="dv">0</span><span class="op">))/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span>  </span>
+<span id="cb35-19"><a href="#cb35-19" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-20"><a href="#cb35-20" tabindex="-1"></a>    ecdf<span class="op">(</span>i<span class="op">)</span> <span class="op">=</span> ecdf<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> x<span class="op">(</span>i<span class="op">)/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span></span>
+<span id="cb35-21"><a href="#cb35-21" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb35-22"><a href="#cb35-22" tabindex="-1"></a></span>
+<span id="cb35-23"><a href="#cb35-23" tabindex="-1"></a>  tmp <span class="op">=</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">[</span><span class="dv">0</span><span class="op">]-</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">))*</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb35-24"><a href="#cb35-24" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> </span>
+<span id="cb35-25"><a href="#cb35-25" tabindex="-1"></a>     tmp <span class="op">=</span> tmp <span class="op">+</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">))*(</span>Fx<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb35-26"><a href="#cb35-26" tabindex="-1"></a>  TS<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> tmp<span class="op">;</span></span>
+<span id="cb35-27"><a href="#cb35-27" tabindex="-1"></a> </span>
+<span id="cb35-28"><a href="#cb35-28" tabindex="-1"></a>  <span class="cf">return</span> TS<span class="op">;</span></span>
+<span id="cb35-29"><a href="#cb35-29" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Again the routine has to have four arguments x, Fx, nm and vals, just
+like TS_disc, and the output vector has to have names. Aagin, the
+arguments nm and vals are likely not needed for the calculation of the
+new test statistic but need to be present for consistency reasons.</p>
+<p>Note that one drawback of writing the routine in Rcpp is that it is
+then not possible to used multiple processors.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">51</span></span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>() (<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">/</span><span class="dv">50</span></span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">c</span>(<span class="fu">rmultinom</span>(<span class="dv">1</span>, <span class="dv">500</span>, <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>,<span class="dv">50</span>)))</span>
 <span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
-<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="fu">gof_test_disc</span>(x, pnull, rnull, vals, <span class="at">TS=</span>myTS)</span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="fu">gof_test_disc</span>(x, pnull, rnull, vals, <span class="at">TS=</span>newTS_disc)</span>
 <span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="co">#&gt; $Statistics</span></span>
-<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt;   Means </span></span>
-<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; -38.754 </span></span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt;   0.013 </span></span>
 <span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
-<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt;  Means </span></span>
-<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt; 0.5202</span></span></code></pre></div>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt;  0.4648</span></span></code></pre></div>
 <p>and for power calculations we can run</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(p) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a><span class="fu">gof_power_disc</span>(pnull, rnull, vals, ralt, <span class="at">TS=</span>myTS, <span class="at">param_alt=</span><span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.51</span>, <span class="fl">0.52</span>, <span class="fl">0.53</span>))</span>
-<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co">#&gt;      Means</span></span>
-<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co">#&gt; 0.5  0.042</span></span>
-<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="co">#&gt; 0.51 0.680</span></span>
-<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="co">#&gt; 0.52 0.987</span></span>
-<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; 0.53 1.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(slope) {</span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>    <span class="cf">if</span>(slope<span class="sc">==</span><span class="dv">0</span>) p<span class="ot">=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>, <span class="dv">50</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a>    <span class="cf">else</span> p<span class="ot">=</span><span class="fu">diff</span>(slope <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">50</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> slope) <span class="sc">*</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">50</span>)  </span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fu">rmultinom</span>(<span class="dv">1</span>, <span class="dv">500</span>, p))</span>
+<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>}</span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="fu">gof_power_disc</span>(pnull, rnull, vals, ralt, <span class="at">TS=</span>newTS_disc, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">5</span>), <span class="dv">3</span>))</span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; Parallel Programming is not possible if custom TS is written in C++. Switching to single processor</span></span>
+<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
+<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co">#&gt; 0       0.055</span></span>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt; 0.125   0.367</span></span>
+<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; 0.25    0.898</span></span>
+<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt; 0.375   0.999</span></span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt; 0.5     1.000</span></span></code></pre></div>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">

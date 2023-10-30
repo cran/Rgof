@@ -41,7 +41,7 @@ Rcpp::NumericMatrix power_disc(
   IntegerVector x=ralt(param_alt(0));
   NumericMatrix nm=nm_calc(sum(x));
   NumericVector Fx(x.size());
-  for(i=0;i<x.size();++i) Fx(i)=(1.0+i)/(1.0+i);
+  for(i=0;i<x.size();++i) Fx(i)=(1.0+i)/x.size();
   NumericVector TS_data=TS(x, Fx, nm, vals);  
   int const nummethods=TS_data.size();
   Rcpp::CharacterVector tsMethods=TS_data.names();
@@ -56,7 +56,7 @@ Rcpp::NumericMatrix power_disc(
     for(j=0;j<np;++j) {
       IntegerVector x=ralt(param_alt[j]); 
       NumericMatrix tmp1 = gof_disc(x, pnull, rnull, vals, phat, TS, rate, B(1));
-      for(k=0;k<8;++k) 
+      for(k=0;k<nummethods;++k) 
         if(tmp1(1,k)<alpha)  out(j, k) = out(j, k)+1;
       NumericVector param=phat(x);           
       NumericMatrix tmp2 = chi_test_disc(x, pnull, param,  
