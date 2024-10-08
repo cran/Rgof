@@ -4,14 +4,12 @@
 \alias{TS_disc}
 \title{Find test statistics for discrete data}
 \usage{
-TS_disc(x, Fx, nm, vals)
+TS_disc(x, Fx, vals)
 }
 \arguments{
 \item{x}{An integer vector.}
 
 \item{Fx}{A numeric vector of cumulative probabilities.}
-
-\item{nm}{A matrix of pre-calculated (with nm_calc.cpp) numbers needed for Zhangs tests.}
 
 \item{vals}{A numeric vector with the values of the discrete rv.}
 }

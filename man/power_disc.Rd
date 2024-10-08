@@ -12,11 +12,11 @@ power_disc(
   param_alt,
   phat,
   TS,
-  nbins = as.integer(c(100, 10)),
+  typeTS,
+  TSextra,
   rate = 0,
   B = as.integer(c(1000, 1000)),
-  alpha = 0.05,
-  minexpcount = 2
+  alpha = 0.05
 )
 }
 \arguments{
@@ -34,15 +34,15 @@ power_disc(
 
 \item{TS}{function to calculate test statistics}
 
-\item{nbins}{=c(100,10) number of bins to use}
+\item{typeTS}{type of test statistic}
 
-\item{rate}{rate of Poisson if sample size is random, 0 otherwise}
+\item{TSextra}{list passed to TS, if desired}
+
+\item{rate}{=0, rate of sample size, if random}
 
 \item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
 
 \item{alpha}{=0.05, type I error of test}
-
-\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A matrix of powers

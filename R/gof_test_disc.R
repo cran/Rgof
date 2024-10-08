@@ -3,76 +3,63 @@
 #' @param  pnull  cumulative distribution function under the null hypothesis
 #' @param  rnull  routine to generate data under the null hypothesis
 #' @param  vals a vector of values of discrete random variables 
-#' @param  phat  a function to estimate parameters from the data
-#' @param  TS user supplied function to find test statistics
-#' @param  nbins =c(100, 10) number of bins for chi-square tests
+#' @param  phat =function(x) -99, function to estimate parameters from the data, or -99 if no parameters aare estimated
+#' @param  TS =NA, user supplied function to find test statistics
+#' @param  TSextra =NA, list passed to TS, if desired
+#' @param  nbins =c(50, 10) number of bins for chi-square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  B   =5000  number of simulation runs
-#' @param  minexpcount =2 minimal expected bin count required
-#' @param  maxProcessors =1 number of processors to use in parallel processing. If missing single processor is used.
-#' @param  doMethod Methods to include in tests
-#' @return A numeric matrix of test statistics and p values
-#' @export
-#' @examples 
-#' # Tests to see whether data comes from a binomial (10, 0.5) distribution.
-#' vals=0:10
-#' pnull = function() pbinom(0:10, 10, 0.5)
-#' rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
-#' x = rnull() 
-#' gof_test_disc(x, pnull, rnull, vals, doMethod="all")
-#' # Tests to see whether data comes from a binomial distribution with the success probability 
-#' # estimated from the data.
-#' pnull = function(p=0.5) pbinom(0:10, 10, ifelse(p>0&&p<1,p,0.001))
-#' rnull = function(p=0.5) table(c(0:10, rbinom(1000, 10, ifelse(p>0&&p<1,p,0.001))))-1
-#' phat = function(x) mean(0:10*x)/1000 
-#' gof_test_disc(x, pnull, rnull, vals, phat)  
+#' @param  minexpcount =5 minimal expected bin count required
+#' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
+#' @param  maxProcessors =1, number of processors to use in parallel processing. If missing single processor is used.
+#' @param  doMethods Methods to include in tests
+#' @return A numeric matrix of test statistics and p.values
 
-gof_test_disc <- function(x, pnull, rnull, vals, phat, TS,  
-     nbins=c(100, 10), rate=0, B=5000, minexpcount=2.0, 
-     maxProcessors=1, doMethod="Default") {
+gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99, 
+                          TS, TSextra=NA,  nbins=c(50, 10), rate=0, 
+                          B=5000, minexpcount=5.0, ChiUsePhat=TRUE,
+                          maxProcessors=1, doMethods="Default") {
 
-  NewTS = FALSE
-  if(missing(TS)) TS = TS_disc
+  if(any(is.na(TSextra))) TSextra = list(p=phat(x))
+  else TSextra = c(TSextra, p=phat)
+  if(missing(TS)) { # use built-in tests
+    typeTS = 0
+    TS = TS_disc
+    TS_data = TS(x, (1:length(x))/length(x), vals)
+  }  
   else {
-    NewTS=TRUE
-    if(is.null(names(TS(x, (1:length(x))/length(x), nm_calc(sum(x)), vals)))) {
+    # can't do parallel processing if TS written in C/C++
+    if(substr(deparse(TS)[2], 1, 5)==".Call") {
+      message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
+      maxProcessors=1
+    }
+    if(length(formals(TS))==3) {
+      typeTS=1
+      TS_data = TS(x, (1:length(x))/(length(x)+1), vals)
+    }
+    if(length(formals(TS))==4) {
+      typeTS=2
+      TS_data = TS(x, (1:length(x))/(length(x)+1), vals, TSextra)
+    }
+    if(length(formals(TS))>4) {
+      message("TS should have either 3 or 4 arguments")
+      return(NULL)
+    }
+    if(is.null(names(TS_data))) {
       message("result of TS has to be a named vector")
       return(NULL)
     } 
   }
-  TS_data = TS(x, (1:length(x))/length(x), nm_calc(sum(x)), vals)
   nummethods = length(TS_data)
-  doMethodTS = names(TS_data)
-  doMethodchi = c("chi large Pearson", "chi small Pearson", 
-      paste0(c("chi large LR", "chi small LR"),"-", ifelse(rate==0, "m", "p"))) 
-  allMethods = c(doMethodTS, doMethodchi)
-  out = matrix(0, 2, nummethods+4)    
-  colnames(out) = allMethods
-  if(doMethod[1]=="Default" || doMethod[1]=="all") {
-    if(doMethod[1]=="Default") doMethod =c("K", "AD", "ZA", "ZC")
-    if(doMethod[1]=="all") doMethod = allMethods      
-  }  
-  if(NewTS) {
-    allMethods=doMethodTS
-    doMethod=doMethodTS
-  }
-  
-  if(!missing(phat)) check.functions(pnull, rnull, vals=vals, phat=phat, x=x)
-  if(missing(phat)) check.functions(pnull, rnull, vals=vals, x=x)  
-  
-  Minimize = 1
-  if(missing(phat)) {
-    Minimize = 0
-    phat = function(x) 0
-  }
+  out = matrix(0, 2, nummethods)    
+  colnames(out) = names(TS_data)
 
-  if(any(doMethod %in% allMethods[1:nummethods])) {
-     if(maxProcessors==1)
-        out[ ,1:nummethods] = gof_disc(x, pnull, rnull, vals, phat, TS, rate, B)
-     else {
-        m = maxProcessors
-        cl = parallel::makeCluster(m)
-        z=parallel::clusterCall(cl, 
+  if(maxProcessors==1)
+    out = gof_disc(x, pnull, rnull, vals, phat, TS, typeTS, TSextra, rate, B)
+  else {
+    m = maxProcessors
+    cl = parallel::makeCluster(m)
+    z=parallel::clusterCall(cl, 
                             gof_disc, 
                             x = x,
                             pnull = pnull,
@@ -80,23 +67,26 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat, TS,
                             vals = vals,  
                             phat = phat,
                             TS = TS,
+                            typeTS = typeTS,
+                            TSextra=TSextra,
                             rate=rate,
                             B = B/m
-       )
-       parallel::stopCluster(cl)
-       #  Average power of cores
-       tmp=0*z[[1]]
-       for(i in 1:m) tmp=tmp+z[[i]]
-       out[ ,1:nummethods] = tmp/m  
-     }
+    )
+    parallel::stopCluster(cl)
+    #  Average power of cores
+    tmp=0*z[[1]]
+    for(i in 1:m) tmp=tmp+z[[i]]
+    out[ ,1:nummethods] = tmp/m  
   }
-
-  if(any(doMethod %in% allMethods[nummethods+1:4])) {  
-      out[ , nummethods+1:2] = t(chi_test_disc(x=x, pnull=pnull, phat(x), 
-            nbins, "Pearson", rate, Minimize, minexpcount)[,c(1, 3)])
-      out[ , nummethods+3:4] = t(chi_test_disc(x=x, pnull=pnull, phat(x), 
-          nbins, "LR", rate, Minimize, minexpcount)[,c(1, 3)])      
-  } 
-  out = round(out[, doMethod, drop=FALSE], 4)
-  list(Statistics=out[1, ], p.value=out[2, ])
+  if(typeTS>0) return(list(statistics=out[1, ], p.values=out[2, ]))
+# do chi square tests
+  chiout = t(chi_test_disc(x, pnull, phat, 
+              nbins, rate, minexpcount, ChiUsePhat)[,1:2])
+  out = cbind(out, chiout)
+  if(doMethods[1]=="Default")        
+     out = out[ ,c("K", "AD", "ZA", "ZC")]
+  if(doMethods[1]!="Default" & doMethods[1]!="all") 
+     out = out[ ,doMethods, drop=FALSE]
+  out = round(out, 4)
+  list(statistics=out[1, ], p.values=out[2, ])
 }

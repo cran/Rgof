@@ -8,6 +8,8 @@ Rcpp::NumericMatrix gof_disc(Rcpp::IntegerVector x,
                        Rcpp::NumericVector vals,                        
                        Rcpp::Function phat,
                        Rcpp::Function TS,
+                       int NewTS,
+                       Rcpp::List TSextra,
                        double rate=0, 
                        int B=5000);
 

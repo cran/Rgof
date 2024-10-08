@@ -1,17 +1,18 @@
 #include <Rcpp.h>
+#include "Cpporder.h"
 using namespace Rcpp;
 
-//' count occurances in bins. Useful for power calculations. Replaces hist command from R.
+//' count events in bins. Useful for power calculations. Replaces hist command from R.
 //' 
 //' @param x numeric vector
 //' @param bins numeric vector
 //' @keywords internal
 //' @return Integer vector of counts
 // [[Rcpp::export]]
-Rcpp::IntegerVector bincounter_cpp(Rcpp::NumericVector x, Rcpp::NumericVector bins) {
+Rcpp::IntegerVector bincounter(Rcpp::NumericVector x, Rcpp::NumericVector bins) {
   int n=x.size(), m=bins.size(), i, j;
   Rcpp::IntegerVector xc(m-1);
-  std::sort(x.begin(), x.end());
+  x = Cpporder(x, x);
 
   i=0;
   j=0;

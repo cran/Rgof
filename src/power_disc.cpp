@@ -1,8 +1,6 @@
 #include <Rcpp.h>
 #include "gof_disc.h"
-#include "nm_calc.h"
 #include "TS_disc.h"
-#include "chi_test_disc.h"
 
 using namespace Rcpp;
 
@@ -15,11 +13,11 @@ using namespace Rcpp;
 //' @param param_alt parameters of function ralt
 //' @param phat  function to estimate parameters from the data
 //' @param TS function to calculate test statistics
-//' @param nbins =c(100,10) number of bins to use 
-//' @param rate rate of Poisson if sample size is random, 0 otherwise
+//' @param typeTS type of test statistic
+//' @param TSextra list passed to TS, if desired
+//' @param rate =0, rate of sample size, if random
 //' @param B  =c(1000, 1000) Number of simulation runs for power and null distribution
 //' @param alpha =0.05, type I error of test
-//' @param minexpcount =2 minimal expected bin count required 
 //' @keywords internal
 //' @return A matrix of powers
 // [[Rcpp::export]]
@@ -31,42 +29,29 @@ Rcpp::NumericMatrix power_disc(
         Rcpp::NumericVector param_alt,
         Rcpp::Function phat, 
         Rcpp::Function TS,
-        Rcpp::IntegerVector nbins=Rcpp::IntegerVector::create(100, 10), 
+        int typeTS, 
+        Rcpp::List TSextra,
         double rate=0.0,
         Rcpp::IntegerVector B=Rcpp::IntegerVector::create(1000, 1000), 
-        const double alpha=0.05,
-        double minexpcount=2.0) {
+        const double alpha=0.05) {
   
   int  i, j, k, np=param_alt.size();
   IntegerVector x=ralt(param_alt(0));
-  NumericMatrix nm=nm_calc(sum(x));
-  NumericVector Fx(x.size());
+  NumericVector Fx(x.size()), TS_data;
   for(i=0;i<x.size();++i) Fx(i)=(1.0+i)/x.size();
-  NumericVector TS_data=TS(x, Fx, nm, vals);  
+  
+  if(typeTS<=1) TS_data=TS(x, Fx, vals); 
+  if(typeTS==2) TS_data=TS(x, Fx, vals, TSextra); 
   int const nummethods=TS_data.size();
-  Rcpp::CharacterVector tsMethods=TS_data.names();
-  Rcpp::CharacterVector chiMethods= CharacterVector::create( 
-    "chi large Pearson", "chi small Pearson",  "chi large LR", "chi small LR");  
-  Rcpp::CharacterVector doMethod(nummethods+4);
-  for(i=0;i<nummethods;++i) doMethod[i]=tsMethods[i];
-  for(i=0;i<4;++i) doMethod[i+nummethods]=chiMethods[i];  
-
-  NumericMatrix out(np, nummethods+4);
+  NumericMatrix out(np, nummethods);
   for(i=0;i<B(0);++i) {
     for(j=0;j<np;++j) {
-      IntegerVector x=ralt(param_alt[j]); 
-      NumericMatrix tmp1 = gof_disc(x, pnull, rnull, vals, phat, TS, rate, B(1));
+      x=ralt(param_alt[j]); 
+      NumericMatrix tmp = gof_disc(x, pnull, rnull, vals, phat, 
+              TS, typeTS, TSextra, rate, B[1]);
       for(k=0;k<nummethods;++k) 
-        if(tmp1(1,k)<alpha)  out(j, k) = out(j, k)+1;
-      NumericVector param=phat(x);           
-      NumericMatrix tmp2 = chi_test_disc(x, pnull, param,  
-                nbins, "Pearson", rate, 1, minexpcount);
-      for(k=0;k<2;++k) 
-        if(tmp2(k, 2)<alpha) out(j, nummethods+k) = out(j, nummethods+k)+1; 
-      tmp2 = chi_test_disc(x, pnull, param, nbins, "LR", rate, 1, minexpcount);
-      for(k=0;k<2;++k) 
-          if(tmp2(k, 2)<alpha) out(j, nummethods+2+k) = out(j, nummethods+2+k)+1;   
-  }    
-} 
+         if(tmp(1,k)<alpha)  out(j, k) = out(j, k)+1;
+      }
+  } 
   return out/B(0);
 }

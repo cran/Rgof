@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "Cpporder.h"
 using namespace Rcpp;
 
 //' Find test statistics for continuous data
@@ -15,7 +16,6 @@ Rcpp::NumericVector TS_cont(
         Rcpp::NumericVector Fx,
         Rcpp::NumericVector param, 
         Rcpp::Function qnull) {
-  
   Rcpp::CharacterVector methods=Rcpp::CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1");
   int const nummethods=methods.size();
   int n=x.size(), i;
@@ -25,8 +25,8 @@ Rcpp::NumericVector TS_cont(
 
   /*  sort data */
 
-  std::sort(x.begin(), x.end());
-  std::sort(Fx.begin(), Fx.end());
+  x = Cpporder(x, x);
+  Fx = Cpporder(Fx, Fx);
 
   /*  Kolmogorov-Smirnov and Kuiper*/
 
@@ -34,16 +34,16 @@ Rcpp::NumericVector TS_cont(
     double mx=0.0, Mx=0.0;
     for(i=0;i<n;++i) {
       tmp = Fx[i]-double(i)/n;
-      if(tmp<0 && std::abs(tmp)>std::abs(mx)) mx=std::abs(tmp);
-      if(tmp>0 && std::abs(tmp)>std::abs(Mx)) Mx=std::abs(tmp);
+      if(tmp<mx) mx=tmp;
+      if(tmp>Mx) Mx=tmp;
       tmp = double(i+1)/n-Fx[i];
-      if(tmp<0 && std::abs(tmp)>std::abs(mx)) mx=std::abs(tmp);
-      if(tmp>0 && std::abs(tmp)>std::abs(Mx)) Mx=std::abs(tmp);      
+      if(tmp<mx) mx=tmp;
+      if(tmp>Mx) Mx=tmp;
     }
     if(std::abs(mx)>std::abs(Mx)) TS(0)=std::abs(mx);
     else TS(0)=std::abs(Mx);
     TS(1) = std::abs(mx)+std::abs(Mx);
- 
+
   /* Anderson-Darling */
 
  
@@ -53,7 +53,7 @@ Rcpp::NumericVector TS_cont(
     }
     TS(2)=-n-tmp/n;
   
-  /* Cramer-von Mises and/or Wilson*/
+  /* Cramer-von Mises and/or Watson*/
 
     tmp=0.0;
     tmp1=0.0;
@@ -70,12 +70,14 @@ Rcpp::NumericVector TS_cont(
     TS(6) = 0.0;
     TS(7) = 0.0;
     for(i=0; i<n; ++i) {
-      m = i+0.5;
-      TS(5) = TS(5) - log(Fx[i])/(n-m) - log(1-Fx[i])/m;
-      tmp =  m*log(m/n/Fx[i]) + (n-m)*log((n-m)/n/(1-Fx[i]));
-      if(tmp>TS(6)) TS(6)=tmp;
-      tmp = log( (1/Fx[i]-1)/((n-0.5)/(i+0.25)-1) );
-      TS(7) = TS(7) + tmp*tmp;
+      if(Fx[i]<1) {
+        m = i+0.5;
+        TS(5) = TS(5) - log(Fx[i])/(n-m) - log(1-Fx[i])/m;
+        tmp =  m*log(m/n/Fx[i]) + (n-m)*log((n-m)/n/(1-Fx[i]));
+        if(tmp>TS(6)) TS(6)=tmp;
+        tmp = log( (1/Fx[i]-1)/((n-0.5)/(i+0.25)-1) );
+        TS(7) = TS(7) + tmp*tmp;
+      }  
     }
   
   Rcpp::Environment base("package:base");

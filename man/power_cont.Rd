@@ -10,14 +10,13 @@ power_cont(
   qnull,
   ralt,
   param_alt,
+  w,
   phat,
   TS,
-  nbins = as.integer(c(100, 10)),
-  rate = 0,
-  Range = as.numeric(c(-99999, 99999)),
+  typeTS,
+  TSextra,
   B = as.integer(c(1000, 1000)),
-  alpha = 0.05,
-  minexpcount = 2
+  alpha = 0.05
 )
 }
 \arguments{
@@ -31,21 +30,19 @@ power_cont(
 
 \item{param_alt}{parameters of ralt}
 
+\item{w}{(Optional) function to calculate weights, returns -99 if no weights}
+
 \item{phat}{function to estimate parameters from the data}
 
 \item{TS}{function to calculate test statistics}
 
-\item{nbins}{=c(100,10) number of bins to use}
+\item{typeTS}{integer indicating type of test statistic}
 
-\item{rate}{rate of Poisson if sample size is random}
-
-\item{Range}{=(-99999, 99999) limits of possible observations, if any}
+\item{TSextra}{list to pass to TS}
 
 \item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
 
 \item{alpha}{=0.05, type I error of test}
-
-\item{minexpcount}{=2 minimal expected bin count required}
 }
 \value{
 A matrix of powers

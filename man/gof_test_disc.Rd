@@ -9,14 +9,16 @@ gof_test_disc(
   pnull,
   rnull,
   vals,
-  phat,
+  phat = function(x) -99,
   TS,
-  nbins = c(100, 10),
+  TSextra = NA,
+  nbins = c(50, 10),
   rate = 0,
   B = 5000,
-  minexpcount = 2,
+  minexpcount = 5,
+  ChiUsePhat = TRUE,
   maxProcessors = 1,
-  doMethod = "Default"
+  doMethods = "Default"
 )
 }
 \arguments{
@@ -28,39 +30,29 @@ gof_test_disc(
 
 \item{vals}{a vector of values of discrete random variables}
 
-\item{phat}{a function to estimate parameters from the data}
+\item{phat}{=function(x) -99, function to estimate parameters from the data, or -99 if no parameters aare estimated}
 
-\item{TS}{user supplied function to find test statistics}
+\item{TS}{=NA, user supplied function to find test statistics}
 
-\item{nbins}{=c(100, 10) number of bins for chi-square tests}
+\item{TSextra}{=NA, list passed to TS, if desired}
+
+\item{nbins}{=c(50, 10) number of bins for chi-square tests}
 
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
 \item{B}{=5000  number of simulation runs}
 
-\item{minexpcount}{=2 minimal expected bin count required}
+\item{minexpcount}{=5 minimal expected bin count required}
 
-\item{maxProcessors}{=1 number of processors to use in parallel processing. If missing single processor is used.}
+\item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
-\item{doMethod}{Methods to include in tests}
+\item{maxProcessors}{=1, number of processors to use in parallel processing. If missing single processor is used.}
+
+\item{doMethods}{Methods to include in tests}
 }
 \value{
-A numeric matrix of test statistics and p values
+A numeric matrix of test statistics and p.values
 }
 \description{
 This function performs a number of gof tests for discrete data.
-}
-\examples{
-# Tests to see whether data comes from a binomial (10, 0.5) distribution.
-vals=0:10
-pnull = function() pbinom(0:10, 10, 0.5)
-rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
-x = rnull() 
-gof_test_disc(x, pnull, rnull, vals, doMethod="all")
-# Tests to see whether data comes from a binomial distribution with the success probability 
-# estimated from the data.
-pnull = function(p=0.5) pbinom(0:10, 10, ifelse(p>0&&p<1,p,0.001))
-rnull = function(p=0.5) table(c(0:10, rbinom(1000, 10, ifelse(p>0&&p<1,p,0.001))))-1
-phat = function(x) mean(0:10*x)/1000 
-gof_test_disc(x, pnull, rnull, vals, phat)  
 }

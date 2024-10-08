@@ -4,7 +4,7 @@
 \alias{gof_cont}
 \title{run gof tests for continuous data}
 \usage{
-gof_cont(x, pnull, rnull, qnull, phat, TS, B = 5000L)
+gof_cont(x, pnull, rnull, qnull, w, phat, TS, typeTS, TSextra, B = 5000L)
 }
 \arguments{
 \item{x}{A numeric vector of data}
@@ -15,9 +15,15 @@ gof_cont(x, pnull, rnull, qnull, phat, TS, B = 5000L)
 
 \item{qnull}{R function (quantiles under null hypothesis)}
 
+\item{w}{function to calculate weights, returns -99 if no weights}
+
 \item{phat}{function to set or estimate parameters of pnull}
 
 \item{TS}{function that calculates test statistics}
+
+\item{typeTS}{integer indicating type of test statistic}
+
+\item{TSextra}{list to pass to TS}
 
 \item{B}{(=5000) Number of simulation runs}
 }

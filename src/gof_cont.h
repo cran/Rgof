@@ -7,8 +7,11 @@ Rcpp::NumericMatrix gof_cont(
         Rcpp::Function pnull,
         Rcpp::Function rnull, 
         Rcpp::Function qnull,
+        Rcpp::Function w,
         Rcpp::Function phat, 
-        Rcpp::Function TS_cont_alt,        
+        Rcpp::Function TS,
+        int typeTS,
+        Rcpp::List TSextra,        
         int B=5000
         );
 

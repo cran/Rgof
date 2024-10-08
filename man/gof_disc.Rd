@@ -4,7 +4,7 @@
 \alias{gof_disc}
 \title{run gof tests for discrete data}
 \usage{
-gof_disc(x, pnull, rnull, vals, phat, TS, rate = 0, B = 5000L)
+gof_disc(x, pnull, rnull, vals, phat, TS, typeTS, TSextra, rate = 0, B = 5000L)
 }
 \arguments{
 \item{x}{an integer vector of counts}
@@ -19,7 +19,11 @@ gof_disc(x, pnull, rnull, vals, phat, TS, rate = 0, B = 5000L)
 
 \item{TS}{function that calculates test statistics}
 
-\item{rate}{=0 rate of Poisson if sample size is random, 0 otherwise.}
+\item{typeTS}{type of test statistic}
+
+\item{TSextra}{list passed to TS, if desired}
+
+\item{rate}{=0, rate of sample size, if random}
 
 \item{B}{(=5000) Number of simulation runs}
 }

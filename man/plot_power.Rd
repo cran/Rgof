@@ -4,12 +4,14 @@
 \alias{plot_power}
 \title{This function draws the power graph, with curves sorted by the mean power and smoothed for easier reading.}
 \usage{
-plot_power(pwr, xname = " ", Smooth = TRUE, span = 0.25)
+plot_power(pwr, xname = " ", title, Smooth = TRUE, span = 0.25)
 }
 \arguments{
 \item{pwr}{a matrix of power values, usually from the twosample_power command}
 
 \item{xname}{Name of variable on x axis}
+
+\item{title}{(Optional) title of graph}
 
 \item{Smooth}{=TRUE lines are smoothed for easier reading}
 

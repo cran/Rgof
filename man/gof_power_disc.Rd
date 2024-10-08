@@ -10,14 +10,16 @@ gof_power_disc(
   vals,
   ralt,
   param_alt,
-  phat,
+  phat = function(x) -99,
   TS,
+  TSextra = NA,
   alpha = 0.05,
   B = c(1000, 1000),
   nbins = c(100, 10),
   rate = 0,
   maxProcessors,
-  minexpcount = 2
+  minexpcount = 5,
+  ChiUsePhat = TRUE
 )
 }
 \arguments{
@@ -31,41 +33,29 @@ gof_power_disc(
 
 \item{param_alt}{vector of parameter values for distribution under alternative hypothesis}
 
-\item{phat}{function to estimate parameters from the data}
+\item{phat}{=function(x) -99, function to estimate parameters from the data, -99 if no parameters are estimated}
 
-\item{TS}{user supplied function to find test statistics}
+\item{TS}{user supplied function to find test statistics, if any}
+
+\item{TSextra}{=NA, list passed to TS, if desired}
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
 \item{B}{=c(1000, 1000), number of simulation runs to find power and null distribution}
 
-\item{nbins}{=c(100,10), number of bins for chisquare tests.}
+\item{nbins}{=c(100, 10) number of bins for chi square tests}
 
-\item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
+\item{rate}{rate of Poisson if sample size is random}
 
 \item{maxProcessors}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
 
-\item{minexpcount}{=2 minimal expected bin count required}
+\item{minexpcount}{=5 minimal number of expected counts in each bin for chi square tests}
+
+\item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 }
 \value{
 A numeric matrix of power values.
 }
 \description{
 Find the power of various gof tests for discrete data.
-}
-\examples{
-# Power of tests when null hypothesis specifies a binomial N=10, p=0.5 distribution but 
-# true data comes from a binomial distribution with success probability 0.55 or 0.6.
-vals=0:10
-pnull = function() pbinom(0:10, 10, 0.5)
-rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
-ralt = function(p) table(c(0:10, rbinom(1000, 10, p)))-1
-gof_power_disc(pnull, rnull, vals, ralt, c(0.515, 0.53), B=c(500, 500))
-# Power of tests when null hypothesis specifies a binomial N=10 distribution and
-# p is estimated from the data. 
-pnull=function(p=0.5)  pbinom(0:10, 10, p)
-rnull = function(p=0.5) table(c(0:10, rbinom(1000, 10, p)))-1
-ralt = function(p=0.5) table(c(0:10, rbinom(1000, 10, p)))-1
-phat = function(x) mean(rep(0:10, x))/10
-gof_power_disc(pnull, rnull, vals, ralt, phat, param_alt=0.6, B=c(100, 100), maxProcessors = 2)
 }

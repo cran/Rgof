@@ -8,16 +8,18 @@ gof_test_cont(
   x,
   pnull,
   rnull,
-  qnull,
-  phat,
+  w = function(x) -99,
+  phat = function(x) -99,
   TS,
-  nbins = c(100, 10),
+  TSextra = NA,
+  nbins = c(50, 10),
   rate = 0,
   Range = c(-Inf, Inf),
   B = 5000,
-  minexpcount = 2,
+  minexpcount = 5,
+  ChiUsePhat = TRUE,
   maxProcessors = 1,
-  doMethod = "Default"
+  doMethods = "all"
 )
 }
 \arguments{
@@ -27,13 +29,15 @@ gof_test_cont(
 
 \item{rnull}{routine to generate data under the null hypothesis}
 
-\item{qnull}{routine to calculate quantiles under null hypothesis}
+\item{w}{(Optional) function to calculate weights, returns -99 if no weights}
 
-\item{phat}{function to estimate parameters from the data}
+\item{phat}{=function(x) -99, function to estimate parameters from the data, or -99 if no parameters aare estimated}
 
-\item{TS}{user supplied function to find test statistics}
+\item{TS}{user supplied function to find test statistics, if any}
 
-\item{nbins}{=c(100, 10) number of bins for chi-square tests}
+\item{TSextra}{=NA, list passed to TS, if desired}
+
+\item{nbins}{=c(50, 10) number of bins for chi-square tests}
 
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
@@ -41,31 +45,17 @@ gof_test_cont(
 
 \item{B}{=5000  number of simulation runs}
 
-\item{minexpcount}{=2 minimal expected bin count required}
+\item{minexpcount}{=5 minimal expected bin count required}
 
-\item{maxProcessors}{=1number of processors to use in parallel processing. If missing single processor is used.}
+\item{ChiUsePhat}{=TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
-\item{doMethod}{Methods to include in tests}
+\item{maxProcessors}{=1, number of processors to use in parallel processing. If missing single processor is used.}
+
+\item{doMethods}{Methods to include in tests}
 }
 \value{
-A list with vectors of test statistics and p values
+A list with vectors of test statistics and p.values
 }
 \description{
 This function performs a number of gof tests for continuous data
-}
-\examples{
-# Tests to see whether data comes from a standard normal distribution.
-pnull = function(x) pnorm(x)
-qnull = function(x) qnorm(x)
-rnull = function()  rnorm(100)
-x = rnorm(100) 
-gof_test_cont(x, pnull, rnull, qnull, doMethod="all")
-# Tests to see whether data comes from a normal distribution with 
-# mean and standard deviation estimated from the data.
-pnull = function(x, p=c(0, 1)) pnorm(x, p[1], ifelse(p[2]>0.001, p[2], 0.001))
-qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  ifelse(p[2]>0.001, p[2], 0.001))
-rnull = function(p=c(0, 1))  rnorm(100, p[1], ifelse(p[2]>0.001, p[2], 0.001))
-phat = function(x) c(mean(x), sd(x))
-gof_test_cont(x, pnull, rnull, qnull, phat)
-
 }

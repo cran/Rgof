@@ -4,16 +4,14 @@
 \alias{check.functions}
 \title{This function checks whether the inputs have the correct format}
 \usage{
-check.functions(pnull, rnull, qnull, phat, vals, x)
+check.functions(pnull, rnull, phat = function(x) -99, vals, x)
 }
 \arguments{
 \item{pnull}{cdf under the null hypothesis}
 
 \item{rnull}{routine to generate data under the null hypothesis}
 
-\item{qnull}{routine to calculate quantiles under null hypothesis}
-
-\item{phat}{function to estimate parameters from the data}
+\item{phat}{=function(x) -99, function to estimate parameters from the data, or -99}
 
 \item{vals}{vector of discrete values}
 
