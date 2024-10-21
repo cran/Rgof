@@ -16,9 +16,9 @@
 
 gof_test_disc_adj <- function(x, pnull, rnull, vals, phat=function(x) -99, 
                           TS, TSextra=NA,  nbins=c(50, 10), rate=0, 
-                          B=5000, minexpcount=5.0, ChiUsePhat=TRUE,
+                          B=c(5000, 1000), minexpcount=5.0, ChiUsePhat=TRUE,
                           doMethods=c("Wassp1", "W", "AD", "s-P")) {
-
+  if(length(B)==1) B=c(B, B)
   if(any(is.na(TSextra))) TSextra = list(p=phat(x))
   else TSextra = c(TSextra, p=phat)
   if(missing(TS)) { # use built-in tests

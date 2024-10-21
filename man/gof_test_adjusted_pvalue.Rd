@@ -16,7 +16,7 @@ gof_test_adjusted_pvalue(
   nbins = c(50, 10),
   rate = 0,
   Range = c(-Inf, Inf),
-  B = 5000,
+  B = c(5000, 1000),
   minexpcount = 5,
   ChiUsePhat = TRUE,
   doMethods

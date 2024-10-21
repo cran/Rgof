@@ -159,7 +159,7 @@ The arguments of *gof_test_adjusted_pvalue* for discrete data/model are the same
 
 #### Random Sample Size
 
-In some fields like high energy physics it is common that the sample size is not fixed but a random variable drawn from a Poisson distribution with a known rate. Our package easily accomodates that:
+In some fields like high energy physics it is common that the sample size is not fixed but a random variable drawn from a Poisson distribution with a known rate. Our package runs this as follows:
 
 ```{r r1, eval=FALSE}
 rnull = function() table(c(0:20, rbinom(rpois(1, 650), 20, 0.5)))-1 
@@ -521,6 +521,50 @@ ralt = function(slope=0) {
 gof_power(pnull, vals, rnull, ralt, TS=newTSdisc, param_alt=round(seq(0, 0.5, length=5), 3), B=Bsim)
 ```
 
+### Adjusted p values for Several Tests
+
+As no single test can be relied upon to consistently have good power, it is reasonable to employ several of them. We could then reject the null hypothesis if any of the tests does so, that is, if the smallest p-value is less than the desired type I error probability $\alpha$. 
+
+This procedure clearly suffers from the problem of simultaneous inference, and the true type I error probability will be much larger than $\alpha$. It is however possible to adjust the p value so it does achieve the desired $\alpha$. This can be done as follows:
+
+We generate a number of data sets under the null hypothesis. Generally about 1000 will be sufficient. Then for each simulated data set we apply the tests we wish to include, and record the smallest p value. Here is an example. Say the null hypothesis specifies a uniform $[0.1]$ and a sample size of 250. 
+
+```{r eval=FALSE}
+pnull=function(x) punif(x)
+rnull=function() runif(250)
+pvals=matrix(0,1000,16)
+for(i in 1:1000) pvals[i, ]=Rgof::gof_test(rnull(), NA, pnull, rnull,B=1000)$p.values
+```
+
+Next we find the smallest p value in each run for two selections of four methods. One is the selection found to be best above, namely the methods by Wilson, Anderson-Darling, Zhang's ZC and a chi square test with a small number of bins and using Pearson's formula. As a second selection we use the methods by Kolmogorov-Smirnov, Kuiper, Anderson-Darling and Cramer-vonMises. It can be checked that for this null hypothesis these methods are highly correlated.
+
+```{r eval=FALSE}
+colnames(pvals)=names(Rgof::gof_test(rnull(), NA, pnull, rnull,B=10)$p.values)
+p1=apply(pvals[, c("W", "ZC", "AD", "ES-s-P" )], 1, min)
+p2=apply(pvals[, c("KS", "K", "AD", "CvM")], 1, min)
+```
+
+Next we find the empirical distribution function for the two sets of p values and draw their graphs. We also add the curve for the cases of four identical tests and the case of four independent tests, which of course is the Bonferroni correction. The data for the cdf is in the inst/extdata directory of the package
+
+```{r}
+tmp=readRDS("../inst/extdata/pvaluecdf.rds")
+Tests=factor(c(rep("Identical Tests", nrow(tmp)),
+        rep("Correlated Selection", nrow(tmp)),
+        rep("Best Selection", nrow(tmp)),
+        rep("Independent Tests", nrow(tmp))),
+        levels=c("Identical Tests",  "Correlated Selection", 
+                 "Best Selection", "Independent Tests"),
+        ordered = TRUE)
+dta=data.frame(x=c(tmp[,1],tmp[,1],tmp[,1],tmp[,1]),
+          y=c(tmp[,1],tmp[,3],tmp[,2],1-(1-tmp[,1])^4),
+          Tests=Tests)
+ggplot2::ggplot(data=dta, ggplot2::aes(x=x,y=y,col=Tests))+
+  ggplot2::geom_line(linewidth=1.2)+
+  ggplot2::labs(x="p value", y="CDF")+
+  ggplot2::scale_color_manual(values=c("blue","red", "Orange", "green"))
+```
+
+
 ### Weighted Data
 
 Sometimes the data/model uses importance sampling weights. This can be done as follows. Say we want to test whether the data comes from a standard normal distribution, truncated to [-3,3] and with weights from a t distribution with 3 degrees of freedom:
@@ -536,9 +580,9 @@ x=sort(rnull())
 plot(x, w(x), type="l", ylim=c(0, 2*max(w(x))))
 ralt=function(m=0) {x=rt(2000,df)+m;x=x[abs(x)<3];sort(x[1:1000])}
 set.seed(111)
-gof_power(pnull, NA, rnull, ralt, w=w, param_alt = c(0,0.2), Range=c(-3,3),B=Bsim)
+Rgof::gof_power(pnull, NA, rnull, ralt, w=w, param_alt = c(0,0.2), Range=c(-3,3),B=Bsim)
 ```
 
-It should be noted that these tests are quite sensitive to the size of the weights and to the sample size, so one should always do simulation study to verify that they work in the case under consideration.
+It should be noted that these tests are quite sensitive to the size of the weights and to the sample size, so one should always do a simulation study to verify that they work in the case under consideration.
 
 # References 

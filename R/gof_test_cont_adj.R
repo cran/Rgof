@@ -20,6 +20,7 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
        TS, TSextra=NA, nbins=c(50,10), rate=0, Range=c(-Inf,Inf), 
        B=c(5000, 1000), minexpcount=5, ChiUsePhat=TRUE, 
        doMethods=c("W", "ZC", "AD", "ES-s-P")) {
+  if(length(B)==1) B=c(B, B)
  # Are weights present?
   WithWeights = TRUE
   if(length(formals(w))==1 & w(x[1])==-99) WithWeights = FALSE

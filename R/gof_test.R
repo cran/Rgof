@@ -51,30 +51,32 @@ gof_test <- function(x, vals= NA, pnull, rnull,
                     TS, TSextra=NA, nbins=c(50, 10), rate=0, 
                     Range=c(-Inf, Inf), B=5000,  minexpcount=5.0,  
                     ChiUsePhat=TRUE, maxProcessors=1, doMethods="all") {
-
-  
-   if(any(is.na(vals))) {
+# adjust number of bins to account for parameter estimation
+   if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x)) 
+   if(any(is.na(vals))) { # continuous data/model 
+     # do some checks to see arguments are given correctly
      check.functions(pnull, rnull, phat, x=x)
-     if(missing(TS))
+     if(missing(TS)) # run built-in methods
         out = gof_test_cont(x, pnull, rnull, w, phat, TSextra=TSextra, nbins=nbins, 
                   rate=rate, Range=Range, B=B, minexpcount=minexpcount, ChiUsePhat=ChiUsePhat, 
                   maxProcessors=maxProcessors, doMethods=doMethods)
-     else
+     else # run user-provided tests
        out = gof_test_cont(x, pnull, rnull, w, phat, TS=TS, TSextra=TSextra, nbins=nbins, 
                     rate=rate, Range=Range, B=B, minexpcount=minexpcount, 
                     ChiUsePhat=ChiUsePhat, maxProcessors=maxProcessors, doMethods=doMethods)
    }
-   else {
+   else { #discrete data/model
+     # do some checks to see arguments are given correctly
      check.functions(pnull, rnull, vals=vals, phat=phat, x=x)
-     if(missing(TS))
+     if(missing(TS)) # run built-in methods
      out = gof_test_disc(x, pnull, rnull, vals, phat, TSextra=TSextra, nbins=nbins, 
                    rate=rate, B=B, minexpcount=minexpcount, ChiUsePhat=ChiUsePhat,
                    maxProcessors=maxProcessors, doMethods=doMethods)     
-     else
+     else # run user-provided tests
        out = gof_test_disc(x, pnull, rnull, vals, phat, TS=TS, TSextra=TSextra, nbins=nbins, 
                    rate=rate, B=B, minexpcount=minexpcount, ChiUsePhat=ChiUsePhat,
                    maxProcessors=maxProcessors, doMethods=doMethods)     
    }
-
+   # make output look nice
    signif.digits(out)
 }

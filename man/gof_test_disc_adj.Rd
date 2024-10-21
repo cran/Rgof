@@ -14,7 +14,7 @@ gof_test_disc_adj(
   TSextra = NA,
   nbins = c(50, 10),
   rate = 0,
-  B = 5000,
+  B = c(5000, 1000),
   minexpcount = 5,
   ChiUsePhat = TRUE,
   doMethods = c("Wassp1", "W", "AD", "s-P")

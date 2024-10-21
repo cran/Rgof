@@ -1,3 +1,6 @@
+# Rgof 2.1.1
+    October 2024. Some minor bug fixes.
+    
 # Rgof 2.1.0
     October 2024. Some minor bug fixes and some added capabilities.
 

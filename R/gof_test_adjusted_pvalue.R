@@ -48,13 +48,14 @@
 gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull, 
                     w=function(x) -99, phat=function(x) -99, 
                     TS, TSextra=NA, nbins=c(50, 10), rate=0, 
-                    Range=c(-Inf, Inf), B=5000,  minexpcount=5.0,  
+                    Range=c(-Inf, Inf), B=c(5000,1000),  minexpcount=5.0,  
                     ChiUsePhat=TRUE, doMethods) {
-
-  
-   if(any(is.na(vals))) {
-     check.functions(pnull, rnull, phat, x=x)
-     if(missing(doMethods)) doMethods=c("W", "ZC", "AD", "ES-s-P")
+  # adjust number of bins to account for parameter estimation
+  if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x)) 
+   if(length(B)==1) B=c(B, B) # this routine needs two simulation sizes
+   if(any(is.na(vals))) { # continuous data
+     check.functions(pnull, rnull, phat, x=x) # do some sanity checks
+     if(missing(doMethods)) doMethods=c("W", "ZC", "AD", "ES-s-P") 
      if(missing(TS))
         out = gof_test_cont_adj(x, pnull, rnull, w, phat, TSextra=TSextra, nbins=nbins, 
                   rate=rate, Range=Range, B=B, minexpcount=minexpcount, ChiUsePhat=ChiUsePhat, 
