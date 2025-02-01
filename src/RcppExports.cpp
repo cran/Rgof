@@ -23,56 +23,59 @@ BEGIN_RCPP
 END_RCPP
 }
 // TS_cont
-Rcpp::NumericVector TS_cont(Rcpp::NumericVector x, Rcpp::NumericVector Fx, Rcpp::NumericVector param, Rcpp::Function qnull);
-RcppExport SEXP _Rgof_TS_cont(SEXP xSEXP, SEXP FxSEXP, SEXP paramSEXP, SEXP qnullSEXP) {
+Rcpp::NumericVector TS_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::Function qnull);
+RcppExport SEXP _Rgof_TS_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP qnullSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Fx(FxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param(paramSEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type qnull(qnullSEXP);
-    rcpp_result_gen = Rcpp::wrap(TS_cont(x, Fx, param, qnull));
+    rcpp_result_gen = Rcpp::wrap(TS_cont(x, pnull, param, qnull));
     return rcpp_result_gen;
 END_RCPP
 }
 // TS_disc
-NumericVector TS_disc(IntegerVector x, NumericVector Fx, NumericVector vals);
-RcppExport SEXP _Rgof_TS_disc(SEXP xSEXP, SEXP FxSEXP, SEXP valsSEXP) {
+Rcpp::NumericVector TS_disc(Rcpp::IntegerVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::NumericVector vals);
+RcppExport SEXP _Rgof_TS_disc(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP valsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Fx(FxSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
-    rcpp_result_gen = Rcpp::wrap(TS_disc(x, Fx, vals));
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param(paramSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(TS_disc(x, pnull, param, vals));
     return rcpp_result_gen;
 END_RCPP
 }
 // TSw_cont
-Rcpp::NumericVector TSw_cont(Rcpp::NumericVector x, Rcpp::NumericVector Fx, Rcpp::NumericVector w);
-RcppExport SEXP _Rgof_TSw_cont(SEXP xSEXP, SEXP FxSEXP, SEXP wSEXP) {
+Rcpp::NumericVector TSw_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::NumericVector w);
+RcppExport SEXP _Rgof_TSw_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Fx(FxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param(paramSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type w(wSEXP);
-    rcpp_result_gen = Rcpp::wrap(TSw_cont(x, Fx, w));
+    rcpp_result_gen = Rcpp::wrap(TSw_cont(x, pnull, param, w));
     return rcpp_result_gen;
 END_RCPP
 }
 // TSw_disc
-NumericVector TSw_disc(IntegerVector x, NumericVector Fx, NumericVector vals, NumericVector w);
-RcppExport SEXP _Rgof_TSw_disc(SEXP xSEXP, SEXP FxSEXP, SEXP valsSEXP, SEXP wSEXP) {
+Rcpp::NumericVector TSw_disc(Rcpp::IntegerVector x, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::NumericVector vals, Rcpp::NumericVector w);
+RcppExport SEXP _Rgof_TSw_disc(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP valsSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Fx(FxSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type w(wSEXP);
-    rcpp_result_gen = Rcpp::wrap(TSw_disc(x, Fx, vals, w));
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param(paramSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(TSw_disc(x, pnull, param, vals, w));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -125,6 +128,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type rate(rateSEXP);
     Rcpp::traits::input_parameter< int >::type B(BSEXP);
     rcpp_result_gen = Rcpp::wrap(gof_disc(x, pnull, rnull, vals, phat, TS, typeTS, TSextra, rate, B));
+    return rcpp_result_gen;
+END_RCPP
+}
+// newTSdisc
+NumericVector newTSdisc(IntegerVector x, Function pnull, NumericVector param, NumericVector vals);
+RcppExport SEXP _Rgof_newTSdisc(SEXP xSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Function >::type pnull(pnullSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type param(paramSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(newTSdisc(x, pnull, param, vals));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -189,12 +206,13 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_Rgof_Cpporder", (DL_FUNC) &_Rgof_Cpporder, 2},
     {"_Rgof_TS_cont", (DL_FUNC) &_Rgof_TS_cont, 4},
-    {"_Rgof_TS_disc", (DL_FUNC) &_Rgof_TS_disc, 3},
-    {"_Rgof_TSw_cont", (DL_FUNC) &_Rgof_TSw_cont, 3},
-    {"_Rgof_TSw_disc", (DL_FUNC) &_Rgof_TSw_disc, 4},
+    {"_Rgof_TS_disc", (DL_FUNC) &_Rgof_TS_disc, 4},
+    {"_Rgof_TSw_cont", (DL_FUNC) &_Rgof_TSw_cont, 4},
+    {"_Rgof_TSw_disc", (DL_FUNC) &_Rgof_TSw_disc, 5},
     {"_Rgof_bincounter", (DL_FUNC) &_Rgof_bincounter, 2},
     {"_Rgof_gof_cont", (DL_FUNC) &_Rgof_gof_cont, 10},
     {"_Rgof_gof_disc", (DL_FUNC) &_Rgof_gof_disc, 10},
+    {"_Rgof_newTSdisc", (DL_FUNC) &_Rgof_newTSdisc, 4},
     {"_Rgof_power_cont", (DL_FUNC) &_Rgof_power_cont, 12},
     {"_Rgof_power_disc", (DL_FUNC) &_Rgof_power_disc, 12},
     {"_Rgof_wbincounter", (DL_FUNC) &_Rgof_wbincounter, 3},

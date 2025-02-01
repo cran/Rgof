@@ -4,14 +4,14 @@
 \alias{TS_cont}
 \title{Find test statistics for continuous data}
 \usage{
-TS_cont(x, Fx, param, qnull)
+TS_cont(x, pnull, param, qnull)
 }
 \arguments{
 \item{x}{A numeric vector.}
 
-\item{Fx}{numeric vector of cdf probabilities.}
+\item{pnull}{cdf.}
 
-\item{param}{parameters for pnull}
+\item{param}{parameters for pnull  in case of parameter estimation.}
 
 \item{qnull}{An R function, the quantile function under the null hypothesis.}
 }
@@ -21,4 +21,3 @@ A numeric vector with test statistics
 \description{
 Find test statistics for continuous data
 }
-\keyword{internal}

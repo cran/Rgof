@@ -25,7 +25,7 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99,
   if(missing(TS)) { # use built-in tests
     typeTS = 0
     TS = TS_disc
-    TS_data = TS(x, (1:length(x))/length(x), vals)
+    TS_data = TS(x, pnull, phat(x), vals)
   }  
   else {
     # can't do parallel processing if TS written in C/C++
@@ -33,16 +33,16 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99,
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
       maxProcessors=1
     }
-    if(length(formals(TS))==3) {
-      typeTS=1
-      TS_data = TS(x, (1:length(x))/(length(x)+1), vals)
-    }
     if(length(formals(TS))==4) {
-      typeTS=2
-      TS_data = TS(x, (1:length(x))/(length(x)+1), vals, TSextra)
+      typeTS=1
+      TS_data = TS(x, pnull, phat(x), vals)
     }
-    if(length(formals(TS))>4) {
-      message("TS should have either 3 or 4 arguments")
+    if(length(formals(TS))==5) {
+      typeTS=2
+      TS_data = TS(x, pnull, phat(x), vals, TSextra)
+    }
+    if(length(formals(TS))>5) {
+      message("TS should have either 4 or 5 arguments")
       return(NULL)
     }
     if(is.null(names(TS_data))) {

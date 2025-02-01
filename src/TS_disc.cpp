@@ -4,14 +4,16 @@ using namespace Rcpp;
 //' Find test statistics for discrete data
 //' 
 //' @param x An integer vector.
-//' @param Fx A numeric vector of cumulative probabilities.
+//' @param pnull cdf.
+//' @param param parameters for pnull in case of parameter estimation.
 //' @param vals A numeric vector with the values of the discrete rv.
-//' @keywords internal
 //' @return A vector with test statistics
 // [[Rcpp::export]]
-NumericVector TS_disc(IntegerVector x, 
-                      NumericVector Fx,  
-                      NumericVector vals) {
+Rcpp::NumericVector TS_disc(
+         Rcpp::IntegerVector x, 
+         Rcpp::Function pnull, 
+         Rcpp::NumericVector param, 
+         Rcpp::NumericVector vals) {
     
   Rcpp::CharacterVector methods=CharacterVector::create("KS", "K", "AD", "CvM", "W", "Wassp1");    
   int const nummethods=methods.size();
@@ -22,6 +24,14 @@ NumericVector TS_disc(IntegerVector x,
   double tmp, tmp1;
   TS.names() =  methods;
 
+  /* some setup */
+  Rcpp::Environment base("package:base");
+  Rcpp::Function formals_r = base["formals"];
+  Rcpp::List respnull = formals_r(Rcpp::_["fun"]=pnull);
+  NumericVector Fx(k);
+  if(respnull.size()==0) Fx = pnull();
+  else Fx = pnull(param);
+  
   /*  Find sample size, cumulative sum of x and a vector used in various calculations*/
   
   n=0;
@@ -90,7 +100,7 @@ NumericVector TS_disc(IntegerVector x,
     }
     TS(3) = 1/(12.0*n)+n*tmp;
 
-  /* Wilson*/
+  /*Lehman-Rosenblatt*/
   
     tmp = double(n)*(4.0*n*n-1)/3.0-4.0*n*cumx[0]*(cumx[0]-1)*Fx[0]-4.0*n*x[0]*Fx[0]+4.0*n*n*x[0]*Fx[0]*Fx[0];
     tmp1 = x[0]*Fx[0];

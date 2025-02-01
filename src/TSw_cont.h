@@ -3,7 +3,7 @@
 
 #include <Rcpp.h>
 Rcpp::NumericVector TSw_cont(Rcpp::NumericVector x, 
-                            Rcpp::NumericVector Fx,
+                            Rcpp::Function pnull,
                             Rcpp::NumericVector w
                       );
 

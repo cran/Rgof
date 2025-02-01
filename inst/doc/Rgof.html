@@ -364,7 +364,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(Rgof)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>Bsim <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">200</span>) <span class="co">#Number of Simulation Runs</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>Bsim <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>) <span class="co">#Number of Simulation Runs</span></span></code></pre></div>
+<p>Note that Bsim is very small, so that this vignette does not take to
+long to run. Therefore none of the p values or powers below are
+correct.</p>
 <p>The package <em>Rgof</em> brings together a number of routines for
 the goodness-of-fit problem for univariate data. We have a data set
 <span class="math inline">\(\pmb{x}\)</span>, and we want to test
@@ -388,7 +391,11 @@ Poisson random variable.<br />
 </li>
 <li>it allows the user to add more tests.<br />
 </li>
-<li>it includes a routine to draw the usual power graph.</li>
+<li>it includes a routine to draw the usual power graph.<br />
+</li>
+<li>it allows the user to compare the power of a new test to those
+included in the package for a large number of cases (aka null hypothesis
+vs alternative hypothesis).</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span></code></pre></div>
 <p><strong>Note</strong> all runs of the test routine are done with
@@ -456,8 +463,8 @@ for discrete data we have</p>
 is a step function but <span class="math inline">\(F\)</span> is
 continuous, and therefore <span class="math inline">\(A^2&gt;0\)</span>.
 In the discrete case however<span class="math inline">\(A^2=0\)</span>
-is possible. This shows that the two cases are fundamentally
-different.</p>
+is possible. This shows that the two cases are fundamentally different
+and therefore require different formulas for the test statistic.</p>
 <p>As for continuous data null distributions are found using simulation.
 In fact in the case of discrete data none of the tests has a known
 distribution for the test statistic under the null hypothesis.</p>
@@ -487,7 +494,8 @@ n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span> <span class="co">#possible values of random variable</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pnull<span class="ot">=</span><span class="cf">function</span>()  <span class="fu">pbinom</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)  <span class="co"># cumulative distribution function (cdf)</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># generate data under the null hypothesis, make sure that vector of counts has same length as vals, possibly 0.</span></span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># generate data under the null hypothesis, make sure that vector of counts has </span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#same length as vals, possibly 0.</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
@@ -544,16 +552,18 @@ statistics</p></li>
 <li><p>TSextra: a list that is passed to TS if any additional info is
 required.</p></li>
 <li><p>nbins=c(50, 10): number of bins for chi square tests. The first
-one is already given by the data in the discrete case, the for the
-second bins are joined.</p></li>
+one is already given by the data in the discrete case, for the second
+bins are joined.</p></li>
 <li><p>rate=0, if not 0 sample size is assumed to have come from a
 Poisson random variable with rate “rate”.</p></li>
 <li><p>minexpcount=5, minimal expected counts for chi square
 tests.</p></li>
-<li><p>ChiUsePhat=TRUE, if TRUE uses phat for parameter estimation. If
-false uses method of minimum chi square</p></li>
+<li><p>ChiUsePhat=TRUE, if TRUE uses user supplied function phat for
+parameter estimation. If false uses method of minimum chi
+square.</p></li>
 <li><p>maxProcessors=1 if greater than 1 number of cores for parallel
-processing.</p></li>
+processing. Parallel processing is usually not be useful for discrete
+data as the single thread version generally runs faster.</p></li>
 <li><p>doMethods=“all” names of methods to include</p></li>
 </ul>
 <p>The arguments of <em>gof_test_adjusted_pvalue</em> for discrete
@@ -602,6 +612,10 @@ estimated from data.</p>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;  0.561  0.046  0.000  0.006  0.138  0.000  0.000  0.000  0.000  0.000</span></span></code></pre></div>
+<p>The arguments are the same as for the simple hypothesis case, except
+that the user has to supply a routine phat to estimate the parameters,
+and the functions pnull and rnull now have one argument, namely the
+vector with parameter estimates.</p>
 <p>The estimation of the parameter(s) in the case of the chi square
 tests is done either by using the function phat or via the minimum chi
 square method. The routine uses a general function minimizer. If there
@@ -631,7 +645,7 @@ distribution, truncated to the interval 0-2:</p>
 <span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>}</span>
 <span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>bins <span class="ot">=</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">40</span><span class="sc">/</span><span class="dv">20</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>vals <span class="ot">=</span> (bins[<span class="sc">-</span><span class="dv">1</span>]<span class="sc">+</span>bins[<span class="sc">-</span><span class="dv">21</span>])<span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>vals <span class="ot">=</span> (bins[<span class="sc">-</span><span class="dv">1</span>]<span class="sc">+</span>bins[<span class="sc">-</span><span class="dv">21</span>])<span class="sc">/</span><span class="dv">2</span> <span class="co">#use bin midpoints as values</span></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>() {</span>
 <span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>   bins <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">40</span><span class="sc">/</span><span class="dv">20</span></span>
 <span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>   <span class="fu">pexp</span>(bins, <span class="dv">1</span>)<span class="sc">/</span><span class="fu">pexp</span>(<span class="dv">2</span>, <span class="dv">1</span>)</span>
@@ -709,6 +723,10 @@ distribution, truncated to the interval 0-2:</p>
 <span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
 <span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
+<p>The arguments of gof_test are the same as in the discrete case,
+except that vals=NA. The functions pnull and rnull are functions of one
+variable in the case of a simple hypothesis and of two variables in the
+case of parameeter estimation.</p>
 </div>
 <div id="composite-hypothesis---multiple-parameters" class="section level4">
 <h4>Composite Hypothesis - Multiple Parameters</h4>
@@ -769,9 +787,9 @@ hypothesis:</p>
 <span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>rnull <span class="ot">=</span><span class="cf">function</span> () <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>P<span class="ot">=</span><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, </span>
-<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  <span class="at">param_alt=</span><span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.02</span>),  <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  <span class="at">param_alt=</span><span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.02</span>), <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="fu">plot_power</span>(P, <span class="st">&quot;p&quot;</span>, <span class="at">Smooth=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAABXFBMVEUAAAAAADoAAGYAOmYAOpAAZrYil+Yo4uUzMzM6AAA6ADo6AGY6OgA6OmY6OpA6ZpA6ZrY6kNtNTU1NTW5NTXlNTY5NU15Nbo5NbqtNb7VNechNjshZZKth0E9jTY5kWU1kq+RmAABmADpmAGZmOgBmOjpmOpBmZjpmZmZmZrZmkJBmtrZmtttmtv9uTU1uTW5uTY5ubo5ubqtuq+R5TU15yP9/U02DTU2DTW6DyP+OTU2OTW6OTY6ObquOyP+QOgCQOjqQOmaQZpCQkDqQkGaQtpCQ27aQ2/+dXk2d5P+enp6rbk2rbm6rbo6rjk2ryKur5Mir5P+2ZgC2Zjq2tma225C22/+2/9u2///Ijk3I///NC7zbkDrbkGbbtmbb25Db/7bb/9vb///fU2vkq27k///r6+v1xxD/tmb/yIP/yI7/25D/27b/5Kv//7b//8j//83//9v//+T///8YYEW7AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAPtklEQVR4nO2djX/bOBnH3dE4dIWy7DjueAlHN243XjJgO97uoN2go0fG2zKOa+cAu+bmhIWmpPr/Px/0akm2Y8mO3/38PlsVR1Fjf/vokWzpkRwESpRT9QnUXQDIIABkEAAyCAAZBIAMygbIp+JJzEHWI/MHc758swCQQQDIIABkEAAyCAAZBIAMAkAGJQK6/OlLhK4+uv3u6yBhAkBUb26//RJdPztCX3xbJFwAiOj8rb9iC7r6zUtiSTzhWQCIiRC5fPgaXX38nCf4zS9jFXpKbj+sOVGh37lZRkBv3qVkeMIzirMg13X77PVcqlkWRFQUINcd+n1fUNGyxnUFVJ4PcikezCeSNcaqrQVdP3vEWrFHhbZihM7QR7h6zT0ti8KRHyyeSEi16AdROkP8QuODswScugLaqFwBua5P6WA+SOEzVul0F5Ar8WD7QZwPg2PfD1ru3TjDyepw9yJ477//QMubp9HPLuhHrVUtIEwHCTykfiHfo3g2F4s/n+XezilNJCACp/GAHGk9pPkSDmicUCz+fJZ79wc4md5vGSDacHE+foRPKkA/uneB1o9PMKD1sePcOFvuOc5gefPEcZwRou/1EKmDzs5JcwA5uN/DjzgflBnQj5+coeXBv3Yv1seYxHT3gloQqXLTG2fkPfJ/dTjA/5sDiPBhR4yPTwGFG3Y7QKPpCC0Gi90LWoNWhyMGaETrGn0P/6DptDGAnACQ4ONvAWjRQ5MRBjR1qAaBDyKAiGvC6ZSm+00BRPmQo4APORgnF9sIaHXv1d0zAoj76eYDcgQgyWcbQOjFSQ+RKrZzGgVE3hNVrCmtGOfDmndyg8oAjQ3FNgOaOgMCaH2MzQQTwW4oACSddK85TpoD6iOFz1aACI0Fb+aJxUycngDUxGbecWfs7hQpfHwUc/dlA6hAVQeI370jygcAhY4CA+J5/B5+bCjWGUCOLwwIHwUVDABJQIEB+UjlY/4lOV++WZUAUgxIcUAASAKSBjRHagUDQPQIG5A/5Hx85MuHrACIAwoMiAx+KXwyA/LjtQWXQBVMA3aQi4YI9fFLMp7siffH2X9l7QBtY0GYj/RAvlrBWmRBWwKSHog9IwNAKh9fNSAvyBvb/ZKk82kNIGFAACjmyPFnCiDPB0ARQLgJ82UNE3nj5GKdAUQMCKkGVA6g1R3y5GzPYaNkNQbk+MwDRQAlDDbnAWhBBl7p03ryJLbWgBQPVB6g9eM/3LvgwxnLg4v431EHQMyAUBRQ0mi8HSAnIuXDGMpkxAHR2lZfQDMKSOGTF6BYiezpAC16HND6cX0BcQ8UBZQ4Gr89IDKmQeYz1N2CMB/qgZCY51sWIOp2JiMGaLFbWx9EDSgOUPJo/PaApqThWvTq3ooJA/I1PiUAWj9hVetpzftBwoAigAyj8VsD2k6lAQoMCABtBOQyA+J5fEI9Mo3GdwSQYkAAaAMgl3sgljePG23uNKAZAEo4UpswDojzSdmZSjqfZgMKDKhtgL64TXRE07czx4s5Sh+I5omgjLTd8foBIiLxmOdHkRNKA0gaUAsBkVDM6z89V95JD0jy4YA4n1YAIpGGVx/RioayRT2T0WYx3MzEgpi3GG3WVC0gGst7+RPVitJaEK9h/SAvqGFtsKA3QShm4IeyAApuUykgwacNgM4fBa8yA3L9SgEtHMcRD8qWe2TG9MR2trQZEKtYxIyu/5y1mXfUB0HlA6IBPpMgiONrF2j1vm3EhhkQX04A94PeChqylIDU8XgFUHS0uRhA7DH0+viHByTo7un+B6doeT8/QJtPyB7QzJV8SJ40oLwAzSKSHxaPocmAxvLg3/t/H6F/Pu0aoFgJQD3+YjrA/5b7n95aP/m0XoDcoI2vAlAwmLo8+Pzx6XL/s9+9+oF11FiFgGLmKxTrg0bYAR1cYDQvTga1AkRrWF/JUwyo3FaMxJRhNIudUwCkfVj0g2gY4v4Z+1cvQH01T6lhbehJbzyhrIA8ABQCpNUwABQ+CrkgGgC1YcZLdwH11TwAlAzIA0ARQD4ASgKkuyCtkQdA0RoGgAyAPAAUAYQigDZMKgNAACgGUNgFIQCkHkVdENq8SFBHAfkVA+Lzf3vxZQEQBbQ+Tjv/dytAab5g5vaVQ48Oyuc1Ji9kBJSZTwkWhF2QkueRtRY2ztvMbkHDiFRAn2XmUzggWsNKABQrnru8+RUnmwNCHQG0NyBrcGaTCsi+oqYC1FfyPLKcyeaJrcU56dh1b9MCso+EyQ6ILGdSBSA0TRkGFQfI/pfYX9tsWBNAdH3FLQGtDlm0p3nqjPW1sV6QDihhobLu9aRpDZN5xAUBoCRA+p188wBNHWdk44jsAQ1bBWiy++pwRJf0zgvQTAPEalgChZoDws08aekt1hO2vTZ+pwqAEgD1/fYAwv2gV4SRuVduDWioA5ob1gKsOyA6j8axuGvJBog38k0GZCvba5u1CxDuSVvejFleG3dBKqDk1SRrDoitAmJxp2ENaKgDmpuW26w7IKr1cW6tmA5I3Gc0G9AiTyfdOkC4itkFwVhe22zYV464C2owoNwfmKkhdPJOvnRAkxGpGSMlJmGTYiYH61Vs4tg9VbK7NlHDqgY0HZCtxwbsRZIWMRUo7IOWe+GmnseDZ9gEMgrItNxmMYCWBxc0CIFG++zRJYQWrLFmyeru79lWJTsxMUAxHcVQMB4LM8yyGbZwQWUAciOSH17dPVvd+/zJGUnv0Kn2+BWa9pBIDvmuW8Yqxtaq1JsxHsmbZSNaDZDnV2ZB2HKWt8giZrcCXmylN5Fg38sWxzMAwj3paCXl8eBZNsMeKmHgyEPz3EecAyUDQlO2PRt1QRNaq7Ap7LDVS3FCORFPbnbSMeLx4Bk2ww5cELeguXnB1oKa+UXvBa5Zt/APumcUo8DjEHFCAFlZEH3kGttRPD/KsBm2E8wLqhrQ6n0arfrVMzGGSOCQvchYQmbGMFwmQFO2P2CU0PlRBh80UwFJF1QBIPYUedJjJvCl7494RePJ6s4HDtu2zeiDaAuvP1Hk8eAZNsMe+hogwad+PenExTmNgEQ8ePp+UPsAba5i8SeUfG3SR/tIrWH1A5QoOycdf0ImQEoYLwFkseRv7QHZyubatDhnAGQEFNSw5gKaWD1tVU7IHpBqQI0FNGEbR+cFSHFB7QBE59/ZTsKzuLbhrGWAaCdofWw319EGkK8Bki4IAEUBaQYEgDigvguAEq4Gu6DWAQq27Mhj4FCL4/VUPk0FlErpAHmoWkBBOBQxgnR7hRcISK1hNQBEOjDUi6SdUF4QIN0FIZVPJYBoB49ZUj12ZlEBeX4JgPoRqYBYOFSmyfZFAdJ6QVVbUBAOtXD4s9XqAWmNvManAkBqOFTasJ9iAIV6QVUD4uFQbO7CJF3wYfGA9F5iVYBI60VbsXo4aR2QzqciQMRDk35QOT7IJOyCgtekkS/kSxQlA9pKhVhQoguCW41oDTNfNwACQAAoekKbri3ShgEgABR7QgBoo9IASp5b30VAQ6fvC0CsEwSAdEAzAGQC5IojzzS3vvOA5gAofDXkYaIAxO/DAJAGaKYCMs2tL+1xh4gjSLvQUsGA5nUClGVQoxhArl9bQKmXw8sdEHVB/MgzTx3PC5AXUTyg1Et1FQtoXhqgWIUA1WK/+aE/qyOgieP0rDdjKQ2QZzF1vGwfVDUguo2Yy4+EAQEgFdAMANkDspg63rGeNOYjq5hnE3zQAkCXD+gexla7hVMDCgDZTPxtPiASh0niVm12C2cG1DFAb0iY4fmR1W7hgQHRI6u59c0HRIStyGa38CGakUBwPizvFT4iL1UxIBKvarNbODMgYUGe1czoNljQ1UeP+CvDZthD6oEEILup4y0AdPkgcM/JgLiLFoDsJv42HxDnY7FbuGJA+MjrCiDS/yHu2bhbuGpAvvXU8eYDSjihECDGRwCynPjbPUAuO/IAUOgCNAOynzreOUAuz7Kd+FsyoPRDP3kBwnz4bVi9AaUe+skRkGJA9lPHSwG0CMLE0g/95ARoOEOqASWtW18MoHlE8sN8LbcAUKqhn/wAqQZUPqBYCUCySqUf+skLkI9UA6oXIL6WW7ahn3wADWe+zscaSVlOmi/pVhkgv86A+FpuFQJibbzkUzNAyro2VQHCfJDKxx5JJ3rS1IAAUPSEAkChCgaAdEBOGNDYA0DqBTA+ykmmmRndAUDUgFwfAEVPiCW8gsmTxDUMAMlT5gYEgGJOiCZky2B1Byjjwv6dAKSUHyKkxIBjjb0tf2UG1Q6Q/JvO2G2Y/HPPxx5YkAQkPJA4//l87AMgBVBgQPT852S1RC8VkpYDcgI++GBOd17xABCSgKQBUTy4hfdSIikDkP3ePnkDcjAgtuz4fI6yzQgqA5D13j65AxJ8iPV4Xqb5HGUAUvf2qQIQxoPpZJyukBegcUTyw8rePuUConzmcx56lG2osAwLCu3tUx4gNPQJHnaQcaCnlFZM3dunTEBDiSfzY/pSAMm9fcoFNPeC1RIzP2QtBZDc26dcQMgVgLI/IisFkLK3T7mAFD61BrSN8gCULrK5S4AUPgAo5oQYoLRRhR0CpPIBQDEnhBQ+1QIqUFsC2vr+veWAtr9/bzegHO7fWw0oj/v3VgNKeW0tB5Rht/BOAcqyW3inAGXZLbxTgLLsFt4K2QLKsFt4Vy2ICABFBD7IoAy7hXcLEPSDMiihMUtq5/IvVqQAkEEAyCAAZFAxmx+1SADIIABkEAAyCAAZlAqQ7E3zZSf5Gzh555ehLGV9yq9/GMqTpcPFlOWclGLXz+jiTvLbZJ++cKUBpDxVZKuZ8Tdwcv3Jt/QsZX3KSDFZOlKMiDxZiRTDb8pvU+4KC1caQPKOni8YyN/AydXH332pZSnrU0aKydKRYoih1YuRV9q3Kc8VClcaQPKZEF92kr+Bk8uf/eq5lkUk1qf8TqiYLB1XjFiHXuzy4V9IFZPfpjyZKlxpAMmninzZSf4GTt68I65Urkgp1qf8zzf+qBeTpWOK0cNQsQeUpvy2ugIK/e3Oj+IsiGcp61NevvdrFMoTpWOKvREOWBbTTafGFhSq/edHcT6IZynrU159+HO9mCwdLYbOH0WKXf2WIqm/D5JPFfmyk/wNnFx/8k09S1mf8n+/+J6eJ0tHivHaqRejvB++lt9W11aM90DIn48vOxnuB8ksdX3Kv4WLydLhYqLy6MXwB8la37XvB3VSAMggAGQQADIIABkEgAwCQAYBIIMAkEElA1rePHEctqRhQ1Q2oL0bZyy8rSkqHdAow0aMVar0KobZrA7T7sRYoQCQQZVUsUx76VUkcNIGVdHMN4lPJT6oUQJABgEgg+BezCAAZBAAMggAGQSADAJABgEgg/4PP1Ix9GZdhkoAAAAASUVORK5CYII=" /><!-- --></p>
 <p>In all cases the arguments are the same as for <em>gof_test</em>. In
 addition we now have</p>
 <ul>
@@ -797,9 +815,9 @@ find the null distribution.</p></li>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), <span class="at">phat=</span>phat,</span>
 <span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessors =</span> <span class="dv">2</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt;       KS    K   AD  CvM    W Wassp1   l-P   s-P</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.10 0.08 0.06 0.05 0.05   0.04 0.095 0.045</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.07 0.07 0.05 0.06 0.07   0.07 0.045 0.040</span></span></code></pre></div>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt;       KS    K   AD  CvM    W Wassp1  l-P  s-P</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.06 0.07 0.07 0.06 0.04   0.06 0.06 0.06</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.05 0.05 0.07 0.04 0.07   0.06 0.03 0.02</span></span></code></pre></div>
 <p>Note that power estimation in the case of a composite hypothesis (aka
 with parameters estimated) is much slower than the simple hypothesis
 case.</p>
@@ -810,7 +828,7 @@ case.</p>
 <span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fl">0.5</span>, <span class="at">phat=</span>phat,</span>
 <span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessors =</span> <span class="dv">2</span>)</span>
 <span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P </span></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;   0.14   0.21   1.00   1.00   0.63   1.00   1.00   1.00</span></span></code></pre></div>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;   0.05   0.24   1.00   1.00   0.55   1.00   1.00   1.00</span></span></code></pre></div>
 </div>
 </div>
 <div id="continuous-datamodel" class="section level3">
@@ -822,11 +840,11 @@ case.</p>
 <span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">100</span>)</span>
 <span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">mu=</span><span class="dv">0</span>) <span class="fu">rnorm</span>(<span class="dv">100</span>, mu)</span>
 <span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim)</span>
-<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt;     KS    K   AD  CvM    W   ZA   ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt; 0 0.02 0.02 0.03 0.04 0.07 0.03 0.01 0.03   0.04   0.06   0.04   0.04   0.03</span></span>
-<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; 1 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00   1.00   1.00   1.00   1.00   1.00</span></span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt;    KS   K   AD  CvM    W   ZA   ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt; 0 0.1 0.1 0.12 0.13 0.09 0.07 0.08 0.06   0.12   0.04   0.04   0.08   0.05</span></span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; 1 1.0 1.0 1.00 1.00 1.00 1.00 1.00 1.00   1.00   1.00   1.00   1.00   1.00</span></span>
 <span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt;   ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; 0   0.06   0.03   0.01   0.03</span></span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; 0   0.05   0.05   0.06   0.04</span></span>
 <span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt; 1   1.00   1.00   1.00   1.00</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis-2" class="section level4">
@@ -839,11 +857,11 @@ case.</p>
 <span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">phat=</span> phat, </span>
 <span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a>          <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
 <span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt;     KS    K   AD  CvM    W   ZA   ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 0 0.96 0.92 0.07 0.07 0.07 0.53 0.00 0.02   0.99   0.05   0.03   0.04   0.07</span></span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 1 0.94 0.87 0.04 0.02 0.01 0.52 0.02 0.00   0.99   0.04   0.04   0.05   0.04</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 0 0.94 0.92 0.03 0.03 0.04 0.52 0.01 0.02   1.00   0.06   0.08   0.06   0.04</span></span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 1 0.97 0.92 0.06 0.05 0.05 0.57 0.01 0.00   0.99   0.06   0.09   0.05   0.01</span></span>
 <span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt;   ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 0   0.06   0.05   0.06   0.06</span></span>
-<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 1   0.05   0.05   0.07   0.05</span></span></code></pre></div>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 0   0.06   0.09   0.06   0.05</span></span>
+<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 1   0.06   0.11   0.04   0.03</span></span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">df=</span><span class="dv">1</span>) {</span>
 <span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co"># t distribution truncated at +- 5  </span></span>
 <span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>  x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">1000</span>, df)</span>
@@ -853,11 +871,11 @@ case.</p>
 <span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">50</span>), <span class="at">phat=</span>phat, </span>
 <span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>          <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>), <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
 <span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt;      KS    K   AD  CvM    W   ZA   ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 2  1.00 1.00 0.69 0.62 0.67 0.94 0.24 0.20   1.00   0.36   0.31   0.36   0.44</span></span>
-<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt; 50 0.94 0.88 0.07 0.06 0.06 0.51 0.01 0.01   0.99   0.04   0.12   0.08   0.03</span></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 2  0.99 0.99 0.67 0.63 0.66 0.97 0.24 0.18      1   0.27   0.26   0.23   0.26</span></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt; 50 0.99 0.93 0.05 0.05 0.04 0.59 0.03 0.02      1   0.07   0.10   0.05   0.08</span></span>
 <span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt;    ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 2    0.34   0.34   0.31   0.43</span></span>
-<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a><span class="co">#&gt; 50   0.05   0.12   0.08   0.03</span></span></code></pre></div>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 2    0.26   0.31   0.30   0.23</span></span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a><span class="co">#&gt; 50   0.08   0.09   0.05   0.05</span></span></code></pre></div>
 </div>
 </div>
 <div id="running-other-tests" class="section level3">
@@ -874,17 +892,21 @@ theoretical distribution function:</p>
 <p><span class="math display">\[\int_{-\infty}^{\infty} \vert F(x) -
 \hat{F}(x) \vert dF(x)\]</span> For continuous data we have the
 routine</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>newTScont <span class="ot">=</span> <span class="cf">function</span>(x, Fx) {</span>
-<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>   Fx<span class="ot">=</span><span class="fu">sort</span>(Fx)</span>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>newTScont <span class="ot">=</span> <span class="cf">function</span>(x, pnull, param) {</span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>   Fx<span class="ot">=</span><span class="fu">sort</span>(<span class="fu">pnull</span>(x))</span>
 <span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>   n<span class="ot">=</span><span class="fu">length</span>(x)</span>
 <span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>   out <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">abs</span>( (<span class="dv">2</span><span class="sc">*</span><span class="dv">1</span><span class="sc">:</span>n<span class="dv">-1</span>)<span class="sc">/</span><span class="dv">2</span><span class="sc">/</span>n<span class="sc">-</span>Fx ))</span>
 <span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>   <span class="fu">names</span>(out) <span class="ot">=</span> <span class="st">&quot;CvM alt&quot;</span></span>
 <span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>   out</span>
 <span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>}</span></code></pre></div>
-<p>This routine has to have two arguments x and Fx. Note that the return
-object has to be a <strong>named</strong> vector. The object TSextra can
-be used to provide further information to the TS routine, if
-necessary.</p>
+<p>This routine has to have three or four arguments x, pnull, param and
+(optionally) TSextra. x is the data and pnull a function that finds the
+cdf at x. param has to be the estimated parameters in the case of a
+composite null hypothesis, and is ignored in the case of a simple null
+hypothesis. Tsextra has to be a list of additional items needed for the
+calculation of the test statistic.</p>
+<p>Note that the return object has to be a <strong>named</strong>
+vector.</p>
 <p>Then we can run this test with</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">punif</span>(x)</span>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">runif</span>(<span class="dv">500</span>)</span>
@@ -892,84 +914,89 @@ necessary.</p>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">TS=</span>newTScont)</span>
 <span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
 <span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt;  10.833 </span></span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt;  6.5226 </span></span>
 <span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
 <span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt;  0.1112</span></span></code></pre></div>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt;  0.4582</span></span></code></pre></div>
 <p>Say we want to find the power of this test when the true distribution
 is a linear:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">slope=</span><span class="dv">0</span>) {</span>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="cf">if</span>(slope<span class="sc">==</span><span class="dv">0</span>) y<span class="ot">=</span><span class="fu">runif</span>(<span class="dv">500</span>)</span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    <span class="cf">else</span> y<span class="ot">=</span>(slope<span class="dv">-1</span><span class="sc">+</span><span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">-</span>slope)<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span><span class="dv">4</span><span class="sc">*</span>slope<span class="sc">*</span> <span class="fu">runif</span>(<span class="dv">500</span>)))<span class="sc">/</span><span class="dv">2</span><span class="sc">/</span>slope</span>
 <span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">TS=</span>newTScont, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">5</span>), <span class="dv">3</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">B=</span>Bsim)</span>
-<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; 0        0.07</span></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 0.125    0.48</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0.25     0.90</span></span>
-<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 0.375    1.00</span></span>
-<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="co">#&gt; 0.5      1.00</span></span></code></pre></div>
-<p>for discrete data we write will the routine using Rcpp:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">TS=</span>newTScont, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">B=</span>Bsim)</span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt;      CvM alt</span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; 0       0.06</span></span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 0.25    0.92</span></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0.5     1.00</span></span></code></pre></div>
+<p>for discrete data we will write the routine using Rcpp:</p>
+<p>(For reasons to avoid issues with CRAN submission this routine is
+already part of Rgof)</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
 <span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="kw">using</span> <span class="kw">namespace</span> Rcpp<span class="op">;</span></span>
 <span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
 <span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a>NumericVector newTSdisc<span class="op">(</span>IntegerVector x<span class="op">,</span> </span>
-<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>                      NumericVector Fx<span class="op">,</span>  </span>
-<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a>                      NumericVector vals<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a>    </span>
-<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a>  Rcpp<span class="op">::</span>CharacterVector methods<span class="op">=</span>CharacterVector<span class="op">::</span>create<span class="op">(</span><span class="st">&quot;CvM alt&quot;</span><span class="op">);</span>    </span>
-<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a>  <span class="dt">int</span> <span class="at">const</span> nummethods<span class="op">=</span>methods<span class="op">.</span>size<span class="op">();</span></span>
-<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a>  <span class="dt">int</span> k<span class="op">=</span>x<span class="op">.</span>size<span class="op">(),</span> n<span class="op">,</span> i<span class="op">;</span></span>
-<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a>  NumericVector TS<span class="op">(</span>nummethods<span class="op">),</span> ecdf<span class="op">(</span>k<span class="op">);</span></span>
-<span id="cb35-12"><a href="#cb35-12" tabindex="-1"></a>  <span class="dt">double</span> tmp<span class="op">;</span></span>
-<span id="cb35-13"><a href="#cb35-13" tabindex="-1"></a>  TS<span class="op">.</span>names<span class="op">()</span> <span class="op">=</span>  methods<span class="op">;</span></span>
-<span id="cb35-14"><a href="#cb35-14" tabindex="-1"></a></span>
-<span id="cb35-15"><a href="#cb35-15" tabindex="-1"></a>  n<span class="op">=</span><span class="dv">0</span><span class="op">;</span></span>
-<span id="cb35-16"><a href="#cb35-16" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> n <span class="op">=</span> n <span class="op">+</span> x<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb35-17"><a href="#cb35-17" tabindex="-1"></a>  ecdf<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="dt">double</span><span class="op">(</span>x<span class="op">(</span><span class="dv">0</span><span class="op">))/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span>  </span>
-<span id="cb35-18"><a href="#cb35-18" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb35-19"><a href="#cb35-19" tabindex="-1"></a>    ecdf<span class="op">(</span>i<span class="op">)</span> <span class="op">=</span> ecdf<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> x<span class="op">(</span>i<span class="op">)/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span></span>
-<span id="cb35-20"><a href="#cb35-20" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb35-21"><a href="#cb35-21" tabindex="-1"></a></span>
-<span id="cb35-22"><a href="#cb35-22" tabindex="-1"></a>  tmp <span class="op">=</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">[</span><span class="dv">0</span><span class="op">]-</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">))*</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb35-23"><a href="#cb35-23" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> </span>
-<span id="cb35-24"><a href="#cb35-24" tabindex="-1"></a>     tmp <span class="op">=</span> tmp <span class="op">+</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">))*(</span>Fx<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">));</span></span>
-<span id="cb35-25"><a href="#cb35-25" tabindex="-1"></a>  TS<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> tmp<span class="op">;</span></span>
-<span id="cb35-26"><a href="#cb35-26" tabindex="-1"></a> </span>
-<span id="cb35-27"><a href="#cb35-27" tabindex="-1"></a>  <span class="cf">return</span> TS<span class="op">;</span></span>
-<span id="cb35-28"><a href="#cb35-28" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>Again the routine has to have three arguments x, Fx and vals and the
-output vector has to have names.</p>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>                      Function pnull<span class="op">,</span>  </span>
+<span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a>                      NumericVector param<span class="op">,</span></span>
+<span id="cb35-7"><a href="#cb35-7" tabindex="-1"></a>                      NumericVector vals<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-8"><a href="#cb35-8" tabindex="-1"></a>    </span>
+<span id="cb35-9"><a href="#cb35-9" tabindex="-1"></a>  Rcpp<span class="op">::</span>CharacterVector methods<span class="op">=</span>CharacterVector<span class="op">::</span>create<span class="op">(</span><span class="st">&quot;CvM alt&quot;</span><span class="op">);</span>    </span>
+<span id="cb35-10"><a href="#cb35-10" tabindex="-1"></a>  <span class="dt">int</span> <span class="at">const</span> nummethods<span class="op">=</span>methods<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb35-11"><a href="#cb35-11" tabindex="-1"></a>  <span class="dt">int</span> k<span class="op">=</span>x<span class="op">.</span>size<span class="op">(),</span> n<span class="op">,</span> i<span class="op">;</span></span>
+<span id="cb35-12"><a href="#cb35-12" tabindex="-1"></a>  NumericVector TS<span class="op">(</span>nummethods<span class="op">),</span> ecdf<span class="op">(</span>k<span class="op">),</span> Fx<span class="op">(</span>k<span class="op">);</span></span>
+<span id="cb35-13"><a href="#cb35-13" tabindex="-1"></a>  <span class="dt">double</span> tmp<span class="op">;</span></span>
+<span id="cb35-14"><a href="#cb35-14" tabindex="-1"></a>  TS<span class="op">.</span>names<span class="op">()</span> <span class="op">=</span>  methods<span class="op">;</span></span>
+<span id="cb35-15"><a href="#cb35-15" tabindex="-1"></a>  Fx<span class="op">=</span>pnull<span class="op">(</span>param<span class="op">);</span></span>
+<span id="cb35-16"><a href="#cb35-16" tabindex="-1"></a>  n<span class="op">=</span><span class="dv">0</span><span class="op">;</span></span>
+<span id="cb35-17"><a href="#cb35-17" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> n <span class="op">=</span> n <span class="op">+</span> x<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb35-18"><a href="#cb35-18" tabindex="-1"></a>  ecdf<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="dt">double</span><span class="op">(</span>x<span class="op">(</span><span class="dv">0</span><span class="op">))/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span>  </span>
+<span id="cb35-19"><a href="#cb35-19" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-20"><a href="#cb35-20" tabindex="-1"></a>    ecdf<span class="op">(</span>i<span class="op">)</span> <span class="op">=</span> ecdf<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> x<span class="op">(</span>i<span class="op">)/</span><span class="dt">double</span><span class="op">(</span>n<span class="op">);</span></span>
+<span id="cb35-21"><a href="#cb35-21" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb35-22"><a href="#cb35-22" tabindex="-1"></a></span>
+<span id="cb35-23"><a href="#cb35-23" tabindex="-1"></a>  tmp <span class="op">=</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">[</span><span class="dv">0</span><span class="op">]-</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">))*</span>Fx<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb35-24"><a href="#cb35-24" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span>i<span class="op">=</span><span class="dv">1</span><span class="op">;</span>i<span class="op">&lt;</span>k<span class="op">;++</span>i<span class="op">)</span> </span>
+<span id="cb35-25"><a href="#cb35-25" tabindex="-1"></a>     tmp <span class="op">=</span> tmp <span class="op">+</span> <span class="bu">std::</span>abs<span class="op">(</span>ecdf<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">))*(</span>Fx<span class="op">(</span>i<span class="op">)-</span>Fx<span class="op">(</span>i<span class="op">-</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb35-26"><a href="#cb35-26" tabindex="-1"></a>  TS<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> tmp<span class="op">;</span></span>
+<span id="cb35-27"><a href="#cb35-27" tabindex="-1"></a> </span>
+<span id="cb35-28"><a href="#cb35-28" tabindex="-1"></a>  <span class="cf">return</span> TS<span class="op">;</span></span>
+<span id="cb35-29"><a href="#cb35-29" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The routine has to have four or five arguments x, pnull, param, vals
+and (optionally) TSextra. The output vector has to have names.</p>
 <p>Note that one drawback of writing the routine in Rcpp is that it is
 then not possible to use multiple processors.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">51</span></span>
-<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>() (<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">/</span><span class="dv">50</span></span>
-<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">c</span>(<span class="fu">rmultinom</span>(<span class="dv">1</span>, <span class="dv">500</span>, <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>,<span class="dv">50</span>)))</span>
-<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
-<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">TS=</span>newTSdisc)</span>
-<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="co">#&gt; Parallel Programming is not possible if custom TS is written in C++. Switching to single processor</span></span>
+<p>As an example we will test whether some data comes from a Binomial
+distribution with n=10 trials. The success parameter p will be estimated
+from the data:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>vals<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>pnull <span class="ot">=</span> <span class="cf">function</span>(p) <span class="fu">pbinom</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">10</span>, p) </span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>(p) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>,<span class="fu">rbinom</span>(<span class="dv">10000</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>phat<span class="ot">=</span><span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span><span class="sc">*</span>x)<span class="sc">/</span><span class="dv">100000</span></span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>(<span class="fl">0.5</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TS=</span>Rgof<span class="sc">::</span>newTSdisc)</span>
 <span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
-<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; 0.02635 </span></span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt;  CvM alt </span></span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; 0.002233 </span></span>
 <span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
 <span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt;  0.0432</span></span></code></pre></div>
-<p>and for power calculations we can run</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">slope=</span><span class="dv">0</span>) {</span>
-<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>    <span class="cf">if</span>(slope<span class="sc">==</span><span class="dv">0</span>) p<span class="ot">=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>, <span class="dv">50</span>)</span>
-<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a>    <span class="cf">else</span> p<span class="ot">=</span><span class="fu">diff</span>(slope <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">50</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> slope) <span class="sc">*</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">50</span><span class="sc">/</span><span class="dv">50</span>)  </span>
-<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fu">rmultinom</span>(<span class="dv">1</span>, <span class="dv">500</span>, p))</span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt;  0.3686</span></span></code></pre></div>
+<p>For the power calculations we will consider data that is actually a
+mixture of two Binomials:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">tau=</span><span class="dv">0</span>) {</span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>   x<span class="ot">=</span><span class="fu">rbinom</span>(<span class="dv">5000</span>, <span class="dv">10</span>, <span class="fl">0.5</span><span class="sc">-</span>tau)</span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a>   y<span class="ot">=</span><span class="fu">rbinom</span>(<span class="dv">5000</span>, <span class="dv">10</span>, <span class="fl">0.5</span><span class="sc">+</span>tau) </span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>   <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>,x,y))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>}</span>
-<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="at">TS=</span>newTSdisc, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">5</span>), <span class="dv">3</span>), <span class="at">B=</span>Bsim)</span>
-<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; Parallel Programming is not possible if custom TS is written in C++. Switching to single processor</span></span>
-<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
-<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co">#&gt; 0        0.06</span></span>
-<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt; 0.125    0.38</span></span>
-<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; 0.25     0.86</span></span>
-<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt; 0.375    1.00</span></span>
-<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt; 0.5      1.00</span></span></code></pre></div>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt,</span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a>    <span class="at">TS=</span>Rgof<span class="sc">::</span>newTSdisc, <span class="at">phat=</span>phat, </span>
+<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a>    <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.05</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>),</span>
+<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a>    <span class="at">B=</span>Bsim, <span class="at">maxProcessors =</span> <span class="dv">1</span>)</span>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
+<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; 0        0.02</span></span>
+<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt; 0.025    0.18</span></span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt; 0.05     1.00</span></span></code></pre></div>
 </div>
 <div id="adjusted-p-values-for-several-tests" class="section level3">
 <h3>Adjusted p values for Several Tests</h3>
@@ -1005,7 +1032,7 @@ p values and draw their graphs. We also add the curve for the cases of
 four identical tests and the case of four independent tests, which of
 course is the Bonferroni correction. The data for the cdf is in the
 inst/extdata directory of the package</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>tmp<span class="ot">=</span><span class="fu">readRDS</span>(<span class="st">&quot;../inst/extdata/pvaluecdf.rds&quot;</span>)</span>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>tmp<span class="ot">=</span>Rgof<span class="sc">::</span>pvaluecdf</span>
 <span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a>Tests<span class="ot">=</span><span class="fu">factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;Identical Tests&quot;</span>, <span class="fu">nrow</span>(tmp)),</span>
 <span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a>        <span class="fu">rep</span>(<span class="st">&quot;Correlated Selection&quot;</span>, <span class="fu">nrow</span>(tmp)),</span>
 <span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a>        <span class="fu">rep</span>(<span class="st">&quot;Best Selection&quot;</span>, <span class="fu">nrow</span>(tmp)),</span>
@@ -1035,17 +1062,175 @@ a t distribution with 3 degrees of freedom:</p>
 <span id="cb41-4"><a href="#cb41-4" tabindex="-1"></a>w<span class="ot">=</span><span class="cf">function</span>(x) (<span class="fu">dnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>))<span class="sc">/</span>(<span class="fu">dt</span>(x,df)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="dv">3</span>,df)<span class="sc">-</span><span class="dv">1</span>))</span>
 <span id="cb41-5"><a href="#cb41-5" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">sort</span>(<span class="fu">rnull</span>())</span>
 <span id="cb41-6"><a href="#cb41-6" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">w</span>(x), <span class="at">type=</span><span class="st">&quot;l&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(<span class="fu">w</span>(x))))</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAXVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6kNtmAABmADpmAGZmOpBmZmZmtttmtv+QOgCQOmaQ2/+2ZgC2/7a2///bkDrb2//b/9vb////tmb/25D//7b//9v////2CdjiAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAGfUlEQVR4nO2d7XraNhhAaZtuzb7KysZWCtz/ZQ7XSZosko4lS5Yh5/xKHvAr+fBKlpBsNmdJsuldgbWjIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQGVBW2uhl6C6oZrh4IABQGNBJ22YwN+/3eVcB1pI2i/+TT+cXj8Y1a4njQRdNo+adl/+Do7XFeaCDref3788xBpZG9bkBlE7DcPKWQfFOF4P17FIvmjoKXDtUNBQGtBe69iecVlT5J7YxMDFAQ0ErS/NKLvQyH7oCD7d18uQ6G7s4LCjFON0/YyTFRQiMfJ6u7DVwWFeJqs7u4UFORRy2VKpqAgj9P501ZBjcvtjYIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCHBdDDCDAAUBCgIKBB0eepHPiXfXK7c3uYKO95u78a/TNr7Jt2K5vckUdPz1uZOX/7Uptzf2QUC+oNM/i5bbm3xB46aEi6g/y3ugmxZ0uYq9+zIsDc7oom9b0MOdKpEN0LXL7U1RJz0YmjUKunFBu83mj218j/jAW74d6jJUHFrXIdUHvenboY6/jamTuIp5Mwvwhm+HmjbVeMsZNG2y2uZ2qKK72QuOeRkg/41Tvu6ofzvUyxOccsav3lPk6Domq+FTi1uKvpLv6CoEpc7qZfvh1pSrqGgcdDc9foVtwJPOKKOfyTNUkEEP/cswY82moMesf73LSqLiJna8X2Y232Q80OLzefHGIYmKMii33FYLjA2eevPjjd8+JiahdctttwA7OXJJJz3bztRymy5QT83hgniXFEpfxx6HiYkvPOpfbrKZmMRl4fbpgXT0Fo2ccptP16ZlcWm0dEs7bWGsxOUusAFkUhrnB9ulG8/IAb6TnSBoas1mUDOPn4+k513hJ5W70Aaiip/TsnOxxTZYYTnrFLTgBjRM5VqBMkmGW3SDHuVypTi5pAXVLQuAZK4TJptUuIW/r746QYt/n18nmxcT1GG9o0o637KgKvm8lKAuC2ZXJKiLn9TAYmWCOvmpkdGLCOrmp0JKLyGoo5/5OV2n8slln65+Zid1+wzqfovUvKxuLqi3nkgVFPScUF7POHYOr8KtwU+ola9F0Cr8nOd8cG0FrcXPjE+uqaD1+Cn/6FoKWpOfNQpalZ//99T9BXUfH75iXYJWp+f88jPrLGh96fOd9oIm3u2zTj3n5x9cG0E3cLfP08biyQdkBL+NezUykzznjN7w3T7TuI0MGmnVB/njR2n88aPFyu2NgoDWgnzof2ZxPuStT7h2KAjoO1m9ApysAt2mGldDC0ETJqsQMv7SKg6a+/YJGQQhb1zQhMkqhLx1QTxZhZA3L2huSAVBSAVBSAVBSAVBSAXdHgoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBDQQNC+7GGM334OLZQcEsHCRzwsb4a/NM+vW31Bw8aPQ76h8MPThkCxYLHHrZ22lwP2wSf6FdStuqDj/acJD4N7xSG4nj0uNO2CwcJHnIfHHQ5rL6ENOiV1a9MHZQs6bD6F1iLj5xo74sfrsURZhaB9QScUFPTTl8grsSOe2MVezKxbC0GHoh/ACZ3umAaxZEgJii1tZtetVRNLLi0GqSroEH/qambdGo2DCi5jNZtYcmk8r241Be1/DD/G3jXroMxOOnLEQ8xUM5pet4HqGTQWn+w/w4QOSV3m44XsY89TLalb/Sa2uzTxZxtlJhOsd2qgGDvTbx+jhRfUrUEfNDw1t+BnysKnm5obRATtxx0owcPy6+ZkFVAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBaxc07C77vr25F2sXNGx3Sj2sqDlrF3Q+vP/rl/k/0l3O6gWdd/EdvUuwfkH0E/eNWb2g0/b3/B2zFVm9oP2Hfwu2zNZj7YKGRxMWbLqux9oFjTubO3bTaxfUHQUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQcB/IwBdx8guO8oAAAAASUVORK5CYII=" /><!-- --></p>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>ralt<span class="ot">=</span><span class="cf">function</span>(<span class="at">m=</span><span class="dv">0</span>) {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>,df)<span class="sc">+</span>m;x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
 <span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
 <span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">w=</span>w, <span class="at">param_alt =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.2</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">3</span>),<span class="at">B=</span>Bsim)</span>
-<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="co">#&gt;       KS    K  CvM   AD ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">#&gt; 0   0.07 0.07 0.09 0.05   0.05   0.06   0.06   0.08</span></span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="co">#&gt; 0.2 1.00 1.00 1.00 1.00   0.83   0.98   0.77   0.96</span></span></code></pre></div>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="co">#&gt;       KS    K  CvM   AD</span></span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">#&gt; 0   0.07 0.07 0.06 0.07</span></span>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="co">#&gt; 0.2 1.00 1.00 1.00 1.00</span></span></code></pre></div>
 <p>It should be noted that these tests are quite sensitive to the size
 of the weights and to the sample size, so one should always do a
 simulation study to verify that they work in the case under
 consideration.</p>
+</div>
+<div id="case-studies" class="section level3">
+<h3>Case Studies</h3>
+<p>The package includes the routine <em>run.studies</em>, which provides
+20 case studies each for the continuous and the discrete case. This
+allows the user to easily compare the power of the methods included in
+the package to a different one of their choice.</p>
+<p>If the user supplied method only yields the test statistic,
+simulation is used to find the p value. If the new test can find p
+values, these are used and then the routine will of course run much
+faster.</p>
+<p>Say a user wishes to study the performance of the chi square test for
+the case where the null hypothesis specifies a uniform distribution but
+the data actually comes from a linear distribution with slope s. (This
+test is of course already included in the package, so this is for
+illustration purposes only). So</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>chitest<span class="ot">=</span><span class="cf">function</span>(x, pnull, param, TSextra) {</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a>    nbins<span class="ot">=</span>TSextra<span class="sc">$</span>nbins <span class="co">#number of bins</span></span>
+<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a>    bins<span class="ot">=</span><span class="fu">seq</span>(<span class="fu">min</span>(x)<span class="sc">-</span><span class="fl">1e-10</span>, <span class="fu">max</span>(x)<span class="sc">+</span><span class="fl">1e-10</span>, <span class="at">length=</span>nbins<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a>    O<span class="ot">=</span><span class="fu">hist</span>(x, bins, <span class="at">plot=</span><span class="cn">FALSE</span>)<span class="sc">$</span>counts <span class="co">#bin counts</span></span>
+<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a>    <span class="cf">if</span>(param[<span class="dv">1</span>]<span class="sc">!=-</span><span class="dv">99</span>) { <span class="co">#with parameter estimation</span></span>
+<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a>        E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins, param)) <span class="co">#expected counts</span></span>
+<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a>        chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E) <span class="co">#Pearson&#39;s chi square</span></span>
+<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a>        pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi, nbins<span class="dv">-1</span><span class="sc">-</span><span class="fu">length</span>(param)) <span class="co">#p value</span></span>
+<span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a>    }</span>
+<span id="cb43-10"><a href="#cb43-10" tabindex="-1"></a>    <span class="cf">else</span> {</span>
+<span id="cb43-11"><a href="#cb43-11" tabindex="-1"></a>      E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins))</span>
+<span id="cb43-12"><a href="#cb43-12" tabindex="-1"></a>      chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E)</span>
+<span id="cb43-13"><a href="#cb43-13" tabindex="-1"></a>      pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi,nbins<span class="dv">-1</span>)</span>
+<span id="cb43-14"><a href="#cb43-14" tabindex="-1"></a>    }  </span>
+<span id="cb43-15"><a href="#cb43-15" tabindex="-1"></a>    out<span class="ot">=</span><span class="fu">ifelse</span>(TSextra<span class="sc">$</span>statistic, chi, pval)</span>
+<span id="cb43-16"><a href="#cb43-16" tabindex="-1"></a>    <span class="fu">names</span>(out)<span class="ot">=</span><span class="st">&quot;ChiSquare&quot;</span></span>
+<span id="cb43-17"><a href="#cb43-17" tabindex="-1"></a>    out</span>
+<span id="cb43-18"><a href="#cb43-18" tabindex="-1"></a>}</span></code></pre></div>
+<p>In this example we find the power of <em>chitest</em> when the null
+hypothesis specifies a uniform distribution but the true distribution is
+a linear with slope s:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>TSextra<span class="ot">=</span><span class="fu">list</span>(<span class="at">nbins=</span><span class="dv">5</span>, <span class="at">statistic=</span><span class="cn">FALSE</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a>pwr<span class="ot">=</span>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="st">&quot;uniform.linear&quot;</span>, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a><span class="co">#&gt; Running case uniform.linear.cont ...</span></span>
+<span id="cb44-4"><a href="#cb44-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">plot_power</span>(pwr, <span class="st">&quot;Slope&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p>Arguments of <em>run.studies</em>:</p>
+<ul>
+<li>study: either the name(s) or position(s) of the desired sudies in
+the list of all studies<br />
+</li>
+<li>TS: new test statistic<br />
+</li>
+<li>study: the name of the case study. If missing all 20 are run<br />
+</li>
+<li>TSextra: a list passed to TS<br />
+</li>
+<li>With.p.value =FALSE set to TRUE if the user supplied method
+calculates p values<br />
+</li>
+<li>BasicComparison = TRUE: if TRUE one value of the parameters under
+the alternative is chosen for each case study and all 20 studies are
+run</li>
+<li>nsample =500: desired sample size.</li>
+<li>alpha = 0.05: desired true type I error probability<br />
+</li>
+<li>param_alt: a vector of values of the parameter of the alternative
+distribution. If missing the ones included in Rgof are used. If more
+than one study is run this needs to be a list of vectors<br />
+</li>
+<li>B=c(1000, 1000) number of simulation runs</li>
+</ul>
+<p>The arguments of the user supplied test routine have to be</p>
+<p><strong>Continuous Data:</strong></p>
+<ul>
+<li>x: the data set<br />
+</li>
+<li>pnull: a routine to calculate the distribution function<br />
+</li>
+<li>param: if parameters of pnull are estimated, this is vector of
+parameter estimates. If no parameters are estimated, this is ignored but
+has to be present.<br />
+</li>
+<li>TSextra: a list with any object needed to calculate the test
+statistic / p value.</li>
+</ul>
+<p><strong>Discrete Data</strong></p>
+<ul>
+<li>x: the data set (the counts)</li>
+<li>pnull: a routine to calculate the distribution function<br />
+</li>
+<li>param: if parameters of pnull are estimated, this is vector of
+parameter estimates. If no parameters are estimated, this is ignored but
+has to be present.<br />
+</li>
+<li>vals: the possible values of the discrete random variable.</li>
+<li>TSextra: a list with any object needed to calculate the test
+statistic / p value.</li>
+</ul>
+<p>In either case the output of the routine has to be a named vector
+with either the test statistic(s) or the p values(s).</p>
+<p>The case studies are as follows. In each the first term specifies the
+model under the null hypothesis and the second the model under the
+alternative hypothesis. The cases studies with names ending in .est
+include parameter estimation.</p>
+<p><strong>Without parameter estimation</strong></p>
+<ol style="list-style-type: decimal">
+<li><p>uniform.linear<span class="math inline">\(\hspace{3cm}\)</span>
+U[0,1] vs a linear model on [0,1] with slope s.</p></li>
+<li><p>uniform.quadratic<span class="math inline">\(\hspace{2.5cm}\)</span> U[0,1] vs a quadratic
+model with vertex at 0.5 and some curvature a.</p></li>
+<li><p>uniform.bump<span class="math inline">\(\hspace{3.1cm}\)</span>
+U[0,1] vs U[0,1]+N(0.5,0.05).</p></li>
+<li><p>uniform.sine<span class="math inline">\(\hspace{3.3cm}\)</span>
+U[0,1] vs U[0,1]+Sine wave</p></li>
+<li><p>beta22.betaaa<span class="math inline">\(\hspace{3cm}\)</span>
+Beta(2,2) vs Beta(a,a)</p></li>
+<li><p>beta22.beta2a<span class="math inline">\(\hspace{3cm}\)</span>
+Beta(2,2) vs Beta(2,a)</p></li>
+<li><p>normal.shift<span class="math inline">\(\hspace{3.5cm}\)</span>
+N(0,1) vs N(<span class="math inline">\(\mu\)</span>,1)</p></li>
+<li><p>normal.stretch<span class="math inline">\(\hspace{3.1cm}\)</span>
+N(0,1) vs N(0, <span class="math inline">\(\sigma\)</span>)</p></li>
+<li><p>normal.t<span class="math inline">\(\hspace{4.2cm}\)</span>
+N(0,1) vs t(df)</p></li>
+<li><p>normal.outlier1<span class="math inline">\(\hspace{3.1cm}\)</span> N(0,1) vs
+N(0,1)+U[2,3]</p></li>
+<li><p>normal.outlier2<span class="math inline">\(\hspace{3.1cm}\)</span> N(0,1) vs
+N(0,1)+U[-3,-2]+U[2,3]</p></li>
+<li><p>exponential.gamma<span class="math inline">\(\hspace{2.3cm}\)</span> Exp(1) vs
+Gamma(1,b)</p></li>
+<li><p>exponential.weibull<span class="math inline">\(\hspace{2.5cm}\)</span> Exp(1) vs
+Weibull(1,b)</p></li>
+<li><p>exponential.bump<span class="math inline">\(\hspace{2.7cm}\)</span> Exp(1) vs
+Exp(1)+N(0.5,0.05)</p></li>
+<li><p>trunc.exponential.linear<span class="math inline">\(\hspace{1.7cm}\)</span> Exp(1) vs Linear, on
+[0,1]</p></li>
+</ol>
+<p><strong>With parameter estimation</strong></p>
+<ol start="16" style="list-style-type: decimal">
+<li><p>normal.t.est<span class="math inline">\(\hspace{3.7cm}\)</span>
+N(<span class="math inline">\(\mu\)</span>,<span class="math inline">\(\sigma\)</span>) vs t(df)</p></li>
+<li><p>exponential.weibull.est<span class="math inline">\(\hspace{1.9cm}\)</span> Exp(<span class="math inline">\(\lambda\)</span>) vs Weibull(1,b)</p></li>
+<li><p>trunc.exponential.linear.est<span class="math inline">\(\hspace{1.2cm}\)</span> Exp(<span class="math inline">\(\lambda\)</span>) vs Linear, on [0,1]</p></li>
+<li><p>exponential.gamma.est<span class="math inline">\(\hspace{1.8cm}\)</span> Exp(<span class="math inline">\(\lambda\)</span>) vs Gamma(1,b)</p></li>
+<li><p>normal.cauchy.est<span class="math inline">\(\hspace{2.7cm}\)</span> N(<span class="math inline">\(\mu\)</span>,<span class="math inline">\(\sigma\)</span>) vs Cauchy (Breit-Wigner)</p></li>
+</ol>
+<p>Generally a user will likely wish to run all the included case
+studies. This is very easily done with</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>If only the test statistic is supplied by the new test and therefore
+simulation has to be used to find p values, this will take several hours
+to run. <em>run.studies</em> can also be used to run the studies for the
+included methods but for different values of param_alt, nsample and/or
+alpha. For example, say we wish to find the powers of the included
+continuous methods for the case uniform.linear and samples of size 2000,
+slopes of 0.1 and 0.2, and a true type I error of 0.01:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(<span class="cn">TRUE</span>, <span class="co"># continuous data/model</span></span>
+<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a>                  <span class="at">study=</span><span class="st">&quot;uniform.linear&quot;</span>,</span>
+<span id="cb46-3"><a href="#cb46-3" tabindex="-1"></a>                  <span class="at">param_alt=</span><span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.2</span>),</span>
+<span id="cb46-4"><a href="#cb46-4" tabindex="-1"></a>                  <span class="at">nsample=</span><span class="dv">2000</span>,</span>
+<span id="cb46-5"><a href="#cb46-5" tabindex="-1"></a>                  <span class="at">alpha=</span><span class="fl">0.01</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">

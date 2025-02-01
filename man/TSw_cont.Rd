@@ -4,12 +4,14 @@
 \alias{TSw_cont}
 \title{Find test statistics for continuous data with weights}
 \usage{
-TSw_cont(x, Fx, w)
+TSw_cont(x, pnull, param, w)
 }
 \arguments{
 \item{x}{A numeric vector.}
 
-\item{Fx}{numeric vector of cdf probabilities.}
+\item{pnull}{cdf.}
+
+\item{param}{parameters for pnull in case of parameter estimation.}
 
 \item{w}{numeric vector of weights}
 }

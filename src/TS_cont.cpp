@@ -5,15 +5,14 @@ using namespace Rcpp;
 //' Find test statistics for continuous data
 //' 
 //' @param x A numeric vector.
-//' @param Fx numeric vector of cdf probabilities.
-//' @param param parameters for pnull
+//' @param pnull cdf.
+//' @param param parameters for pnull  in case of parameter estimation.
 //' @param qnull An R function, the quantile function under the null hypothesis.
-//' @keywords internal
 //' @return A numeric vector with test statistics
 // [[Rcpp::export]]
 Rcpp::NumericVector TS_cont(
         Rcpp::NumericVector x, 
-        Rcpp::NumericVector Fx,
+        Rcpp::Function pnull,
         Rcpp::NumericVector param, 
         Rcpp::Function qnull) {
   Rcpp::CharacterVector methods=Rcpp::CharacterVector::create("KS", "K", "AD", "CvM", "W", "ZA", "ZK", "ZC", "Wassp1");
@@ -23,6 +22,18 @@ Rcpp::NumericVector TS_cont(
   double m, tmp, tmp1;
   TS.names() =  methods;
 
+  /* some setup */
+  Rcpp::Environment base("package:base");
+  Rcpp::Function formals_r = base["formals"];
+  Rcpp::List respnull = formals_r(Rcpp::_["fun"]=pnull);
+  NumericVector Fx(n);
+  if(respnull.size()==1) Fx = pnull(x);
+  else Fx = pnull(x, param);
+  Rcpp::List resqnull = formals_r(Rcpp::_["fun"]=qnull);
+  NumericVector qtmp(n);
+  if(resqnull.size()==1) qtmp = qnull(0.5);
+  else qtmp = qnull(0.5, 0);
+  
   /*  sort data */
 
   x = Cpporder(x, x);
@@ -80,22 +91,16 @@ Rcpp::NumericVector TS_cont(
       }  
     }
   
-  Rcpp::Environment base("package:base");
-  Rcpp::Function formals_r = base["formals"];
-  Rcpp::List res = formals_r(Rcpp::_["fun"]=qnull);
-  NumericVector qtmp(n);
-  if(res.size()==1) qtmp = qnull(0.5);
-  else qtmp = qnull(0.5, 0);
     NumericVector a1(n+1),a2(n);
     for(i=0;i<=n;++i) {
       a1[i]=double(i)/n;
       if(a1[i]<1e-10) a1[i]=1e-10;
       if(a1[i]>1-1e-10) a1[i]=1-1e-10;
     }  
-    if(res.size()==1) b1=qnull(a1);
+    if(resqnull.size()==1) b1=qnull(a1);
     else b1=qnull(a1, param);
     for(i=0;i<n;++i) a2[i]=(2.0*i+1.0)/2.0/n;
-    if(res.size()==1) b2=qnull(a2);
+    if(resqnull.size()==1) b2=qnull(a2);
     else b2=qnull(a2, param);
     
     TS(8) = 0.0;

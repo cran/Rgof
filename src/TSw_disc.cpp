@@ -4,16 +4,19 @@ using namespace Rcpp;
 //' Find test statistics for discrete data
 //' 
 //' @param x An integer vector.
-//' @param Fx A numeric vector of cumulative probabilities.
+//' @param pnull cdf.
+//' @param param parameters for pnull in case of parameter estimation.
 //' @param vals A numeric vector with the values of the discrete rv.
 //' @param w weights 
 //' @keywords internal
 //' @return A vector with test statistics
 // [[Rcpp::export]]
-NumericVector TSw_disc(IntegerVector x, 
-                      NumericVector Fx,
-                      NumericVector vals,  
-                      NumericVector w) {
+Rcpp::NumericVector TSw_disc(
+        Rcpp::IntegerVector x, 
+        Rcpp::Function pnull,
+        Rcpp::NumericVector param,
+        Rcpp::NumericVector vals,  
+        Rcpp::NumericVector w) {
     
   Rcpp::CharacterVector methods=CharacterVector::create("KS", "K", "CvM", "AD");    
   int const nummethods=methods.size();
@@ -22,6 +25,14 @@ NumericVector TSw_disc(IntegerVector x,
   double n, tmp;
   TS.names() =  methods;
 
+  /* some setup */
+  Rcpp::Environment base("package:base");
+  Rcpp::Function formals_r = base["formals"];
+  Rcpp::List respnull = formals_r(Rcpp::_["fun"]=pnull);
+  NumericVector Fx(k);
+  if(respnull.size()==0) Fx = pnull();
+  else Fx = pnull(param);
+  
   /*  Find sample size, cumulative sum of x and a vector used in various calculations*/
   
   n=0.0;

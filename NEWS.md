@@ -1,3 +1,7 @@
+# Rgof 3.0.0
+    January 2025. Added routines to allow user to compare the power of a new 
+    method to those included in the package.
+     
 # Rgof 2.1.1
     October 2024. Some minor bug fixes.
     

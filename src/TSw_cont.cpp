@@ -5,14 +5,16 @@ using namespace Rcpp;
 //' Find test statistics for continuous data with weights
 //' 
 //' @param x A numeric vector.
-//' @param Fx numeric vector of cdf probabilities.
+//' @param pnull cdf.
+//' @param param parameters for pnull in case of parameter estimation.
 //' @param w numeric vector of weights
 //' @keywords internal
 //' @return A numeric vector with test statistics
 // [[Rcpp::export]]
 Rcpp::NumericVector TSw_cont(
         Rcpp::NumericVector x, 
-        Rcpp::NumericVector Fx,
+        Rcpp::Function pnull,
+        Rcpp::NumericVector param,
         Rcpp::NumericVector w) {
   
   Rcpp::CharacterVector methods=Rcpp::CharacterVector::create("KS", "K", "CvM", "AD");
@@ -22,6 +24,14 @@ Rcpp::NumericVector TSw_cont(
   double tmp, tmp1;
   TS.names() =  methods;
 
+  /* some setup */
+  Rcpp::Environment base("package:base");
+  Rcpp::Function formals_r = base["formals"];
+  Rcpp::List respnull = formals_r(Rcpp::_["fun"]=pnull);
+  NumericVector Fx(n);
+  if(respnull.size()==1) Fx = pnull(x);
+  else Fx = pnull(x, param);
+  
   /*  sort data */
 
   w = Cpporder(w, x);

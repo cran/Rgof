@@ -33,13 +33,8 @@ NumericMatrix gof_disc(Rcpp::IntegerVector x,
   Rcpp::Environment base("package:base");
   Rcpp::Function formals_r = base["formals"];
   Rcpp::List res_TS = formals_r(Rcpp::_["fun"]=TS);
-  NumericVector p=phat(x);
-  NumericVector pn(vals.size());
-  Rcpp::List res = formals_r(Rcpp::_["fun"]=pnull);
-  if(res.size()==0) pn=pnull();
-  else pn=pnull(p);  
-  if(typeTS<=1) TS_data=TS(x, pn, vals); 
-  if(typeTS==2) TS_data=TS(x, pn, vals, TSextra); 
+  if(typeTS<=1) TS_data=TS(x, pnull, phat(x), vals); 
+  if(typeTS==2) TS_data=TS(x, pnull, phat(x), vals, TSextra); 
   int const nummethods=TS_data.size();
   Rcpp::CharacterVector allMethods=TS_data.names();
   NumericVector TS_sim(nummethods),pvals(nummethods);
@@ -47,21 +42,15 @@ NumericMatrix gof_disc(Rcpp::IntegerVector x,
   NumericMatrix out(2, nummethods);
   colnames(out) = allMethods;
 
-  if(typeTS<=1) TS_data=TS(x, pn, vals); 
-  if(typeTS==2) TS_data=TS(x, pn, vals, TSextra); 
-
 /* run simulation to find null distribution */
   for(i=0;i<B;++i) {
     Rcpp::List resr = formals_r(Rcpp::_["fun"]=rnull);
     if(resr.size()==0) xsim=rnull();
-    else xsim=rnull(p);
+    else xsim=rnull(phat(x));
     NumericVector psim(vals.size());
-    if(res.size()!=0) {
-      psim=phat(xsim); 
-      pn=pnull(psim);
-    }
-    if(typeTS<=1) TS_sim=TS(xsim, pn, vals); 
-    if(typeTS==2) TS_sim=TS(xsim, pn, vals, TSextra); 
+    if(resr.size()!=0) psim=phat(xsim); 
+    if(typeTS<=1) TS_sim=TS(xsim, pnull, psim, vals); 
+    if(typeTS==2) TS_sim=TS(xsim, pnull, psim, vals, TSextra); 
     for(j=0;j<nummethods;++j) {
       if(TS_data(j)<TS_sim(j)) pvals(j)=pvals(j)+1;
     }

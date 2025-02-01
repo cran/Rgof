@@ -3,8 +3,9 @@
 
 #include <Rcpp.h>
 Rcpp::NumericVector TSw_disc(Rcpp::IntegerVector x, 
-                            Rcpp::NumericVector Fx,
-                            Rcpp::NumericVector vals ,
+                            Rcpp::Function pnull,
+                            Rcpp::NumericVector param,
+                            Rcpp::NumericVector vals,
                             Rcpp::NumericVector w);
 
 #endif

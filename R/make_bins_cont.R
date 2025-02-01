@@ -12,7 +12,7 @@
 make_bins_cont = function(x, pnull, qnull=NA, phat=function(x) -99, 
                           DataBased=FALSE, nbins=c(50,10), 
                           minexpcount=5, Range=c(-99999, 99999)) {
-                          
+   
   n = length(x)
   res = formals(pnull)
   param = phat(x)
@@ -27,7 +27,7 @@ make_bins_cont = function(x, pnull, qnull=NA, phat=function(x) -99,
   combine.bins = function(E, bins, minexpcount=5, maxbins=1000) {
     n = sum(E)
     k = length(E)
-    while ( (min(E)<minexpcount) || (k>maxbins) ){
+    while ( (k>=3) && ( (min(E)<minexpcount) || (k>maxbins) ) ){
       i = which.min(E)[1]
       if(i==1) {
         E = c(E[1]+E[2], E[3:k])

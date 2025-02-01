@@ -16,7 +16,7 @@ make_bins_disc = function(x, pnull, phat=function(x) -99, nbins=c(50,10), minexp
   combine.bins = function(E, minexpcount=5, maxbins=1000) {
     k = length(E)
     bins = as.list(1:k)
-    while (min(E)<minexpcount){
+    while ( (k>2) && (min(E)<minexpcount) ){
       i = which.min(E)[1]
       if(length(E)!=k) break
       if(any(is.na(E))) return(0)

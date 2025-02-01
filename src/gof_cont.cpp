@@ -43,10 +43,10 @@ Rcpp::NumericMatrix gof_cont(
   Rcpp::List res_rnull = formals_r(Rcpp::_["fun"]=rnull);
 /* Find test statistics for the data */  
   NumericVector TS_data;
-  if(typeTS==1) TS_data=TS(x, Fx, p, qnull);
-  if(typeTS==2) TS_data=TS(x, Fx, wx);  
-  if(typeTS==3) TS_data=TS(x, Fx);
-  if(typeTS==4) TS_data=TS(x, Fx, TSextra);
+  if(typeTS==1) TS_data=TS(x, pnull, p, qnull);
+  if(typeTS==2) TS_data=TS(x, pnull, p, wx);  
+  if(typeTS==3) TS_data=TS(x, pnull, p);
+  if(typeTS==4) TS_data=TS(x, pnull, p, TSextra);
   int const nummethods=TS_data.size();
   Rcpp::CharacterVector methods=TS_data.names();
   NumericVector xsim(n), TS_sim(nummethods), pvals(nummethods);
@@ -56,18 +56,16 @@ Rcpp::NumericMatrix gof_cont(
     if(res_rnull.size()==0) xsim=rnull();
     else xsim=rnull(p);
     psim=phat(xsim);
-    if(res_pnull.size()==1) Fx=pnull(xsim);    
-    else Fx=pnull(xsim, psim);    
-    if(typeTS==1) TS_sim=TS(xsim, Fx, psim, qnull);
+    if(typeTS==1) TS_sim=TS(xsim, pnull, psim, qnull);
     if(typeTS==2) {
       if(res_w.size()==1) wx=w(xsim);
       else wx=w(xsim, psim); 
-      TS_sim=TS(xsim, Fx, wx);
+      TS_sim=TS(xsim, pnull, psim, wx);
     }  
-    if(typeTS==3) TS_sim=TS(xsim, Fx);
+    if(typeTS==3) TS_sim=TS(xsim, pnull, psim);
     if(typeTS==4) {
       TSextra["p"]=psim; 
-      TS_sim=TS(xsim, Fx, TSextra);    
+      TS_sim=TS(xsim, pnull, psim, TSextra);    
     }   
     for(j=0;j<nummethods;++j) {
       if(TS_data(j)<TS_sim(j)) pvals(j)=pvals(j)+1;

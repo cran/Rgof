@@ -24,7 +24,7 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
   
   x = ralt(param_alt[1])  
   WithWeights = TRUE
-  if(length(formals(w))==1 & w(x[1])==-99) WithWeights = FALSE
+  if(length(formals(w))==1 && w(x[1])==-99) WithWeights = FALSE
   WithEstimation = TRUE
   if(phat(x)[1]==-99) WithEstimation = FALSE
 
@@ -38,18 +38,17 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
   }  
   else qnull = TSextra$qnull
   if(missing(TS)) {
-    nn = 1:length(x)/length(x)
-    if(w(x[1])==-99) { #data is not weighted
+    if(!WithWeights) { #data is not weighted
       typeTS=1
       TS = TS_cont
-      TS_data = TS(x, nn, 0, function(x) abs(x)/max(x))
+      TS_data = TS(x, pnull, phat(x), function(x) abs(x)/max(x))
     }
     else {
       typeTS=2
       TS = TSw_cont
       if(length(formals(w))==1) wx=w(x)
       else wx=w(x, phat(x))
-      TS_data = TS(x, nn, wx)
+      TS_data = TS(x, pnull, phat(x), wx)
       doMethods = names(TS_data)
     }
   }   
@@ -59,16 +58,16 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
       maxProcessors=1
     }
-    if(length(formals(TS))==2) {
-      typeTS=3
-      TS_data = TS(x, (1:length(x))/(length(x)+1))
-    }
     if(length(formals(TS))==3) {
-      typeTS=4
-      TS_data = TS(x, (1:length(x))/(length(x)+1), TSextra)
+      typeTS=3
+      TS_data = TS(x, pnull, phat(x))
     }
-    if(length(formals(TS))>3) {
-      message("TS should have either 2 or 3 arguments")
+    if(length(formals(TS))==4) {
+      typeTS=4
+      TS_data = TS(x, pnull, phat(x), TSextra)
+    }
+    if(length(formals(TS))>4) {
+      message("TS should have either 3 or 4 arguments")
       return(NULL)
     }
     if(is.null(names(TS_data))) {
@@ -78,9 +77,9 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
   }
   nummethods = length(TS_data)
   methods = names(TS_data)
-# Do chi square tests if built-in TS is used  
+# Do chi square tests if built-in TS is used. Don't run chi square if weights are present.  
   chiout=NULL
-  if(typeTS<=2) { #Run chi square tests
+  if(typeTS<=2 && !WithWeights) { #Run chi square tests
     if(is.infinite(Range[1])) Range[1]=-99999
     if(is.infinite(Range[2])) Range[2]=99999  
     chiout = chi_power_cont(pnull=pnull, 
@@ -137,7 +136,7 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
                           TS = TS,
                           typeTS = typeTS,
                           TSextra = TSextra,
-                          B = c(round(B[1])/m, B[2]),
+                          B = c(round(B[1]/m), B[2]),
                           alpha = alpha
                     )
       parallel::stopCluster(cl)
@@ -163,12 +162,10 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
     for(i in 1:B[2]) {
       if(length(res_rnull)==0) x=rnull()
       else x=rnull(x, param)
-      if(length(res_pnull)==1) Fx=pnull(x)
-      else Fx=pnull(x, param)
-      if(typeTS==1) TS_data[i, ]=TS(x, Fx, 0, qnull)
-      if(typeTS==2) TS_data[i, ]=TS(x, Fx, w(x))
-      if(typeTS==3) TS_data[i, ]=TS(x, Fx)
-      if(typeTS==4) TS_data[i, ]=TS(x, Fx, TSextra)
+      if(typeTS==1) TS_data[i, ]=TS(x, pnull, phat(x), qnull)
+      if(typeTS==2) TS_data[i, ]=TS(x, pnull, phat(x), w(x))
+      if(typeTS==3) TS_data[i, ]=TS(x, pnull, phat(x))
+      if(typeTS==4) TS_data[i, ]=TS(x, pnull, phat(x), TSextra)
     }  
     crit = apply(TS_data, 2, stats::quantile, probs=1-alpha)
 # power calculations:
@@ -179,12 +176,10 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
     for(i in 1:B[1]) {
         for(j in 1:npar_alt) {
            x = ralt(param_alt[j])
-           if(length(res_pnull)==1) Fx=pnull(x)
-           else Fx=pnull(x, param)
-           if(typeTS==1) TS_alt[[j]][i, ]=TS(x, Fx, 0, qnull)
-           if(typeTS==2) TS_alt[[j]][i, ]=TS(x, Fx, w(x))
-           if(typeTS==3) TS_alt[[j]][i, ]=TS(x, Fx)
-           if(typeTS==4) TS_alt[[j]][i, ]=TS(x, Fx, TSextra)
+           if(typeTS==1) TS_alt[[j]][i, ]=TS(x, pnull, phat(x), qnull)
+           if(typeTS==2) TS_alt[[j]][i, ]=TS(x, pnull, phat(x), w(x))
+           if(typeTS==3) TS_alt[[j]][i, ]=TS(x, pnull, phat(x))
+           if(typeTS==4) TS_alt[[j]][i, ]=TS(x, pnull, phat(x), TSextra)
         }  
     }
 
@@ -198,6 +193,6 @@ gof_power_cont=function(pnull, rnull, ralt, param_alt,
     }
     out = cbind(out, chiout)  
     if(Noqnull) out = out[ ,colnames(out)!="Wassp1", drop=FALSE]
-    if(npar_alt==1) out=out[1, ]
+    if(npar_alt==1) out=out[1, , drop=FALSE]
     out
 }

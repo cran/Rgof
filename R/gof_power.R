@@ -59,11 +59,13 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
         alpha=0.05, Range  =c(-Inf, Inf), B=c(1000, 1000),nbins=c(50,10), 
         rate=0, maxProcessors, minexpcount=5.0, ChiUsePhat=TRUE) {
   
+  if(missing(maxProcessors)) m=parallel::detectCores()-1
+  else m=maxProcessors
   x = ralt(param_alt[1]) # get an example data set
   # adjust number of bins to account for parameter estimation
   if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x)) 
   if(any(is.na(vals))) { # continuous data/model
-    check.functions(pnull, rnull, phat, x=x) # do some sanity checks
+    check.functions(pnull, rnull, phat,  x=x) # do some sanity checks
     if(missing(TS)) # use built-in tests
         out = gof_power_cont(pnull, rnull, ralt, param_alt, w, phat,  
                          TSextra=TSextra, alpha=alpha, Range=Range, B=B, 
@@ -76,7 +78,7 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
                            minexpcount=minexpcount, ChiUsePhat=ChiUsePhat)  
   }
   else { # discrete data
-    check.functions(pnull, rnull, vals=vals, phat=phat, x=x)
+    check.functions(pnull, rnull, phat, vals, x)
     if(missing(TS))
       out = gof_power_disc(pnull, rnull, vals, ralt, param_alt, phat,  
                            TSextra=TSextra, alpha=alpha, B=B, 

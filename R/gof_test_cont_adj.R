@@ -34,30 +34,29 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
   }  
   else qnull = TSextra$qnull      
   if(missing(TS)) {
-     nn = 1:length(x)/length(x)
      if(!WithWeights) { #data is not weighted
        typeTS=1
        TS = TS_cont
-       TS_data = TS(x, nn, 0, function(x) abs(x)/max(x))
+       TS_data = TS(x, pnull, phat(x), function(x) abs(x)/max(x))
      }
      else {
        typeTS=2
        TS = TSw_cont
-       TS_data = TS(x, nn, w(x))
+       TS_data = TS(x, pnull, phat(x), w(x))
        doMethods = names(TS_data)
      }
   }   
   else {
-    if(length(formals(TS))==2) {
-       typeTS=3
-       TS_data = TS(x, (1:length(x))/(length(x)+1))
-    }
     if(length(formals(TS))==3) {
-      typeTS=4
-      TS_data = TS(x, (1:length(x))/(length(x)+1), TSextra)
+       typeTS=3
+       TS_data = TS(x, pnull, phat(x))
     }
-    if(length(formals(TS))>3) {
-      message("TS should have either 2 or 3 arguments")
+    if(length(formals(TS))==4) {
+      typeTS=4
+      TS_data = TS(x, pnull, phat(x), TSextra)
+    }
+    if(length(formals(TS))>4) {
+      message("TS should have either 3 or 4 arguments")
       return(NULL)
     }
     if(is.null(names(TS_data))) {
@@ -69,36 +68,28 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
   psim=p
   NoEstimation=FALSE
   if(length(formals(pnull))==1) NoEstimation=TRUE
-  if(NoEstimation) {
-      Fx=pnull(x)
-      if(WithWeights) wx=w(x)   
-  }    
-  else {
-    Fx=pnull(x,p)
-    if(WithWeights) wx=w(x,p)
+  if(WithWeights) {
+    if(NoEstimation) wx=w(x)   
+    else wx=w(x,p)
   }
-  if(typeTS==1) TS_data=TS(x, Fx, p, qnull);
-  if(typeTS==2) TS_data=TS(x, Fx, wx);  
-  if(typeTS==3) TS_data=TS(x, Fx);
-  if(typeTS==4) TS_data=TS(x, Fx, TSextra);
+  if(typeTS==1) TS_data=TS(x, pnull, p, qnull);
+  if(typeTS==2) TS_data=TS(x, pnull, p, wx);  
+  if(typeTS==3) TS_data=TS(x, pnull, p);
+  if(typeTS==4) TS_data=TS(x, pnull, p, TSextra);
   if(typeTS>2) doMethods=names(TS_data)
   num_tests=length(TS_data)
   A=matrix(0, B[1], num_tests)
   for(i in 1:B[1]) {
      if(NoEstimation) xsim=rnull()
      else {xsim=rnull(p);psim=phat(xsim)}
-     if(NoEstimation) {
-        Fx=pnull(xsim)
-        if(WithWeights) wx=w(xsim)   
-     }    
-     else {
-        Fx=pnull(xsim, psim)
-        if(WithWeights) wx=w(xsim, psim)
+     if(WithWeights) {
+       if(NoEstimation) wx=w(xsim)   
+       else wx=w(xsim, psim)
      }
-     if(typeTS==1) TS_sim=TS(xsim, Fx, psim, qnull);
-     if(typeTS==2) TS_sim=TS(xsim, Fx, wx);  
-     if(typeTS==3) TS_sim=TS(xsim, Fx);
-     if(typeTS==4) TS_sim=TS(xsim, Fx, TSextra);    
+     if(typeTS==1) TS_sim=TS(xsim, pnull, psim, qnull);
+     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, wx);  
+     if(typeTS==3) TS_sim=TS(xsim, pnull, psim);
+     if(typeTS==4) TS_sim=TS(xsim, pnull, psim, TSextra);    
      A[i, ]=TS_sim
   }
   if(typeTS<=2) {
@@ -118,17 +109,15 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
           else {xsim=rnull(p);psim=phat(xsim)}
      }      
      if(NoEstimation) {
-        Fx=pnull(xsim)
-        if(typeTS==2) wx=w(xsim)   
+         if(typeTS==2) wx=w(xsim)   
      }    
      else {
-        Fx=pnull(xsim, psim)
-        if(typeTS==2) wx=w(xsim, psim)
+         if(typeTS==2) wx=w(xsim, psim)
      }
-     if(typeTS==1) TS_sim=TS(xsim, Fx, psim, qnull);
-     if(typeTS==2) TS_sim=TS(xsim, Fx, wx);  
-     if(typeTS==3) TS_sim=TS(xsim, Fx);
-     if(typeTS==4) TS_sim=TS(xsim, Fx, TSextra);
+     if(typeTS==1) TS_sim=TS(xsim, pnull, psim, qnull);
+     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, wx);  
+     if(typeTS==3) TS_sim=TS(xsim, pnull, psim);
+     if(typeTS==4) TS_sim=TS(xsim, pnull, psim, TSextra);
      for(j in 1:num_tests) 
         pvals[i, j]=pvals[i, j]+sum(TS_sim[j]<A[,j])/B[1]
      if(typeTS<=2) {

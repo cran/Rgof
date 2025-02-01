@@ -22,7 +22,7 @@ gof_test_cont <- function(x, pnull,  rnull, w=function(x) -99, phat=function(x) 
                           ChiUsePhat=TRUE, maxProcessors=1, doMethods="all") {
   # Are weights present?
   WithWeights = TRUE
-  if(length(formals(w))==1 & w(x[1])==-99) WithWeights = FALSE
+  if(length(formals(w))==1 && w(x[1])==-99) WithWeights = FALSE
   if(any(is.na(TSextra))) TSextra = list(p=phat(x))
   else TSextra = c(TSextra, p=phat)
   Noqnull = FALSE
@@ -33,16 +33,17 @@ gof_test_cont <- function(x, pnull,  rnull, w=function(x) -99, phat=function(x) 
   }  
   else qnull = TSextra$qnull
   if(missing(TS)) {
-     nn = 1:length(x)/length(x)
      if(!WithWeights) { #data is not weighted
        typeTS=1
        TS = TS_cont
-       TS_data = TS(x, nn, 0, function(x) abs(x)/max(x))
+       TS_data = TS(x, pnull, phat(x), function(x) abs(x)/max(x))
      }
      else {
        typeTS=2
        TS = TSw_cont
-       TS_data = TS(x, nn, w(x))
+       if(length(formals(w))==1) wx=w(x)
+       else wx=w(x, phat(x))
+       TS_data = TS(x, pnull, phat(x), wx)
        doMethods = names(TS_data)
      }
   }   
@@ -52,16 +53,16 @@ gof_test_cont <- function(x, pnull,  rnull, w=function(x) -99, phat=function(x) 
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
       maxProcessors=1
     }
-    if(length(formals(TS))==2) {
-       typeTS=3
-       TS_data = TS(x, (1:length(x))/(length(x)+1))
-    }
     if(length(formals(TS))==3) {
-      typeTS=4
-      TS_data = TS(x, (1:length(x))/(length(x)+1), TSextra)
+       typeTS=3
+       TS_data = TS(x, pnull, phat(x))
     }
-    if(length(formals(TS))>3) {
-      message("TS should have either 2 or 3 arguments")
+    if(length(formals(TS))==4) {
+      typeTS=4
+      TS_data = TS(x, pnull, phat(x), TSextra)
+    }
+    if(length(formals(TS))>4) {
+      message("TS should have either 3 or 4 arguments")
       return(NULL)
     }
     if(is.null(names(TS_data))) {
@@ -86,7 +87,7 @@ gof_test_cont <- function(x, pnull,  rnull, w=function(x) -99, phat=function(x) 
                                 TS = TS,
                                 typeTS = typeTS,
                                 TSextra = TSextra,
-                                B = B/m
+                                B = round(B/m)
       )
       parallel::stopCluster(cl)
       # Average power of cores
@@ -94,7 +95,7 @@ gof_test_cont <- function(x, pnull,  rnull, w=function(x) -99, phat=function(x) 
         for(i in 1:m) tmp=tmp+z[[i]]
         out = tmp/m  
   }
-  if(typeTS>2) return(list(statistics=out[1, ], p.values=out[2, ]) )
+  if(typeTS>2 || WithWeights) return(list(statistics=out[1, ], p.values=out[2, ]) )
   # do chi square tests
   if(is.infinite(Range[1])) Range[1]=-99999
   if(is.infinite(Range[2])) Range[2]=99999

@@ -37,11 +37,10 @@ Rcpp::NumericMatrix power_disc(
   
   int  i, j, k, np=param_alt.size();
   IntegerVector x=ralt(param_alt(0));
-  NumericVector Fx(x.size()), TS_data;
-  for(i=0;i<x.size();++i) Fx(i)=(1.0+i)/x.size();
+  NumericVector TS_data;
   
-  if(typeTS<=1) TS_data=TS(x, Fx, vals); 
-  if(typeTS==2) TS_data=TS(x, Fx, vals, TSextra); 
+  if(typeTS<=1) TS_data=TS(x, pnull, phat(x), vals); 
+  if(typeTS==2) TS_data=TS(x, pnull, phat(x), vals, TSextra); 
   int const nummethods=TS_data.size();
   NumericMatrix out(np, nummethods);
   for(i=0;i<B(0);++i) {

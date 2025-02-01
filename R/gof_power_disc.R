@@ -31,19 +31,19 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat=function(x) -9
     if(missing(TS)) {
       typeTS=0
       TS =  TS_disc
-      TS_data = TS(x, (1:length(x))/length(x), vals)
+      TS_data = TS(x, pnull, phat(x), vals)
     }  
     else {
-      if(length(formals(TS))==3) {
-        typeTS=1
-        TS_data = TS(x, (1:length(x))/(length(x)+1), vals)
-      }
       if(length(formals(TS))==4) {
-        typeTS=2
-        TS_data = TS(x, (1:length(x))/(length(x)+1), vals, TSextra)
+        typeTS=1
+        TS_data = TS(x, pnull, phat(x), vals)
       }
-      if(length(formals(TS))>4) {
-        message("TS should have either 3 or 4 arguments")
+      if(length(formals(TS))==5) {
+        typeTS=2
+        TS_data = TS(x, pnull, phat(x), vals, TSextra)
+      }
+      if(length(formals(TS))>5) {
+        message("TS should have either 4 or 5 arguments")
         return(NULL)
       } 
       if(is.null(names(TS_data))) {
@@ -100,7 +100,7 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat=function(x) -9
                          TS = TS,
                          typeTS = typeTS,
                          TSextra = TSextra,
-                         B = c(round(B[1])/m, B[2]),
+                         B = c(round(B[1]/m), B[2]),
                          alpha = alpha
                     )
      parallel::stopCluster(cl)
@@ -118,15 +118,12 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat=function(x) -9
 # critical values of null distributions: 
     if(is.function(phat)) param=phat
     else param=0
-    res_pnull=formals(pnull)
-    if(length(res_pnull)==0) p = pnull()    
-    else p = pnull(param)    
     res_rnull=formals(rnull)
     TS_data = matrix(0, B[2], nummethods)    
     for(i in 1:B[2]) {
       x = rnull()
-      if(typeTS<2) TS_data[i, ]=TS(x, p, vals)
-      if(typeTS==2) TS_data[i, ]=TS(x, p, vals, TSextra)
+      if(typeTS<2) TS_data[i, ]=TS(x, pnull, phat(x), vals)
+      if(typeTS==2) TS_data[i, ]=TS(x, pnull, phat(x), vals, TSextra)
     }  
     crit = apply(TS_data, 2, stats::quantile, probs=1-alpha, na.rm=TRUE)
 # power calculations:  
@@ -137,8 +134,8 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat=function(x) -9
       x = ralt(param_alt[j])
       for(i in 1:B[1]) {
         x = ralt(param_alt[j])
-        if(typeTS<2) TS_sim[[j]][i, ]=TS(x, p, vals)
-        if(typeTS==2) TS_sim[[j]][i, ]=TS(x, p, vals, TSextra)
+        if(typeTS<2) TS_sim[[j]][i, ]=TS(x, pnull, phat(x), vals)
+        if(typeTS==2) TS_sim[[j]][i, ]=TS(x, pnull, phat(x), vals, TSextra)
       }
     }
     out = matrix(0, npar_alt, nummethods)
@@ -150,6 +147,6 @@ gof_power_disc=function(pnull, rnull, vals, ralt, param_alt, phat=function(x) -9
       } 
     }  
     out = cbind(out, chiout)
-    if(npar_alt==1) out=out[1, ]
+    if(npar_alt==1) out=out[1, , drop=FALSE]
     out
 }

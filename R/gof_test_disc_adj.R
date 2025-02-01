@@ -24,7 +24,7 @@ gof_test_disc_adj <- function(x, pnull, rnull, vals, phat=function(x) -99,
   if(missing(TS)) { # use built-in tests
     typeTS = 0
     TS = TS_disc
-    TS_data = TS(x, (1:length(x))/length(x), vals)
+    TS_data = TS(x, pnull, phat(x), vals)
   }  
   else {
     # can't do parallel processing if TS written in C/C++
@@ -32,16 +32,16 @@ gof_test_disc_adj <- function(x, pnull, rnull, vals, phat=function(x) -99,
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
       maxProcessors=1
     }
-    if(length(formals(TS))==3) {
-      typeTS=1
-      TS_data = TS(x, (1:length(x))/(length(x)+1), vals)
-    }
     if(length(formals(TS))==4) {
-      typeTS=2
-      TS_data = TS(x, (1:length(x))/(length(x)+1), vals, TSextra)
+      typeTS=1
+      TS_data = TS(x, pnull, phat(x), vals)
     }
-    if(length(formals(TS))>4) {
-      message("TS should have either 3 or 4 arguments")
+    if(length(formals(TS))==5) {
+      typeTS=2
+      TS_data = TS(x, pnull, phat(x), vals, TSextra)
+    }
+    if(length(formals(TS))>5) {
+      message("For discrete data TS should have either 4 or 5 arguments")
       return(NULL)
     }
     if(is.null(names(TS_data))) {
@@ -55,21 +55,21 @@ gof_test_disc_adj <- function(x, pnull, rnull, vals, phat=function(x) -99,
 
   NoEstimation=FALSE
   if(length(formals(pnull))==0) NoEstimation=TRUE
-  if(NoEstimation) Fx=pnull()
-  else Fx=pnull(p)
 
-  if(typeTS<=1) TS_data=TS(x, Fx, vals);  
-  if(typeTS==2) TS_data=TS(x, Fx, vals, TSextra);
+  if(typeTS<=1) TS_data=TS(x, pnull, phat(x), vals);  
+  if(typeTS==2) TS_data=TS(x, pnull, phat(x), vals, TSextra);
   if(typeTS>0) doMethods=names(TS_data)
   
   num_tests=length(TS_data)
   A=matrix(0, B[1], num_tests)
   for(i in 1:B[1]) {
-     if(NoEstimation) xsim=rnull()
-     else {xsim=rnull(p);psim=phat(xsim)}
-     if(!NoEstimation) Fx=pnull(psim)
-     if(typeTS<=1) TS_sim=TS(xsim, Fx, vals);
-     if(typeTS==2) TS_sim=TS(xsim, Fx, vals, TSextra);  
+     if(NoEstimation) {xsim=rnull()}
+     else {
+         xsim=rnull(p)
+         psim=phat(xsim)
+     }
+     if(typeTS<=1) TS_sim=TS(xsim, pnull, psim, vals);
+     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, vals, TSextra);  
      A[i, ]=TS_sim
   }
   if(typeTS==0) {
@@ -84,11 +84,13 @@ gof_test_disc_adj <- function(x, pnull, rnull, vals, phat=function(x) -99,
      if(i==1) {xsim=x;psim=p}
      else {
           if(NoEstimation) xsim=rnull()
-          else {xsim=rnull(p);psim=phat(xsim)}
+          else {
+             xsim=rnull(p)
+             psim=phat(xsim)
+          }
      }      
-     if(!NoEstimation) Fx=pnull(psim)
-     if(typeTS<=1) TS_sim=TS(xsim, Fx, vals);
-     if(typeTS==2) TS_sim=TS(xsim, Fx, vals, TSextra); 
+     if(typeTS<=1) TS_sim=TS(xsim, pnull, psim, vals);
+     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, vals, TSextra); 
      for(j in 1:num_tests) 
         pvals[i, j]=pvals[i, j]+sum(TS_sim[j]<A[,j])/B[1]
      if(typeTS==0) {

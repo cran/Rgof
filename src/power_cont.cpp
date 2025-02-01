@@ -40,17 +40,17 @@ Rcpp::NumericMatrix power_cont(
   Rcpp::Environment base("package:base");
   Rcpp::Function formals_r = base["formals"];
   NumericVector Fx(x.size()), wx(x.size());
-  for(i=0;i<x.length();++i) Fx(i)=(1.0+i)/(2.0+i);
+
   NumericVector TS_data;
-  if(typeTS==1) TS_data=TS(x, Fx, 1.0, qnull);
+  if(typeTS==1) TS_data=TS(x, pnull, phat(x), qnull);
   if(typeTS==2) {
     Rcpp::List res_w = formals_r(Rcpp::_["fun"]=w);
     if(res_w.size()==1) wx=w(x);
     else wx=w(x, phat(x)); 
-    TS_data=TS(x, Fx, wx);
+    TS_data=TS(x, pnull, phat(x), wx);
   }  
-  if(typeTS==3) TS_data=TS(x, Fx);
-  if(typeTS==4) TS_data=TS(x, Fx, TSextra);  
+  if(typeTS==3) TS_data=TS(x, pnull, phat(x));
+  if(typeTS==4) TS_data=TS(x, pnull, phat(x), TSextra);  
   int const nummethods=TS_data.size();
   Rcpp::CharacterVector methods=TS_data.names();
   NumericMatrix tmp(np, nummethods),out(np, nummethods);
