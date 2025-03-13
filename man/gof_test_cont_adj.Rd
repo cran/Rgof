@@ -28,7 +28,7 @@ gof_test_cont_adj(
 
 \item{rnull}{routine to generate data under the null hypothesis}
 
-\item{w}{(Optional) function to calculate weights, returns -99 if no weights}
+\item{w}{=function(x) =99 (Optional) function to calculate weights, returns -99 if no weights}
 
 \item{phat}{=function(x) -99, function to estimate parameters from the data, or -99 if no parameters aare estimated}
 

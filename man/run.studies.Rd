@@ -14,7 +14,7 @@ run.studies(
   alpha = 0.05,
   param_alt,
   maxProcessor,
-  B = c(1000, 1000)
+  B = 1000
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ run.studies(
 
 \item{maxProcessor}{number of cores to use for parallel programming}
 
-\item{B}{= c(1000,1000)}
+\item{B}{= 1000 number of simulation runs}
 }
 \value{
 A (list of ) matrices of p.values
@@ -65,5 +65,5 @@ chitest=function(x, pnull, param, TSextra) {
     out
 }
 TSextra=list(nbins=10, statistic=FALSE) # Use 10 bins, test routine returns p-value
-Rgof::run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, B=c(400,4400), maxProcessor=1)
+run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, maxProcessor=1, B=200)
 }

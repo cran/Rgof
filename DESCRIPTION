@@ -1,6 +1,6 @@
 Package: Rgof
 Title: 1d Goodness of Fit Tests
-Version: 3.0.0
+Version: 3.1.0
 Authors@R: 
     person(given = "Wolfgang",
            family = "Rolke",
@@ -16,14 +16,14 @@ License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 LinkingTo: Rcpp
-Imports: Rcpp, parallel, ggplot2, stats, graphics
+Imports: Rcpp, parallel, ggplot2, stats, graphics, microbenchmark
 Suggests: rmarkdown, knitr
 VignetteBuilder: knitr
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2025-02-01 18:14:50 UTC; Wolfgang
+Packaged: 2025-03-13 18:52:57 UTC; Wolfgang
 Author: Wolfgang Rolke [aut, cre] (<https://orcid.org/0000-0002-3514-726X>)
 Maintainer: Wolfgang Rolke <wolfgang.rolke@upr.edu>
 Repository: CRAN
-Date/Publication: 2025-02-01 18:40:02 UTC
+Date/Publication: 2025-03-13 19:10:02 UTC

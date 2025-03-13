@@ -4,33 +4,16 @@
 \alias{power_cont}
 \title{find power of gof tests for continuous data}
 \usage{
-power_cont(
-  pnull,
-  rnull,
-  qnull,
-  ralt,
-  param_alt,
-  w,
-  phat,
-  TS,
-  typeTS,
-  TSextra,
-  B = as.integer(c(1000, 1000)),
-  alpha = 0.05
-)
+power_cont(pnull, rnull, ralt, param_alt, phat, TS, typeTS, TSextra, B = 1000L)
 }
 \arguments{
 \item{pnull}{R function (cdf)}
 
 \item{rnull}{R function (generate data under null hypothesis)}
 
-\item{qnull}{R function (quantiles under null hypothesis)}
-
 \item{ralt}{R function to generate data under alternative}
 
 \item{param_alt}{parameters of ralt}
-
-\item{w}{(Optional) function to calculate weights, returns -99 if no weights}
 
 \item{phat}{function to estimate parameters from the data}
 
@@ -40,9 +23,7 @@ power_cont(
 
 \item{TSextra}{list to pass to TS}
 
-\item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
-
-\item{alpha}{=0.05, type I error of test}
+\item{B}{=1000 Number of simulation runs}
 }
 \value{
 A matrix of powers

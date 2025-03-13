@@ -16,10 +16,10 @@ gof_power(
   TSextra = NA,
   alpha = 0.05,
   Range = c(-Inf, Inf),
-  B = c(1000, 1000),
+  B = 1000,
   nbins = c(50, 10),
   rate = 0,
-  maxProcessors,
+  maxProcessor,
   minexpcount = 5,
   ChiUsePhat = TRUE
 )
@@ -47,13 +47,13 @@ gof_power(
 
 \item{Range}{=c(-Inf, Inf) limits of possible observations, if any}
 
-\item{B}{=c(1000, 1000), number of simulation runs to find power and null distribution}
+\item{B}{=1000 number of simulation runs}
 
 \item{nbins}{=c(100,10), number of bins for chi square tests.}
 
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
-\item{maxProcessors}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
+\item{maxProcessor}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
@@ -72,7 +72,7 @@ pnull = function(x) pnorm(x)
 rnull = function()  rnorm(50)
 ralt = function(mu)  rnorm(50, mu)
 TSextra = list(qnull=function(x) qnorm(x))
-gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), TSextra=TSextra, B=c(500, 500))
+gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), TSextra=TSextra, B=200)
 # Power of tests when null hypothesis specifies normal distribution and 
 # mean and standard deviation are estimated from the data. 
 # Example is not run because it takes several minutes.
@@ -82,15 +82,14 @@ rnull = function(p=c(0, 1))  rnorm(50, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 phat = function(x) c(mean(x), sd(x))
 TSextra = list(qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  
                ifelse(p[2]>0.001, p[2], 0.001))) 
-\donttest{gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, 
-          B=c(200, 200), maxProcessor=2)}
+gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=200)
 # Power of tests when null hypothesis specifies Poisson rv with rate 100 and 
 # true rate is 100.5
 vals = 0:250
 pnull = function() ppois(0:250, 100)
 rnull =function () table(c(0:250, rpois(1000, 100)))-1
 ralt =function (p) table(c(0:250, rpois(1000, p)))-1
-gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=c(500,500))
+gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=200)
 # Power of tests when null hypothesis specifies a Binomial n=10 distribution 
 # with the success probability estimated
 vals = 0:10
@@ -98,7 +97,6 @@ pnull=function(p) pbinom(0:10, 10, ifelse(0<p&p<1, p, 0.001))
 rnull=function(p) table(c(0:10, rbinom(1000, 10, ifelse(0<p&p<1, p, 0.001))))-1
 ralt=function(p) table(c(0:10, rbinom(1000, 10, p)))-1
 phat=function(x) mean(rep(0:10,x))/10
-\donttest{gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat,
-                    B=c(200, 200), maxProcessor=2)}
+gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=200)
 
 }

@@ -4,7 +4,7 @@
 \alias{gof_cont}
 \title{run gof tests for continuous data}
 \usage{
-gof_cont(x, pnull, rnull, qnull, w, phat, TS, typeTS, TSextra, B = 5000L)
+gof_cont(x, pnull, rnull, phat, TS, typeTS, TSextra, B = 5000L)
 }
 \arguments{
 \item{x}{A numeric vector of data}
@@ -12,10 +12,6 @@ gof_cont(x, pnull, rnull, qnull, w, phat, TS, typeTS, TSextra, B = 5000L)
 \item{pnull}{R function (cdf)}
 
 \item{rnull}{R function (generate data under null hypothesis)}
-
-\item{qnull}{R function (quantiles under null hypothesis)}
-
-\item{w}{function to calculate weights, returns -99 if no weights}
 
 \item{phat}{function to set or estimate parameters of pnull}
 

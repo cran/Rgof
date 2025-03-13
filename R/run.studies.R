@@ -8,7 +8,7 @@
 #' @param alpha =0.05  type I error
 #' @param param_alt (list of) values of parameter under the alternative hypothesis. If missing included values are used.
 #' @param maxProcessor number of cores to use for parallel programming
-#' @param B = c(1000,1000)
+#' @param B = 1000 number of simulation runs
 #' @return A (list of ) matrices of p.values
 #' @examples
 #' # New test is a simple chi-square test: 
@@ -31,12 +31,13 @@
 #'     out
 #' }
 #' TSextra=list(nbins=10, statistic=FALSE) # Use 10 bins, test routine returns p-value
-#' Rgof::run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, B=c(400,400), maxProcessor=1)
+#' run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, maxProcessor=1, B=200)
 #' @export
 
 run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, BasicComparison=TRUE, 
-                nsample=500, alpha=0.05, param_alt, maxProcessor, B=c(1000,1000)) {
-   
+                nsample=500, alpha=0.05, param_alt, maxProcessor, B=1000) {
+  
+  B=B[1] 
   if(!is.function(TS)) {
       if(missing(TS) || !is.logical(TS)) {
          message("TS should either be a function, or TRUE/FALSE (for continuous or discrete) to run the included tests") 

@@ -1,3 +1,6 @@
+# Rgof 3.1.0
+    March 2024. Changed the way power estimation is done, which is now 
+    much faster.
 # Rgof 3.0.0
     January 2025. Added routines to allow user to compare the power of a new 
     method to those included in the package.

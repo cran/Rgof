@@ -17,7 +17,7 @@ gof_test_disc(
   B = 5000,
   minexpcount = 5,
   ChiUsePhat = TRUE,
-  maxProcessors = 1,
+  maxProcessor = 1,
   doMethods = "Default"
 )
 }
@@ -46,7 +46,7 @@ gof_test_disc(
 
 \item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
-\item{maxProcessors}{=1, number of processors to use in parallel processing. If missing single processor is used.}
+\item{maxProcessor}{=1, number of processors to use in parallel processing. If missing single processor is used.}
 
 \item{doMethods}{Methods to include in tests}
 }

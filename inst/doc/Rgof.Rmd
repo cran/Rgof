@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(Rgof)
-Bsim = c(100, 100) #Number of Simulation Runs
+Bsim = 500 #Number of Simulation Runs
 ```
 
 Note that Bsim is very small, so that this vignette does not take to long to run. Therefore none of the p values or powers below are correct.
@@ -42,7 +42,7 @@ The highlights of this package are:
 set.seed(123)
 ```
 
-**Note** all runs of the test routine are done with *B=1000* and all runs of the power routines with arguments *B=c(500, 500), maxProcessor = 2* in order to pass *devtools::check()*.
+**Note** all runs of the test routine are done with *B=1000* and all runs of the power routines with arguments *B=500, maxProcessor = 2* in order to pass *devtools::check()*.
 
 ## The Methods 
 
@@ -153,7 +153,7 @@ Arguments of *gof_test* for discrete data/model:
 
 -  ChiUsePhat=TRUE, if TRUE uses user supplied function phat for parameter estimation. If false uses method of minimum chi square.
 
--  maxProcessors=1 if greater than 1 number of cores for parallel processing. Parallel processing is usually not be useful for discrete data as the single thread version generally runs faster.
+-  maxProcessor=1 if greater than 1 number of cores for parallel processing. Parallel processing is usually not be useful for discrete data as the single thread version generally runs faster.
 
 -  doMethods="all" names of methods to include
   
@@ -165,7 +165,7 @@ The arguments of *gof_test_adjusted_pvalue* for discrete data/model are the same
 
 In some fields like high energy physics it is common that the sample size is not fixed but a random variable drawn from a Poisson distribution with a known rate. Our package runs this as follows:
 
-```{r r1, eval=FALSE}
+```{r r1}
 rnull = function() table(c(0:20, rbinom(rpois(1, 650), 20, 0.5)))-1 
 x = rnull()
 gof_test(x, vals, pnull, rnull, rate=650, B=1000)$p.value
@@ -360,7 +360,7 @@ In all cases the arguments are the same as for *gof_test*. In addition we now ha
 
 -  alpha=0.05 type I error probability for tests.
 
--  B=c(1000, 1000) the first number is the number of simulation runs for power estimation and the second the number of runs to be used to find the null distribution.
+-  B=1000 the number of simulation runs.
 
 #### Composite Null Hypothesis
 
@@ -376,7 +376,7 @@ phat = function(x) sum(0:10*x)/1000
 ```{r pow2}
 ralt =function (p=0.5) table(c(0:10, rbinom(100, 10, p)))-1
 gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessors = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
 
 ```
 
@@ -387,7 +387,7 @@ Note that power estimation in the case of a composite hypothesis (aka with param
 ```{r}
 ralt =function (p=0.5) table(c(rep(0:10, 2), rbinom(100, 10, p)))
 gof_power(pnull, vals, rnull, ralt, 0.5, phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessors = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
 ```
 
 
@@ -535,7 +535,7 @@ ralt = function(tau=0) {
 gof_power(pnull, vals, rnull, ralt,
     TS=Rgof::newTSdisc, phat=phat, 
     param_alt=round(seq(0, 0.05, length=3), 3),
-    B=Bsim, maxProcessors = 1)
+    B=Bsim, maxProcessor = 1)
 ```
 
 ### Adjusted p values for Several Tests

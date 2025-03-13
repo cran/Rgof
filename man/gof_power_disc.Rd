@@ -14,10 +14,10 @@ gof_power_disc(
   TS,
   TSextra = NA,
   alpha = 0.05,
-  B = c(1000, 1000),
+  B = 1000,
   nbins = c(100, 10),
   rate = 0,
-  maxProcessors,
+  maxProcessor,
   minexpcount = 5,
   ChiUsePhat = TRUE
 )
@@ -41,13 +41,13 @@ gof_power_disc(
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
-\item{B}{=c(1000, 1000), number of simulation runs to find power and null distribution}
+\item{B}{=1000 number of simulation runs}
 
 \item{nbins}{=c(100, 10) number of bins for chi square tests}
 
 \item{rate}{rate of Poisson if sample size is random}
 
-\item{maxProcessors}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
+\item{maxProcessor}{maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing}
 
 \item{minexpcount}{=5 minimal number of expected counts in each bin for chi square tests}
 

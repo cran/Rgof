@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 #include "TS_disc.h"
-
+#include "teststatistics.h"
 using namespace Rcpp;
 
 //' run gof tests for discrete data
@@ -30,11 +30,8 @@ NumericMatrix gof_disc(Rcpp::IntegerVector x,
                        int B=5000) {
   int k=x.size(), i, j;
   NumericVector TS_data;
-  Rcpp::Environment base("package:base");
-  Rcpp::Function formals_r = base["formals"];
-  Rcpp::List res_TS = formals_r(Rcpp::_["fun"]=TS);
-  if(typeTS<=1) TS_data=TS(x, pnull, phat(x), vals); 
-  if(typeTS==2) TS_data=TS(x, pnull, phat(x), vals, TSextra); 
+  List dta=List::create(Named("x") =x, Named("vals")=vals);
+  TS_data=calcTS(dta, pnull, phat(x), TS, typeTS, TSextra);
   int const nummethods=TS_data.size();
   Rcpp::CharacterVector allMethods=TS_data.names();
   NumericVector TS_sim(nummethods),pvals(nummethods);
@@ -44,13 +41,11 @@ NumericMatrix gof_disc(Rcpp::IntegerVector x,
 
 /* run simulation to find null distribution */
   for(i=0;i<B;++i) {
-    Rcpp::List resr = formals_r(Rcpp::_["fun"]=rnull);
-    if(resr.size()==0) xsim=rnull();
-    else xsim=rnull(phat(x));
-    NumericVector psim(vals.size());
-    if(resr.size()!=0) psim=phat(xsim); 
-    if(typeTS<=1) TS_sim=TS(xsim, pnull, psim, vals); 
-    if(typeTS==2) TS_sim=TS(xsim, pnull, psim, vals, TSextra); 
+    NumericVector p=phat(x);
+    if(std::abs(p(0)+99)<0.01) xsim=rnull();
+    else xsim=rnull(p);
+    dta["x"]=xsim;
+    NumericVector TS_sim=calcTS(dta, pnull, phat(xsim), TS, typeTS, TSextra);
     for(j=0;j<nummethods;++j) {
       if(TS_data(j)<TS_sim(j)) pvals(j)=pvals(j)+1;
     }

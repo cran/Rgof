@@ -7,7 +7,7 @@ knitr::opts_chunk$set(
 
 ## ----setup--------------------------------------------------------------------
 library(Rgof)
-Bsim = c(100, 100) #Number of Simulation Runs
+Bsim = 500 #Number of Simulation Runs
 
 ## -----------------------------------------------------------------------------
 set.seed(123)
@@ -34,10 +34,10 @@ gof_test(x, vals, pnull, rnull, B=1000, doMethod = "all")$p.value
 #Test with adjusted overall p value
 gof_test_adjusted_pvalue(x, vals, pnull, rnull, B=c(1000, 500))
 
-## ----r1, eval=FALSE-----------------------------------------------------------
-# rnull = function() table(c(0:20, rbinom(rpois(1, 650), 20, 0.5)))-1
-# x = rnull()
-# gof_test(x, vals, pnull, rnull, rate=650, B=1000)$p.value
+## ----r1-----------------------------------------------------------------------
+rnull = function() table(c(0:20, rbinom(rpois(1, 650), 20, 0.5)))-1 
+x = rnull()
+gof_test(x, vals, pnull, rnull, rate=650, B=1000)$p.value
 
 ## -----------------------------------------------------------------------------
 vals=0:20
@@ -150,13 +150,13 @@ phat = function(x) sum(0:10*x)/1000
 ## ----pow2---------------------------------------------------------------------
 ralt =function (p=0.5) table(c(0:10, rbinom(100, 10, p)))-1
 gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessors = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
 
 
 ## -----------------------------------------------------------------------------
 ralt =function (p=0.5) table(c(rep(0:10, 2), rbinom(100, 10, p)))
 gof_power(pnull, vals, rnull, ralt, 0.5, phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessors = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
 
 ## -----------------------------------------------------------------------------
 pnull = function(x) pnorm(x)
@@ -225,7 +225,7 @@ ralt = function(tau=0) {
 gof_power(pnull, vals, rnull, ralt,
     TS=Rgof::newTSdisc, phat=phat, 
     param_alt=round(seq(0, 0.05, length=3), 3),
-    B=Bsim, maxProcessors = 1)
+    B=Bsim, maxProcessor = 1)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # pnull=function(x) punif(x)

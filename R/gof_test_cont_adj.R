@@ -2,7 +2,7 @@
 #' @param  x data set
 #' @param  pnull  cdf under the null hypothesis
 #' @param  rnull  routine to generate data under the null hypothesis
-#' @param  w (Optional) function to calculate weights, returns -99 if no weights
+#' @param  w =function(x) =99 (Optional) function to calculate weights, returns -99 if no weights
 #' @param  phat =function(x) -99, function to estimate parameters from the data, or -99 if no parameters aare estimated
 #' @param  TS user supplied function to find test statistics, if any
 #' @param  TSextra =NA, list passed to TS, if desired
@@ -26,6 +26,7 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
   if(length(formals(w))==1 & w(x[1])==-99) WithWeights = FALSE
   if(any(is.na(TSextra))) TSextra = list(p=phat(x))
   else TSextra = c(TSextra, p=phat)
+  TSextra=c(TSextra, w=w)
   Noqnull = FALSE
   if( !("qnull" %in% names(TSextra)) ) {
     Noqnull = TRUE
@@ -37,12 +38,12 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
      if(!WithWeights) { #data is not weighted
        typeTS=1
        TS = TS_cont
-       TS_data = TS(x, pnull, phat(x), function(x) abs(x)/max(x))
+       TS_data = TS(x, pnull, phat(x), TSextra$qnull)
      }
      else {
        typeTS=2
        TS = TSw_cont
-       TS_data = TS(x, pnull, phat(x), w(x))
+       TS_data = TS(x, pnull, phat(x), TSextra$w)
        doMethods = names(TS_data)
      }
   }   
@@ -64,32 +65,16 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
       return(NULL)
     }
   }
-  p=phat(x)
-  psim=p
   NoEstimation=FALSE
   if(length(formals(pnull))==1) NoEstimation=TRUE
-  if(WithWeights) {
-    if(NoEstimation) wx=w(x)   
-    else wx=w(x,p)
-  }
-  if(typeTS==1) TS_data=TS(x, pnull, p, qnull);
-  if(typeTS==2) TS_data=TS(x, pnull, p, wx);  
-  if(typeTS==3) TS_data=TS(x, pnull, p);
-  if(typeTS==4) TS_data=TS(x, pnull, p, TSextra);
   if(typeTS>2) doMethods=names(TS_data)
   num_tests=length(TS_data)
   A=matrix(0, B[1], num_tests)
+  p=phat(x)
   for(i in 1:B[1]) {
      if(NoEstimation) xsim=rnull()
-     else {xsim=rnull(p);psim=phat(xsim)}
-     if(WithWeights) {
-       if(NoEstimation) wx=w(xsim)   
-       else wx=w(xsim, psim)
-     }
-     if(typeTS==1) TS_sim=TS(xsim, pnull, psim, qnull);
-     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, wx);  
-     if(typeTS==3) TS_sim=TS(xsim, pnull, psim);
-     if(typeTS==4) TS_sim=TS(xsim, pnull, psim, TSextra);    
+     else xsim=rnull(p)
+     TS_sim=calcTS(list(x=xsim), pnull, phat(xsim), TS, typeTS, TSextra)    
      A[i, ]=TS_sim
   }
   if(typeTS<=2) {
@@ -103,27 +88,18 @@ gof_test_cont_adj=function(x, pnull, rnull, w=function(x) -99, phat=function(x) 
     colnames(pvals)=names(TS_data)
   }  
   for(i in 1:(B[2]+1)) {
-     if(i==1) {xsim=x;psim=p}
+     if(i==1) xsim=x
      else {
           if(NoEstimation) xsim=rnull()
-          else {xsim=rnull(p);psim=phat(xsim)}
+          else xsim=rnull(p)
      }      
-     if(NoEstimation) {
-         if(typeTS==2) wx=w(xsim)   
-     }    
-     else {
-         if(typeTS==2) wx=w(xsim, psim)
-     }
-     if(typeTS==1) TS_sim=TS(xsim, pnull, psim, qnull);
-     if(typeTS==2) TS_sim=TS(xsim, pnull, psim, wx);  
-     if(typeTS==3) TS_sim=TS(xsim, pnull, psim);
-     if(typeTS==4) TS_sim=TS(xsim, pnull, psim, TSextra);
+    TS_sim=calcTS(list(x=xsim), pnull, phat(xsim), TS, typeTS, TSextra)    
      for(j in 1:num_tests) 
         pvals[i, j]=pvals[i, j]+sum(TS_sim[j]<A[,j])/B[1]
      if(typeTS<=2) {
         Range[1]=ifelse(is.infinite(Range[1]),-99999, Range[1])
         Range[2]=ifelse(is.infinite(Range[2]),99999, Range[2])
-        pvals[i, num_tests+1:8]=round(chi_test_cont(xsim, pnull, w=w,
+        pvals[i, num_tests+1:8]=round(chi_test_cont(xsim, pnull, w=TSextra$w,
                 phat=phat, qnull=ifelse(Noqnull, NA, qnull), rate=rate, nbins=nbins,
                          Range=Range, minexpcount=minexpcount, 
                          ChiUsePhat=ChiUsePhat)[,2],4)

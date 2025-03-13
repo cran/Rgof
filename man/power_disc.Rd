@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{power_disc}
 \alias{power_disc}
-\title{find power of gof tests for discrete data}
+\title{find power of gof tests for continuous data}
 \usage{
 power_disc(
   pnull,
@@ -14,9 +14,7 @@ power_disc(
   TS,
   typeTS,
   TSextra,
-  rate = 0,
-  B = as.integer(c(1000, 1000)),
-  alpha = 0.05
+  B = 1000L
 )
 }
 \arguments{
@@ -24,30 +22,26 @@ power_disc(
 
 \item{rnull}{R function (generate data under null hypothesis)}
 
-\item{vals}{vector of values of discrete random variable}
+\item{vals}{values of discrete distribution}
 
 \item{ralt}{R function to generate data under alternative}
 
-\item{param_alt}{parameters of function ralt}
+\item{param_alt}{parameters of ralt}
 
 \item{phat}{function to estimate parameters from the data}
 
 \item{TS}{function to calculate test statistics}
 
-\item{typeTS}{type of test statistic}
+\item{typeTS}{integer indicating type of test statistic}
 
-\item{TSextra}{list passed to TS, if desired}
+\item{TSextra}{list to pass to TS}
 
-\item{rate}{=0, rate of sample size, if random}
-
-\item{B}{=c(1000, 1000) Number of simulation runs for power and null distribution}
-
-\item{alpha}{=0.05, type I error of test}
+\item{B}{=1000 Number of simulation runs}
 }
 \value{
 A matrix of powers
 }
 \description{
-find power of gof tests for discrete data
+find power of gof tests for continuous data
 }
 \keyword{internal}

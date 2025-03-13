@@ -90,7 +90,10 @@ Rcpp::NumericVector TS_cont(
         TS(7) = TS(7) + tmp*tmp;
       }  
     }
-  
+ 
+ /* Wasserstein */
+  NumericVector tmp2=qnull(0.5);
+  if(std::abs(tmp2[0]+99)>0.01) {
     NumericVector a1(n+1),a2(n);
     for(i=0;i<=n;++i) {
       a1[i]=double(i)/n;
@@ -110,6 +113,6 @@ Rcpp::NumericVector TS_cont(
      TS(8) = TS(8) + std::abs(b1(i+1)-x[i]);
    }
    TS(8) = TS(8)/6.0/n;
-
+  }
   return TS;
 } 

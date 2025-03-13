@@ -64,7 +64,7 @@ This function performs a number of gof tests and finds the adjusted p value for 
 pnull = function(x) pnorm(x)
 rnull = function()  rnorm(100)
 x = rnorm(100)
-gof_test_adjusted_pvalue(x, NA, pnull, rnull, B=c(1000, 200))
+gof_test_adjusted_pvalue(x, NA, pnull, rnull, B=c(500, 200))
 # Tests to see whether data comes from a normal distribution with standard deviation 1 
 # and the mean estimated.
 pnull=function(x, m) pnorm(x, m)
@@ -73,19 +73,19 @@ TSextra = list(qnull=function(x, m=0) qnorm(x, m),
           pnull=function(x, m=0) pnorm(x, m), phat=function(x) mean(x))
 phat=function(x) mean(x)
 x = rnorm(100, 1, 2)
-gof_test_adjusted_pvalue(x, NA, pnull, rnull, phat=phat, TSextra=TSextra, B=c(1000, 200))
+gof_test_adjusted_pvalue(x, NA, pnull, rnull, phat=phat, TSextra=TSextra, B=c(500, 200))
 # Tests to see whether data comes from a binomial (10, 0.5) distribution.
 vals=0:10
 pnull = function() pbinom(0:10, 10, 0.5)
 rnull = function() table(c(0:10, rbinom(1000, 10, 0.5)))-1
 x = rnull() 
-gof_test_adjusted_pvalue(x, vals, pnull, rnull, B=c(1000, 200))
+gof_test_adjusted_pvalue(x, vals, pnull, rnull, B=c(500, 200))
 # Tests to see whether data comes from a binomial distribution with 
 # the success probability estimated from the data.
 pnull = function(p=0.5) pbinom(0:10, 10, ifelse(p>0&&p<1, p, 0.001))
 rnull = function(p=0.5) table(c(0:10, rbinom(1000, 10, 
                   ifelse(p>0&&p<1, p, 0.001))))-1
 phat=function(x) mean(rep(0:10,x))/10 
-gof_test_adjusted_pvalue(x, vals, pnull, rnull, phat=phat, B=c(1000, 200)) 
+gof_test_adjusted_pvalue(x, vals, pnull, rnull, phat=phat, B=c(500, 200)) 
 
 }

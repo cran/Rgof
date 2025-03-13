@@ -11,19 +11,19 @@
 #' @param  B   =5000  number of simulation runs
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
-#' @param  maxProcessors =1, number of processors to use in parallel processing. If missing single processor is used.
+#' @param  maxProcessor =1, number of processors to use in parallel processing. If missing single processor is used.
 #' @param  doMethods Methods to include in tests
 #' @return A numeric matrix of test statistics and p.values
 
 gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99, 
                           TS, TSextra=NA,  nbins=c(50, 10), rate=0, 
                           B=5000, minexpcount=5.0, ChiUsePhat=TRUE,
-                          maxProcessors=1, doMethods="Default") {
+                          maxProcessor=1, doMethods="Default") {
 
   if(any(is.na(TSextra))) TSextra = list(p=phat(x))
   else TSextra = c(TSextra, p=phat)
   if(missing(TS)) { # use built-in tests
-    typeTS = 0
+    typeTS = 5
     TS = TS_disc
     TS_data = TS(x, pnull, phat(x), vals)
   }  
@@ -31,17 +31,17 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99,
     # can't do parallel processing if TS written in C/C++
     if(substr(deparse(TS)[2], 1, 5)==".Call") {
       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
-      maxProcessors=1
+      maxProcessor=1
     }
     if(length(formals(TS))==4) {
-      typeTS=1
+      typeTS=5
       TS_data = TS(x, pnull, phat(x), vals)
     }
     if(length(formals(TS))==5) {
-      typeTS=2
+      typeTS=6
       TS_data = TS(x, pnull, phat(x), vals, TSextra)
     }
-    if(length(formals(TS))>5) {
+    if(length(formals(TS))>6) {
       message("TS should have either 4 or 5 arguments")
       return(NULL)
     }
@@ -54,10 +54,10 @@ gof_test_disc <- function(x, pnull, rnull, vals, phat=function(x) -99,
   out = matrix(0, 2, nummethods)    
   colnames(out) = names(TS_data)
 
-  if(maxProcessors==1)
+  if(maxProcessor==1)
     out = gof_disc(x, pnull, rnull, vals, phat, TS, typeTS, TSextra, rate, B)
   else {
-    m = maxProcessors
+    m = maxProcessor
     cl = parallel::makeCluster(m)
     z=parallel::clusterCall(cl, 
                             gof_disc, 
