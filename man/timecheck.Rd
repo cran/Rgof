@@ -4,16 +4,10 @@
 \alias{timecheck}
 \title{estimate run time function}
 \usage{
-timecheck(x, pnull, phatx, wx, TS, typeTS, TSextra)
+timecheck(dta, TS, typeTS, TSextra)
 }
 \arguments{
-\item{x}{data set}
-
-\item{pnull}{function to find cdf under  null hypothesis}
-
-\item{phatx}{parameter estimates}
-
-\item{wx}{vector of wights}
+\item{dta}{data set}
 
 \item{TS}{test statistic}
 

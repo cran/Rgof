@@ -2,7 +2,7 @@
 % Please edit documentation in R/gof_power.R
 \name{gof_power}
 \alias{gof_power}
-\title{Find the power of various gof tests for continuous data.}
+\title{Find the power of various gof tests.}
 \usage{
 gof_power(
   pnull,
@@ -13,7 +13,7 @@ gof_power(
   w = function(x) -99,
   phat = function(x) -99,
   TS,
-  TSextra = NA,
+  TSextra,
   alpha = 0.05,
   Range = c(-Inf, Inf),
   B = 1000,
@@ -27,7 +27,7 @@ gof_power(
 \arguments{
 \item{pnull}{function to find cdf under  null hypothesis}
 
-\item{vals}{=NA, values of rv, if data is discrete, NA if data is continuous}
+\item{vals}{=NA values of discrete random variable, or NA}
 
 \item{rnull}{function to generate data under  null hypothesis}
 
@@ -41,7 +41,7 @@ gof_power(
 
 \item{TS}{user supplied function to find test statistics}
 
-\item{TSextra}{=NA, list provided to TS}
+\item{TSextra}{list provided to TS (optional)}
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
@@ -49,7 +49,7 @@ gof_power(
 
 \item{B}{=1000 number of simulation runs}
 
-\item{nbins}{=c(100,10), number of bins for chi square tests.}
+\item{nbins}{=c(50,10), number of bins for chi square tests.}
 
 \item{rate}{=0 rate of Poisson if sample size is random, 0 if sample size is fixed}
 
@@ -63,7 +63,7 @@ gof_power(
 A numeric matrix of power values.
 }
 \description{
-Find the power of various gof tests for continuous data.
+Find the power of various gof tests.
 }
 \examples{
 # Power of tests when null hypothesis specifies the standard normal distribution but 

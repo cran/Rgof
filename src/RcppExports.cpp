@@ -91,41 +91,86 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// gof_cont
-Rcpp::NumericMatrix gof_cont(Rcpp::NumericVector x, Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::Function phat, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, int B);
-RcppExport SEXP _Rgof_gof_cont(SEXP xSEXP, SEXP pnullSEXP, SEXP rnullSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
+// calcTS
+NumericVector calcTS(Rcpp::List dta, Rcpp::Function TS, int typeTS, Rcpp::List TSextra);
+RcppExport SEXP _Rgof_calcTS(SEXP dtaSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type phat(phatSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type dta(dtaSEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
     Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< int >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(gof_cont(x, pnull, rnull, phat, TS, typeTS, TSextra, B));
+    rcpp_result_gen = Rcpp::wrap(calcTS(dta, TS, typeTS, TSextra));
     return rcpp_result_gen;
 END_RCPP
 }
-// gof_disc
-NumericMatrix gof_disc(Rcpp::IntegerVector x, Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function phat, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, double rate, int B);
-RcppExport SEXP _Rgof_gof_disc(SEXP xSEXP, SEXP pnullSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP rateSEXP, SEXP BSEXP) {
+// gof_adj_C1
+Rcpp::NumericMatrix gof_adj_C1(List dta, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, const int B);
+RcppExport SEXP _Rgof_gof_adj_C1(SEXP dtaSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
+    Rcpp::traits::input_parameter< List >::type dta(dtaSEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type phat(phatSEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
     Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< double >::type rate(rateSEXP);
+    Rcpp::traits::input_parameter< const int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(gof_adj_C1(dta, rnull, vals, TS, typeTS, TSextra, B));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gof_adj_C2
+Rcpp::NumericMatrix gof_adj_C2(List dta, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, Rcpp::NumericMatrix A, const int B);
+RcppExport SEXP _Rgof_gof_adj_C2(SEXP dtaSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP ASEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type dta(dtaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(gof_adj_C2(dta, rnull, vals, TS, typeTS, TSextra, A, B));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gof_power_C
+Rcpp::List gof_power_C(Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, const int B);
+RcppExport SEXP _Rgof_gof_power_C(SEXP rnullSEXP, SEXP valsSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type ralt(raltSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param_alt(param_altSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
+    Rcpp::traits::input_parameter< const int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(gof_power_C(rnull, vals, ralt, param_alt, TS, typeTS, TSextra, B));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gof_test_C
+Rcpp::NumericMatrix gof_test_C(Rcpp::List dta, Rcpp::Function rnull, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, int B);
+RcppExport SEXP _Rgof_gof_test_C(SEXP dtaSEXP, SEXP rnullSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type dta(dtaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
     Rcpp::traits::input_parameter< int >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(gof_disc(x, pnull, rnull, vals, phat, TS, typeTS, TSextra, rate, B));
+    rcpp_result_gen = Rcpp::wrap(gof_test_C(dta, rnull, TS, typeTS, TSextra, B));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -140,61 +185,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type param(paramSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
     rcpp_result_gen = Rcpp::wrap(newTSdisc(x, pnull, param, vals));
-    return rcpp_result_gen;
-END_RCPP
-}
-// power_cont
-Rcpp::List power_cont(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, const int B);
-RcppExport SEXP _Rgof_power_cont(SEXP pnullSEXP, SEXP rnullSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type ralt(raltSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param_alt(param_altSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type phat(phatSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
-    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< const int >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_cont(pnull, rnull, ralt, param_alt, phat, TS, typeTS, TSextra, B));
-    return rcpp_result_gen;
-END_RCPP
-}
-// power_disc
-Rcpp::List power_disc(Rcpp::Function pnull, Rcpp::Function rnull, Rcpp::NumericVector vals, Rcpp::Function ralt, Rcpp::NumericVector param_alt, Rcpp::Function phat, Rcpp::Function TS, int typeTS, Rcpp::List TSextra, const int B);
-RcppExport SEXP _Rgof_power_disc(SEXP pnullSEXP, SEXP rnullSEXP, SEXP valsSEXP, SEXP raltSEXP, SEXP param_altSEXP, SEXP phatSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type rnull(rnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type ralt(raltSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param_alt(param_altSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type phat(phatSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
-    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< const int >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_disc(pnull, rnull, vals, ralt, param_alt, phat, TS, typeTS, TSextra, B));
-    return rcpp_result_gen;
-END_RCPP
-}
-// calcTS
-NumericVector calcTS(Rcpp::List dta, Rcpp::Function pnull, Rcpp::NumericVector param, Rcpp::Function TS, int typeTS, Rcpp::List TSextra);
-RcppExport SEXP _Rgof_calcTS(SEXP dtaSEXP, SEXP pnullSEXP, SEXP paramSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type dta(dtaSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type pnull(pnullSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type param(paramSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
-    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
-    rcpp_result_gen = Rcpp::wrap(calcTS(dta, pnull, param, TS, typeTS, TSextra));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -219,12 +209,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Rgof_TSw_cont", (DL_FUNC) &_Rgof_TSw_cont, 4},
     {"_Rgof_TSw_disc", (DL_FUNC) &_Rgof_TSw_disc, 5},
     {"_Rgof_bincounter", (DL_FUNC) &_Rgof_bincounter, 2},
-    {"_Rgof_gof_cont", (DL_FUNC) &_Rgof_gof_cont, 8},
-    {"_Rgof_gof_disc", (DL_FUNC) &_Rgof_gof_disc, 10},
+    {"_Rgof_calcTS", (DL_FUNC) &_Rgof_calcTS, 4},
+    {"_Rgof_gof_adj_C1", (DL_FUNC) &_Rgof_gof_adj_C1, 7},
+    {"_Rgof_gof_adj_C2", (DL_FUNC) &_Rgof_gof_adj_C2, 8},
+    {"_Rgof_gof_power_C", (DL_FUNC) &_Rgof_gof_power_C, 8},
+    {"_Rgof_gof_test_C", (DL_FUNC) &_Rgof_gof_test_C, 6},
     {"_Rgof_newTSdisc", (DL_FUNC) &_Rgof_newTSdisc, 4},
-    {"_Rgof_power_cont", (DL_FUNC) &_Rgof_power_cont, 9},
-    {"_Rgof_power_disc", (DL_FUNC) &_Rgof_power_disc, 10},
-    {"_Rgof_calcTS", (DL_FUNC) &_Rgof_calcTS, 6},
     {"_Rgof_wbincounter", (DL_FUNC) &_Rgof_wbincounter, 3},
     {NULL, NULL, 0}
 };

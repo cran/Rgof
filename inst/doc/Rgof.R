@@ -256,6 +256,11 @@ ggplot2::ggplot(data=dta, ggplot2::aes(x=x,y=y,col=Tests))+
   ggplot2::scale_color_manual(values=c("blue","red", "Orange", "green"))
 
 ## -----------------------------------------------------------------------------
+x=rnull()
+Rgof::gof_test_adjusted_pvalue(x, NA, pnull, rnull, 
+              B=c(100, 100), maxProcessor = 1)
+
+## -----------------------------------------------------------------------------
 df=3
 pnull=function(x) pnorm(x)/(2*pnorm(3)-1)
 rnull=function() {x=rt(2000, df);x=x[abs(x)<3];sort(x[1:1000])}

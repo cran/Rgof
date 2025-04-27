@@ -400,8 +400,7 @@ vs alternative hypothesis).</li>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span></code></pre></div>
 <p><strong>Note</strong> all runs of the test routine are done with
 <em>B=1000</em> and all runs of the power routines with arguments
-<em>B=500, maxProcessor = 2</em> in order to pass
-<em>devtools::check()</em>.</p>
+<em>B=500</em> in order to pass <em>devtools::check()</em>.</p>
 <div id="the-methods" class="section level2">
 <h2>The Methods</h2>
 <ul>
@@ -502,20 +501,22 @@ n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Basic Test</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;      KS       K      AD     CvM       W  Wassp1 </span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 0.17000 0.17380 0.13280 0.02492 2.04530 0.03457 </span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;  0.671  0.754  0.997  0.970  0.669  0.995</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>))</span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; W :  0.691</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; AD :  0.996</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; s-P :  0.9951</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.938</span></span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;      KS       K      AD     CvM       W  Wassp1     l-P     s-P     l-L     s-L </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 0.17000 0.17380 0.13280 0.02492 2.04530 0.03457 2.60110 1.95330 2.67520 2.03780 </span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 0.6640 0.7570 0.9960 0.9680 0.6670 0.9960 0.9978 0.9967 0.9974 0.9960</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Using 23 cores ...</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; W :  0.0228</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; AD :  0.0324</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; s-P :  0.9981</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.7311</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
@@ -523,15 +524,17 @@ n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#true p is 0.55, not 0.5</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># Basic Test</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">doMethod =</span> <span class="st">&quot;all&quot;</span>)<span class="sc">$</span>p.value</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>))</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; W :  0</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; AD :  0</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; s-P :  0</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.004</span></span></code></pre></div>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Using 23 cores ...</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; W :  0.0191</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; AD :  0.0219</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; s-P :  0</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.0508</span></span></code></pre></div>
 <p>Arguments of <em>gof_test</em> for discrete data/model:</p>
 <ul>
 <li><p>x: vector with counts (histogram heights). Should have a number
@@ -579,8 +582,9 @@ distribution with a known rate. Our package runs this as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="fu">rpois</span>(<span class="dv">1</span>, <span class="dv">650</span>), <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">rate=</span><span class="dv">650</span>, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;  0.987  0.980  0.041  0.034  0.993  0.032</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 0.0650 0.0640 0.1710 0.1200 0.0450 0.1880 0.4898 0.4898 0.4446 0.4446</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis" class="section level4">
 <h4>Composite Null Hypothesis</h4>
@@ -596,24 +600,27 @@ estimated from data.</p>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span>  </span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;  0.439  0.520  0.812  0.790  0.707  0.696</span></span></code></pre></div>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 0.0450 0.0660 0.2130 0.0900 0.0980 0.2670 0.4664 0.5043 0.4638 0.5138</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.55</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># p is not 0.5, but data is still from a binomial distribution with n=20</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;  0.474  0.471  0.948  0.868  0.345  0.979</span></span></code></pre></div>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 0.4350 0.5880 0.9410 0.9880 0.5960 0.9770 0.8126 0.9922 0.8415 0.9928</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="dv">5</span>), <span class="fu">rbinom</span>(<span class="dv">1000-21</span><span class="sc">*</span><span class="dv">5</span>, <span class="dv">20</span>, <span class="fl">0.53</span>))) </span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># data has to many small and large values to be from a binomial</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;  0.224  0.034  0.000  0.000  0.018  0.000</span></span></code></pre></div>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;  0.022  0.003  0.000  0.001  0.002  0.000  0.000  0.000  0.000  0.000</span></span></code></pre></div>
 <p>The arguments are the same as for the simple hypothesis case, except
 that the user has to supply a routine phat to estimate the parameters,
 and the functions pnull and rnull now have one argument, namely the
@@ -654,8 +661,9 @@ distribution, truncated to the interval 0-2:</p>
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>}</span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  </span>
 <span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull)<span class="sc">$</span>p.value</span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; 0.1722 0.3574 0.7114 0.8098 0.7246 0.7258</span></span></code></pre></div>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P    l-L    s-L </span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; 0.4826 0.9380 0.7498 0.6906 0.5988 0.7022 0.3660 0.9415 0.3261 0.9420</span></span></code></pre></div>
 </div>
 <div id="continuous-data" class="section level3">
 <h3>Continuous Data</h3>
@@ -670,27 +678,30 @@ distribution, truncated to the interval 0-2:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#Basic Tests</span></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; 0.0310 0.0310 0.0710 0.0480 0.0130 0.5180 0.1110 0.5440 0.1190 0.6176 0.1763 </span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; 0.8943 0.2181 0.6687 0.1737 0.9213 0.2149</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#Adjusted p value</span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>,<span class="dv">500</span>), <span class="at">TSextra=</span>TSextra)</span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; W :  0.006</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; ZC :  0.561</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; AD :  0.064</span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; ES-s-P :  0.2313</span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.029</span></span></code></pre></div>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; 0.5150 0.5150 0.4860 0.7090 0.7240 0.3040 0.1970 0.3730 0.5710 0.2651 0.2139 </span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 0.9941 0.5313 0.1246 0.1735 0.9875 0.5149</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#Adjusted p value</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>,<span class="dv">500</span>), <span class="at">TSextra=</span>TSextra)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; Using 23 cores ...</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; p values of individual tests:</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; W :  0.0244</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; ZC :  0.0208</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; AD :  0.0071</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; ES-s-P :  0.2139</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; adjusted p value of combined tests: 0.2772</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
 </div>
 <div id="composite-hypothesis---one-parameter" class="section level4">
 <h4>Composite Hypothesis - One Parameter</h4>
@@ -703,28 +714,31 @@ distribution, truncated to the interval 0-2:</p>
 </ul>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>) </span>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; 0.0470 0.0470 0.2390 0.1370 0.1150 0.7030 0.5860 0.6060 0.3210 0.0695 0.3488 </span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; 0.3901 0.1451 0.0509 0.3612 0.3144 0.1305</span></span></code></pre></div>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 0.3530 0.3530 0.3050 0.3020 0.2950 0.0360 0.2060 0.0640 0.2370 0.6706 0.3258 </span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 0.2184 0.7251 0.6557 0.2340 0.1349 0.7057</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; 0.5042 0.5042 0.7698 0.6168 0.5896 0.5058 0.7502 0.2382 0.7624 0.8051 0.8635 </span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; 0.5055 0.2169 0.8098 0.8645 0.5799 0.2420</span></span></code></pre></div>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; 0.3948 0.3948 0.3092 0.4534 0.4224 0.7268 0.3164 0.6494 0.3466 0.2126 0.1409 </span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; 0.8922 0.1182 0.1965 0.1364 0.8785 0.1150</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="dv">2</span>) </span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
 <p>The arguments of gof_test are the same as in the discrete case,
 except that vals=NA. The functions pnull and rnull are functions of one
 variable in the case of a simple hypothesis and of two variables in the
@@ -741,37 +755,41 @@ case of parameeter estimation.</p>
 </ul>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>) </span>
 <span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; 0.1090 0.1090 0.0080 0.0230 0.0240 0.0050 0.0110 0.0110 0.0060 0.5720 0.0298 </span></span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; 0.4562 0.1610 0.5057 0.0244 0.4804 0.1765</span></span></code></pre></div>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; 0.9750 0.9750 0.8330 0.8860 0.9400 0.7180 0.3160 0.6410 0.7750 0.2062 0.6863 </span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; 0.6912 0.7844 0.1368 0.6972 0.6437 0.7941</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; 0.0860 0.0860 0.1590 0.1120 0.0920 0.8500 0.4660 0.8000 0.2770 0.9292 0.1301 </span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; 0.6872 0.0836 0.9299 0.1222 0.7140 0.0796</span></span></code></pre></div>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; 0.8550 0.8550 0.6480 0.7910 0.7590 0.7520 0.6960 0.8190 0.6180 0.6737 0.8498 </span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; 0.3298 0.6819 0.6589 0.8427 0.2823 0.6862</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="dv">2</span>) </span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co">#&gt; 0.4230 0.4230 0.2860 0.2630 0.2300 0.1830 0.2180 0.1910 0.2490 0.6426 0.3270 </span></span>
-<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="co">#&gt; 0.8548 0.2278 0.6205 0.3307 0.8589 0.2445</span></span></code></pre></div>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; 0.3220 0.3220 0.4740 0.4960 0.4540 0.3740 0.2130 0.3550 0.4540 0.2479 0.0660 </span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co">#&gt; 0.4932 0.2673 0.2335 0.0686 0.4889 0.2618</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rt</span>(<span class="dv">1000</span>, <span class="dv">2</span>) </span>
 <span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
-<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0</span></span></code></pre></div>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="co">#&gt; 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0006 </span></span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a><span class="co">#&gt; 0.0000 0.0000 0.0000 0.0014 0.0000 0.0000</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -790,9 +808,9 @@ hypothesis:</p>
 <span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>P<span class="ot">=</span><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, </span>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  <span class="at">param_alt=</span><span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.02</span>), <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>))</span>
-<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">#&gt; For discrete data only a single processor is used if maxProcessor is not specified</span></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
 <span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="fu">plot_power</span>(P, <span class="st">&quot;p&quot;</span>, <span class="at">Smooth=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
 <p>In all cases the arguments are the same as for <em>gof_test</em>. In
 addition we now have</p>
 <ul>
@@ -816,9 +834,10 @@ calculation of the power for many different values.</p></li>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), <span class="at">phat=</span>phat,</span>
 <span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessor =</span> <span class="dv">2</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt;        KS     K    AD   CvM     W Wassp1</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.694 0.786 0.936 0.936 0.564  0.944</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.764 0.828 0.970 0.972 0.640  0.972</span></span></code></pre></div>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt;        KS     K    AD  CvM     W Wassp1   l-P   s-P</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; 0.5 0.032 0.044 0.034 0.04 0.044  0.048 0.072 0.072</span></span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co">#&gt; 0.6 0.046 0.048 0.052 0.06 0.058  0.056 0.058 0.058</span></span></code></pre></div>
 <p>Note that power estimation in the case of a composite hypothesis (aka
 with parameters estimated) is much slower than the simple hypothesis
 case.</p>
@@ -828,8 +847,9 @@ case.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">2</span>), <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))</span>
 <span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fl">0.5</span>, <span class="at">phat=</span>phat,</span>
 <span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessor =</span> <span class="dv">2</span>)</span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1 </span></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;  0.610  0.724  0.996  0.930  0.666  0.984</span></span></code></pre></div>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P </span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt;  0.100  0.274  1.000  1.000  0.586  1.000  1.000  1.000</span></span></code></pre></div>
 </div>
 </div>
 <div id="continuous-datamodel" class="section level3">
@@ -841,14 +861,13 @@ case.</p>
 <span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">100</span>)</span>
 <span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">mu=</span><span class="dv">0</span>) <span class="fu">rnorm</span>(<span class="dv">100</span>, mu)</span>
 <span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim)</span>
-<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt; Using  23  cores..</span></span>
-<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt;     KS    K    AD   CvM    W   ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
-<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt; 0 0.04 0.04 0.044 0.036 0.04 0.07 0.056 0.076  0.052   0.05  0.048  0.054</span></span>
-<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; 1 1.00 1.00 1.000 1.000 1.00 1.00 1.000 1.000  1.000   1.00  1.000  1.000</span></span>
-<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt;   EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a><span class="co">#&gt; 0  0.052  0.052  0.052   0.05   0.05</span></span>
-<span id="cb28-13"><a href="#cb28-13" tabindex="-1"></a><span class="co">#&gt; 1  1.000  1.000  1.000   1.00   1.00</span></span></code></pre></div>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt;      KS     K    AD   CvM     W    ZA    ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; 0 0.028 0.028 0.034 0.022 0.038 0.036 0.054 0.03  0.042  0.052  0.064  0.062</span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt; 1 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.00  1.000  1.000  1.000  1.000</span></span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt;   EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt; 0  0.056   0.06   0.06   0.07   0.07</span></span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a><span class="co">#&gt; 1  1.000   1.00   1.00   1.00   1.00</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis-2" class="section level4">
 <h4>Composite Null Hypothesis</h4>
@@ -860,12 +879,12 @@ case.</p>
 <span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">phat=</span> phat, </span>
 <span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a>          <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
 <span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt;   KS K    AD   CvM     W ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 0  1 1 0.996 0.992 0.986  1 0.992 0.982      1  0.042  0.046  0.062  0.040</span></span>
-<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; 1  1 1 1.000 1.000 1.000  1 1.000 1.000      1  0.064  0.054  0.064  0.046</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt;   ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 0  0.048  0.054  0.062  0.060</span></span>
-<span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a><span class="co">#&gt; 1  0.060  0.064  0.062  0.066</span></span></code></pre></div>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt;      KS     K    AD   CvM     W    ZA    ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt; 0 0.962 0.918 0.066 0.078 0.072 0.574 0.014 0.02  0.994  0.046   0.06  0.050</span></span>
+<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; 1 0.966 0.918 0.058 0.068 0.066 0.590 0.004 0.02  0.996  0.060   0.07  0.062</span></span>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt;   EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
+<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; 0  0.044  0.050  0.064  0.048  0.058</span></span>
+<span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a><span class="co">#&gt; 1  0.066  0.058  0.066  0.068  0.070</span></span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">df=</span><span class="dv">1</span>) {</span>
 <span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co"># t distribution truncated at +- 5  </span></span>
 <span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>  x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">1000</span>, df)</span>
@@ -875,12 +894,12 @@ case.</p>
 <span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">50</span>), <span class="at">phat=</span>phat, </span>
 <span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>          <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>), <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">2</span>)</span>
 <span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt;    KS K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P EP-s-P</span></span>
-<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt; 2   1 1 0.988 0.966 0.914 1.000 0.976 0.970  1.000  0.266  0.312  0.238  0.256</span></span>
-<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 50  1 1 0.978 0.974 0.958 0.996 0.960 0.954  0.992  0.060  0.076  0.080  0.068</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt;    ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a><span class="co">#&gt; 2   0.222  0.332  0.226  0.264</span></span>
-<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a><span class="co">#&gt; 50  0.080  0.084  0.086  0.078</span></span></code></pre></div>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt;       KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt; 2  0.998 0.996 0.622 0.616 0.632 0.964 0.236 0.200  1.000  0.286  0.360  0.258</span></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 50 0.964 0.922 0.048 0.052 0.046 0.626 0.014 0.024  0.574  0.054  0.066  0.064</span></span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt;    EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a><span class="co">#&gt; 2   0.308  0.294  0.374   0.26  0.324</span></span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a><span class="co">#&gt; 50  0.046  0.054  0.072   0.08  0.060</span></span></code></pre></div>
 </div>
 </div>
 <div id="running-other-tests" class="section level3">
@@ -917,13 +936,14 @@ vector.</p>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">runif</span>(<span class="dv">500</span>)</span>
 <span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">TS=</span>newTScont)</span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt;  4.1405 </span></span>
-<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
-<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt;   0.856</span></span></code></pre></div>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a><span class="co">#&gt;  11.683 </span></span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
+<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a><span class="co">#&gt;  0.0834</span></span></code></pre></div>
 <p>Say we want to find the power of this test when the true distribution
 is a linear:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">slope=</span><span class="dv">0</span>) {</span>
@@ -931,12 +951,11 @@ is a linear:</p>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    <span class="cf">else</span> y<span class="ot">=</span>(slope<span class="dv">-1</span><span class="sc">+</span><span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">-</span>slope)<span class="sc">^</span><span class="dv">2</span><span class="sc">+</span><span class="dv">4</span><span class="sc">*</span>slope<span class="sc">*</span> <span class="fu">runif</span>(<span class="dv">500</span>)))<span class="sc">/</span><span class="dv">2</span><span class="sc">/</span>slope</span>
 <span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">TS=</span>newTScont, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">B=</span>Bsim)</span>
-<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt; Using  23  cores..</span></span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt;      CvM alt</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0       0.05</span></span>
-<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 0.25    0.89</span></span>
-<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a><span class="co">#&gt; 0.5     1.00</span></span></code></pre></div>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="co">#&gt;      CvM alt</span></span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co">#&gt; 0      0.062</span></span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a><span class="co">#&gt; 0.25   0.910</span></span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co">#&gt; 0.5    1.000</span></span></code></pre></div>
 <p>for discrete data we will write the routine using Rcpp:</p>
 <p>(For reasons to avoid issues with CRAN submission this routine is
 already part of Rgof)</p>
@@ -982,13 +1001,14 @@ from the data:</p>
 <span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>phat<span class="ot">=</span><span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span><span class="sc">*</span>x)<span class="sc">/</span><span class="dv">100000</span></span>
 <span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>(<span class="fl">0.5</span>)</span>
 <span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TS=</span>Rgof<span class="sc">::</span>newTSdisc)</span>
-<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
-<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt;   CvM alt </span></span>
-<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; 0.0008937 </span></span>
-<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
-<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt; CvM alt </span></span>
-<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt;  0.9526</span></span></code></pre></div>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; $statistics</span></span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt;  CvM alt      l-P      s-P      l-L      s-L </span></span>
+<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a><span class="co">#&gt; 0.001749 8.629200 3.130700 8.646800 3.128500 </span></span>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a><span class="co">#&gt; $p.values</span></span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a><span class="co">#&gt; CvM alt     l-P     s-P     l-L     s-L </span></span>
+<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a><span class="co">#&gt;  0.6074  0.4722  0.9259  0.4705  0.9260</span></span></code></pre></div>
 <p>For the power calculations we will consider data that is actually a
 mixture of two Binomials:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">tau=</span><span class="dv">0</span>) {</span>
@@ -1000,10 +1020,10 @@ mixture of two Binomials:</p>
 <span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a>    <span class="at">TS=</span>Rgof<span class="sc">::</span>newTSdisc, <span class="at">phat=</span>phat, </span>
 <span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a>    <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.05</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>),</span>
 <span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a>    <span class="at">B=</span>Bsim, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
-<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
-<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; 0        0.86</span></span>
-<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt; 0.025    0.89</span></span>
-<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt; 0.05     1.00</span></span></code></pre></div>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt;       CvM alt   l-P   s-P</span></span>
+<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; 0       0.054 0.036 0.036</span></span>
+<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt; 0.025   0.176 0.192 0.192</span></span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt; 0.05    1.000 1.000 1.000</span></span></code></pre></div>
 </div>
 <div id="adjusted-p-values-for-several-tests" class="section level3">
 <h3>Adjusted p values for Several Tests</h3>
@@ -1055,6 +1075,219 @@ inst/extdata directory of the package</p>
 <span id="cb40-14"><a href="#cb40-14" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">x=</span><span class="st">&quot;p value&quot;</span>, <span class="at">y=</span><span class="st">&quot;CDF&quot;</span>)<span class="sc">+</span></span>
 <span id="cb40-15"><a href="#cb40-15" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_color_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;red&quot;</span>, <span class="st">&quot;Orange&quot;</span>, <span class="st">&quot;green&quot;</span>))</span></code></pre></div>
 <p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p>Here is how to find these adjusted p values with <em>Rgof</em>:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">rnull</span>()</span>
+<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a><span class="co">#&gt; Error in rnull(): argument &quot;p&quot; is missing, with no default</span></span>
+<span id="cb41-3"><a href="#cb41-3" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test_adjusted_pvalue</span>(x, <span class="cn">NA</span>, pnull, rnull, </span>
+<span id="cb41-4"><a href="#cb41-4" tabindex="-1"></a>              <span class="at">B=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">100</span>), <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
+<span id="cb41-5"><a href="#cb41-5" tabindex="-1"></a><span class="co">#&gt; vector x is all integers but argument vals is missing. Is data discrete?</span></span>
+<span id="cb41-6"><a href="#cb41-6" tabindex="-1"></a><span class="co">#&gt; rnull should have no argument for simple hypothesis if data is continuous</span></span>
+<span id="cb41-7"><a href="#cb41-7" tabindex="-1"></a><span class="co">#&gt; Warning in pbinom(0:10, 10, p): NaNs produced</span></span>
+<span id="cb41-8"><a href="#cb41-8" tabindex="-1"></a><span class="co">#&gt; Warning in pbinom(0:10, 10, p): NaNs produced</span></span>
+<span id="cb41-9"><a href="#cb41-9" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-10"><a href="#cb41-10" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-11"><a href="#cb41-11" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-12"><a href="#cb41-12" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-13"><a href="#cb41-13" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-14"><a href="#cb41-14" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-15"><a href="#cb41-15" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-16"><a href="#cb41-16" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-17"><a href="#cb41-17" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-18"><a href="#cb41-18" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-19"><a href="#cb41-19" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-20"><a href="#cb41-20" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-21"><a href="#cb41-21" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-22"><a href="#cb41-22" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-23"><a href="#cb41-23" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-24"><a href="#cb41-24" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-25"><a href="#cb41-25" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-26"><a href="#cb41-26" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-27"><a href="#cb41-27" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-28"><a href="#cb41-28" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-29"><a href="#cb41-29" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-30"><a href="#cb41-30" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-31"><a href="#cb41-31" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-32"><a href="#cb41-32" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-33"><a href="#cb41-33" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-34"><a href="#cb41-34" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-35"><a href="#cb41-35" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-36"><a href="#cb41-36" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-37"><a href="#cb41-37" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-38"><a href="#cb41-38" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-39"><a href="#cb41-39" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-40"><a href="#cb41-40" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-41"><a href="#cb41-41" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-42"><a href="#cb41-42" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-43"><a href="#cb41-43" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-44"><a href="#cb41-44" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-45"><a href="#cb41-45" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-46"><a href="#cb41-46" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-47"><a href="#cb41-47" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-48"><a href="#cb41-48" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-49"><a href="#cb41-49" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-50"><a href="#cb41-50" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-51"><a href="#cb41-51" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-52"><a href="#cb41-52" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-53"><a href="#cb41-53" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-54"><a href="#cb41-54" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-55"><a href="#cb41-55" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-56"><a href="#cb41-56" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-57"><a href="#cb41-57" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-58"><a href="#cb41-58" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-59"><a href="#cb41-59" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-60"><a href="#cb41-60" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-61"><a href="#cb41-61" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-62"><a href="#cb41-62" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-63"><a href="#cb41-63" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-64"><a href="#cb41-64" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-65"><a href="#cb41-65" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-66"><a href="#cb41-66" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-67"><a href="#cb41-67" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-68"><a href="#cb41-68" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-69"><a href="#cb41-69" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-70"><a href="#cb41-70" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-71"><a href="#cb41-71" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-72"><a href="#cb41-72" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-73"><a href="#cb41-73" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-74"><a href="#cb41-74" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-75"><a href="#cb41-75" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-76"><a href="#cb41-76" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-77"><a href="#cb41-77" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-78"><a href="#cb41-78" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-79"><a href="#cb41-79" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-80"><a href="#cb41-80" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-81"><a href="#cb41-81" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-82"><a href="#cb41-82" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-83"><a href="#cb41-83" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-84"><a href="#cb41-84" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-85"><a href="#cb41-85" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-86"><a href="#cb41-86" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-87"><a href="#cb41-87" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-88"><a href="#cb41-88" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-89"><a href="#cb41-89" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-90"><a href="#cb41-90" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-91"><a href="#cb41-91" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-92"><a href="#cb41-92" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-93"><a href="#cb41-93" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-94"><a href="#cb41-94" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-95"><a href="#cb41-95" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-96"><a href="#cb41-96" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-97"><a href="#cb41-97" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-98"><a href="#cb41-98" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-99"><a href="#cb41-99" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-100"><a href="#cb41-100" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-101"><a href="#cb41-101" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-102"><a href="#cb41-102" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-103"><a href="#cb41-103" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-104"><a href="#cb41-104" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-105"><a href="#cb41-105" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-106"><a href="#cb41-106" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-107"><a href="#cb41-107" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-108"><a href="#cb41-108" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-109"><a href="#cb41-109" tabindex="-1"></a><span class="co">#&gt; Warning in pbinom(0:10, 10, p): NaNs produced</span></span>
+<span id="cb41-110"><a href="#cb41-110" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-111"><a href="#cb41-111" tabindex="-1"></a><span class="co">#&gt; Warning in pbinom(0:10, 10, p): NaNs produced</span></span>
+<span id="cb41-112"><a href="#cb41-112" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-113"><a href="#cb41-113" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-114"><a href="#cb41-114" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-115"><a href="#cb41-115" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-116"><a href="#cb41-116" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-117"><a href="#cb41-117" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-118"><a href="#cb41-118" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-119"><a href="#cb41-119" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-120"><a href="#cb41-120" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-121"><a href="#cb41-121" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-122"><a href="#cb41-122" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-123"><a href="#cb41-123" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-124"><a href="#cb41-124" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-125"><a href="#cb41-125" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-126"><a href="#cb41-126" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-127"><a href="#cb41-127" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-128"><a href="#cb41-128" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-129"><a href="#cb41-129" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-130"><a href="#cb41-130" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-131"><a href="#cb41-131" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-132"><a href="#cb41-132" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-133"><a href="#cb41-133" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-134"><a href="#cb41-134" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-135"><a href="#cb41-135" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-136"><a href="#cb41-136" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-137"><a href="#cb41-137" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-138"><a href="#cb41-138" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-139"><a href="#cb41-139" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-140"><a href="#cb41-140" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-141"><a href="#cb41-141" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-142"><a href="#cb41-142" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-143"><a href="#cb41-143" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-144"><a href="#cb41-144" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-145"><a href="#cb41-145" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-146"><a href="#cb41-146" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-147"><a href="#cb41-147" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-148"><a href="#cb41-148" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-149"><a href="#cb41-149" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-150"><a href="#cb41-150" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-151"><a href="#cb41-151" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-152"><a href="#cb41-152" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-153"><a href="#cb41-153" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-154"><a href="#cb41-154" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-155"><a href="#cb41-155" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-156"><a href="#cb41-156" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-157"><a href="#cb41-157" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-158"><a href="#cb41-158" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-159"><a href="#cb41-159" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-160"><a href="#cb41-160" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-161"><a href="#cb41-161" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-162"><a href="#cb41-162" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-163"><a href="#cb41-163" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-164"><a href="#cb41-164" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-165"><a href="#cb41-165" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-166"><a href="#cb41-166" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-167"><a href="#cb41-167" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-168"><a href="#cb41-168" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-169"><a href="#cb41-169" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-170"><a href="#cb41-170" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-171"><a href="#cb41-171" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-172"><a href="#cb41-172" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-173"><a href="#cb41-173" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-174"><a href="#cb41-174" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-175"><a href="#cb41-175" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-176"><a href="#cb41-176" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-177"><a href="#cb41-177" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-178"><a href="#cb41-178" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-179"><a href="#cb41-179" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-180"><a href="#cb41-180" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-181"><a href="#cb41-181" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-182"><a href="#cb41-182" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-183"><a href="#cb41-183" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-184"><a href="#cb41-184" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-185"><a href="#cb41-185" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-186"><a href="#cb41-186" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-187"><a href="#cb41-187" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-188"><a href="#cb41-188" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-189"><a href="#cb41-189" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-190"><a href="#cb41-190" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-191"><a href="#cb41-191" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-192"><a href="#cb41-192" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-193"><a href="#cb41-193" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-194"><a href="#cb41-194" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-195"><a href="#cb41-195" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-196"><a href="#cb41-196" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-197"><a href="#cb41-197" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-198"><a href="#cb41-198" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-199"><a href="#cb41-199" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-200"><a href="#cb41-200" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-201"><a href="#cb41-201" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-202"><a href="#cb41-202" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-203"><a href="#cb41-203" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-204"><a href="#cb41-204" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-205"><a href="#cb41-205" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-206"><a href="#cb41-206" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-207"><a href="#cb41-207" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-208"><a href="#cb41-208" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-209"><a href="#cb41-209" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-210"><a href="#cb41-210" tabindex="-1"></a><span class="co">#&gt; Warning in rbinom(10000, 10, p): NAs produced</span></span>
+<span id="cb41-211"><a href="#cb41-211" tabindex="-1"></a><span class="co">#&gt; Warning in pbinom(0:10, 10, p): NaNs produced</span></span>
+<span id="cb41-212"><a href="#cb41-212" tabindex="-1"></a><span class="co">#&gt; Error in while ((k &gt;= 3) &amp;&amp; ((min(E) &lt; minexpcount) || (k &gt; maxbins))) {: missing value where TRUE/FALSE needed</span></span></code></pre></div>
 </div>
 <div id="weighted-data" class="section level3">
 <h3>Weighted Data</h3>
@@ -1063,21 +1296,20 @@ be done as follows. Say we want to test whether the data comes from a
 standard normal distribution, truncated to [-3,3] and with weights from
 a t distribution with 3 degrees of freedom:</p>
 <p><span class="math inline">\(H_0: F=N(0,1)\)</span>, <span class="math inline">\(X\sim t(3)\)</span></p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a>df<span class="ot">=</span><span class="dv">3</span></span>
-<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a>pnull<span class="ot">=</span><span class="cf">function</span>(x) <span class="fu">pnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb41-3"><a href="#cb41-3" tabindex="-1"></a>rnull<span class="ot">=</span><span class="cf">function</span>() {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>, df);x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
-<span id="cb41-4"><a href="#cb41-4" tabindex="-1"></a>w<span class="ot">=</span><span class="cf">function</span>(x) (<span class="fu">dnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>))<span class="sc">/</span>(<span class="fu">dt</span>(x,df)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="dv">3</span>,df)<span class="sc">-</span><span class="dv">1</span>))</span>
-<span id="cb41-5"><a href="#cb41-5" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">sort</span>(<span class="fu">rnull</span>())</span>
-<span id="cb41-6"><a href="#cb41-6" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">w</span>(x), <span class="at">type=</span><span class="st">&quot;l&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(<span class="fu">w</span>(x))))</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>ralt<span class="ot">=</span><span class="cf">function</span>(<span class="at">m=</span><span class="dv">0</span>) {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>,df)<span class="sc">+</span>m;x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
-<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
-<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">w=</span>w, <span class="at">param_alt =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.2</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">3</span>),<span class="at">B=</span>Bsim)</span>
-<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="co">#&gt; Using  23  cores..</span></span>
-<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="co">#&gt;        KS     K   CvM    AD</span></span>
-<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a><span class="co">#&gt; 0   0.052 0.052 0.068 0.056</span></span>
-<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a><span class="co">#&gt; 0.2 0.998 0.998 1.000 0.998</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>df<span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>pnull<span class="ot">=</span><span class="cf">function</span>(x) <span class="fu">pnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>rnull<span class="ot">=</span><span class="cf">function</span>() {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>, df);x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a>w<span class="ot">=</span><span class="cf">function</span>(x) (<span class="fu">dnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>))<span class="sc">/</span>(<span class="fu">dt</span>(x,df)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="dv">3</span>,df)<span class="sc">-</span><span class="dv">1</span>))</span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">sort</span>(<span class="fu">rnull</span>())</span>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">w</span>(x), <span class="at">type=</span><span class="st">&quot;l&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(<span class="fu">w</span>(x))))</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAXVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6kNtmAABmADpmAGZmOpBmZmZmtttmtv+QOgCQOmaQ2/+2ZgC2tv+2/7a2///bkDrb/9vb////tmb/25D//7b//9v///9masrzAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAGeklEQVR4nO2da3vbJhhA3Tbdmt3q1du0urb//8+sVSVp0kocwCBwfM4n54n1go4ACXHx5iRBNq0z0DsKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEFBY0OZqaCWobLh6KAhQEFBJ0HE7VeC3/xUJ15A6gobNh+nD/vHDReFaUkXQcfukZXj3+eJwTaki6HD/8fHjfqGS3bYgSxAxbB6KkG3QAof76S62UH4UtHa4eigIqC1o8C6WllxyJ7k1VjFAQUAlQcO5En17FLINmmV48+n8KHR3UtA8U1fjuD0/JipojsfO6u7dZwXN8dRZ3d0paJZHLecumYJmeezOH7cKqpxuaxQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYDjYoAlCFAQoCAgQ9D+oRX5GPh2uXRbkyrocL+5mz4dt8uTfAum25pEQYffnzt5+VeddFtjGwSkCzr8s2q6rckQdD/NzDz+nd8CvWpB413s4zg0eEET/boFPaxUWZgAXTrd1mQ10qOhi56CXrmgYbP5a7s8R3zklpdDnR8Vx9q1D7VBN70c6vDHVHQCdzEXswA3vBwqrqtxyyUorrNaaTlU1nL2jGNeHJ/+xZjXHeWXQ/1wgjFn/NN3chxdSWd1/tSWLS3+J1nRVQgKXvmX9YdrU6KirOegu/j4JaYBR51SQjuTpCijBD20L28+JSTzFCW9wawwQpQSMruKHe7X6c3XGUGrsKnLiy+OhSirBCWnW2uEMTpuZhW7zE58uvVGYOsJurBuJaVbc4Q6MnZOFfvyHu5jj4+JgRceUenWHcGPi57ZWA3hB+nFJRpJ6dae4RD3TBAd7Ye/wzXtuIVnpYh0688AiUkhQ9AuXHkm9vBOltNdo78fYSjrSbpAK43prvM+pIagMlC4td4XYRnqVNB6M9CuU9CaM/ToUhWKk0ow3LrvY+FalQmTTE+CyuRlRUGrv9Avkpn1BK0/Rfi6BLUYEApdrgIxcuhLUKDUdieoiZ8S+VlHULslCksJ9yaobCoJXIegdn4WC+/KgsLDPi39LCXfUwlqvUaqd0GN9SzkoB9B7f1cdtluQtAl2aotqAs/l+SrsqBO/FyQsaqCWt+/nrMJ/hl9XNFsdKTn9NO1yzusaC768pN78eoJ6s1P5tWrJain5ueJnMtXSVCPek7Ps1VJUOxqny7Lz8gm+QomnUnsap9e9YxsErOYci63vFYjihte7ROHJYjwx48If/xotXRboyCgtiA3/U9Mzk3e2oSrh4KAxp3V/mnbWb0CmnU1roYagiI6qxAzkFoPB1367YgSBDFfuaCIzirEfO2CuLMKMV+9oEtjKghiKghiKghiKghiKuj1oSBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQE1BA15+w1++XVmpGQfijV7xMPw5sJL8+S8VRA0zvzYpxua3T1tjLMYa2G/teP2fMAwv6Nfet7KCzrcf4jYDe4n9nMD2tNA024+1uwRp3G7w3HsZXaCTkbeKrVByYL2mw8zg5GBc1044vu/F8tJF4KGjEZoTtAvn+b/sXjEE7vljecbV7HTt8Kf8Qs4M6c7FYPFwhAQtDi0mZq3alUsPLY4R0lB+8Cuq2l5q/UclHEbK1jFwkPjSXkrKmj4/vwxNa9JByU20vNHPIQM1qL4vJ1qlKAp+eD8mHlmDgne5hcTGRb3U83IW4UqtjtX8WczZaKZy3fwQXHhTL+8X047PW812qBx29yM3ymbPd1g12Be0DDNQJk/LDlvdlYBBQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQENC7oHF22bfZza3oXdA42ym4WVFtehd02r/997eMhR/F6F7QaReY0bsC/Quin7ivTPeCjts/0yfMFqR7QcO7/zNmzJajd0Hj1oQZc67L0bugaWJzw2a6d0HNURCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBHwFDzZda7e/qVwAAAAASUVORK5CYII=" /><!-- --></p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>ralt<span class="ot">=</span><span class="cf">function</span>(<span class="at">m=</span><span class="dv">0</span>) {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>,df)<span class="sc">+</span>m;x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">w=</span>w, <span class="at">param_alt =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.2</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">3</span>),<span class="at">B=</span>Bsim)</span>
+<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a><span class="co">#&gt;        KS     K   CvM   AD</span></span>
+<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a><span class="co">#&gt; 0   0.064 0.064 0.052 0.05</span></span>
+<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a><span class="co">#&gt; 0.2 1.000 1.000 1.000 1.00</span></span></code></pre></div>
 <p>It should be noted that these tests are quite sensitive to the size
 of the weights and to the sample size, so one should always do a
 simulation study to verify that they work in the case under
@@ -1098,32 +1330,32 @@ the case where the null hypothesis specifies a uniform distribution but
 the data actually comes from a linear distribution with slope s. (This
 test is of course already included in the package, so this is for
 illustration purposes only). So</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>chitest<span class="ot">=</span><span class="cf">function</span>(x, pnull, param, TSextra) {</span>
-<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a>    nbins<span class="ot">=</span>TSextra<span class="sc">$</span>nbins <span class="co">#number of bins</span></span>
-<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a>    bins<span class="ot">=</span><span class="fu">seq</span>(<span class="fu">min</span>(x)<span class="sc">-</span><span class="fl">1e-10</span>, <span class="fu">max</span>(x)<span class="sc">+</span><span class="fl">1e-10</span>, <span class="at">length=</span>nbins<span class="sc">+</span><span class="dv">1</span>)</span>
-<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a>    O<span class="ot">=</span><span class="fu">hist</span>(x, bins, <span class="at">plot=</span><span class="cn">FALSE</span>)<span class="sc">$</span>counts <span class="co">#bin counts</span></span>
-<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a>    <span class="cf">if</span>(param[<span class="dv">1</span>]<span class="sc">!=-</span><span class="dv">99</span>) { <span class="co">#with parameter estimation</span></span>
-<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a>        E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins, param)) <span class="co">#expected counts</span></span>
-<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a>        chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E) <span class="co">#Pearson&#39;s chi square</span></span>
-<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a>        pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi, nbins<span class="dv">-1</span><span class="sc">-</span><span class="fu">length</span>(param)) <span class="co">#p value</span></span>
-<span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a>    }</span>
-<span id="cb43-10"><a href="#cb43-10" tabindex="-1"></a>    <span class="cf">else</span> {</span>
-<span id="cb43-11"><a href="#cb43-11" tabindex="-1"></a>      E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins))</span>
-<span id="cb43-12"><a href="#cb43-12" tabindex="-1"></a>      chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E)</span>
-<span id="cb43-13"><a href="#cb43-13" tabindex="-1"></a>      pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi,nbins<span class="dv">-1</span>)</span>
-<span id="cb43-14"><a href="#cb43-14" tabindex="-1"></a>    }  </span>
-<span id="cb43-15"><a href="#cb43-15" tabindex="-1"></a>    out<span class="ot">=</span><span class="fu">ifelse</span>(TSextra<span class="sc">$</span>statistic, chi, pval)</span>
-<span id="cb43-16"><a href="#cb43-16" tabindex="-1"></a>    <span class="fu">names</span>(out)<span class="ot">=</span><span class="st">&quot;ChiSquare&quot;</span></span>
-<span id="cb43-17"><a href="#cb43-17" tabindex="-1"></a>    out</span>
-<span id="cb43-18"><a href="#cb43-18" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>chitest<span class="ot">=</span><span class="cf">function</span>(x, pnull, param, TSextra) {</span>
+<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a>    nbins<span class="ot">=</span>TSextra<span class="sc">$</span>nbins <span class="co">#number of bins</span></span>
+<span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a>    bins<span class="ot">=</span><span class="fu">seq</span>(<span class="fu">min</span>(x)<span class="sc">-</span><span class="fl">1e-10</span>, <span class="fu">max</span>(x)<span class="sc">+</span><span class="fl">1e-10</span>, <span class="at">length=</span>nbins<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" tabindex="-1"></a>    O<span class="ot">=</span><span class="fu">hist</span>(x, bins, <span class="at">plot=</span><span class="cn">FALSE</span>)<span class="sc">$</span>counts <span class="co">#bin counts</span></span>
+<span id="cb44-5"><a href="#cb44-5" tabindex="-1"></a>    <span class="cf">if</span>(param[<span class="dv">1</span>]<span class="sc">!=-</span><span class="dv">99</span>) { <span class="co">#with parameter estimation</span></span>
+<span id="cb44-6"><a href="#cb44-6" tabindex="-1"></a>        E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins, param)) <span class="co">#expected counts</span></span>
+<span id="cb44-7"><a href="#cb44-7" tabindex="-1"></a>        chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E) <span class="co">#Pearson&#39;s chi square</span></span>
+<span id="cb44-8"><a href="#cb44-8" tabindex="-1"></a>        pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi, nbins<span class="dv">-1</span><span class="sc">-</span><span class="fu">length</span>(param)) <span class="co">#p value</span></span>
+<span id="cb44-9"><a href="#cb44-9" tabindex="-1"></a>    }</span>
+<span id="cb44-10"><a href="#cb44-10" tabindex="-1"></a>    <span class="cf">else</span> {</span>
+<span id="cb44-11"><a href="#cb44-11" tabindex="-1"></a>      E<span class="ot">=</span><span class="fu">length</span>(x)<span class="sc">*</span><span class="fu">diff</span>(<span class="fu">pnull</span>(bins))</span>
+<span id="cb44-12"><a href="#cb44-12" tabindex="-1"></a>      chi<span class="ot">=</span><span class="fu">sum</span>((O<span class="sc">-</span>E)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>E)</span>
+<span id="cb44-13"><a href="#cb44-13" tabindex="-1"></a>      pval<span class="ot">=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">pchisq</span>(chi,nbins<span class="dv">-1</span>)</span>
+<span id="cb44-14"><a href="#cb44-14" tabindex="-1"></a>    }  </span>
+<span id="cb44-15"><a href="#cb44-15" tabindex="-1"></a>    out<span class="ot">=</span><span class="fu">ifelse</span>(TSextra<span class="sc">$</span>statistic, chi, pval)</span>
+<span id="cb44-16"><a href="#cb44-16" tabindex="-1"></a>    <span class="fu">names</span>(out)<span class="ot">=</span><span class="st">&quot;ChiSquare&quot;</span></span>
+<span id="cb44-17"><a href="#cb44-17" tabindex="-1"></a>    out</span>
+<span id="cb44-18"><a href="#cb44-18" tabindex="-1"></a>}</span></code></pre></div>
 <p>In this example we find the power of <em>chitest</em> when the null
 hypothesis specifies a uniform distribution but the true distribution is
 a linear with slope s:</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>TSextra<span class="ot">=</span><span class="fu">list</span>(<span class="at">nbins=</span><span class="dv">5</span>, <span class="at">statistic=</span><span class="cn">FALSE</span>)</span>
-<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a>pwr<span class="ot">=</span>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="st">&quot;uniform.linear&quot;</span>, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span>
-<span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a><span class="co">#&gt; Running case uniform.linear.cont ...</span></span>
-<span id="cb44-4"><a href="#cb44-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">plot_power</span>(pwr, <span class="st">&quot;Slope&quot;</span>)</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>TSextra<span class="ot">=</span><span class="fu">list</span>(<span class="at">nbins=</span><span class="dv">5</span>, <span class="at">statistic=</span><span class="cn">FALSE</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a>pwr<span class="ot">=</span>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="st">&quot;uniform.linear&quot;</span>, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a><span class="co">#&gt; Running case uniform.linear.cont ...</span></span>
+<span id="cb45-4"><a href="#cb45-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">plot_power</span>(pwr, <span class="st">&quot;Slope&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
 <p>Arguments of <em>run.studies</em>:</p>
 <ul>
 <li>study: either the name(s) or position(s) of the desired sudies in
@@ -1227,7 +1459,7 @@ N(<span class="math inline">\(\mu\)</span>,<span class="math inline">\(\sigma\)<
 </ol>
 <p>Generally a user will likely wish to run all the included case
 studies. This is very easily done with</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(chitest, <span class="at">TSextra=</span>TSextra, <span class="at">With.p.value=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <p>If only the test statistic is supplied by the new test and therefore
 simulation has to be used to find p values, this will take several hours
 to run. <em>run.studies</em> can also be used to run the studies for the
@@ -1235,11 +1467,11 @@ included methods but for different values of param_alt, nsample and/or
 alpha. For example, say we wish to find the powers of the included
 continuous methods for the case uniform.linear and samples of size 2000,
 slopes of 0.1 and 0.2, and a true type I error of 0.01:</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(<span class="cn">TRUE</span>, <span class="co"># continuous data/model</span></span>
-<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a>                  <span class="at">study=</span><span class="st">&quot;uniform.linear&quot;</span>,</span>
-<span id="cb46-3"><a href="#cb46-3" tabindex="-1"></a>                  <span class="at">param_alt=</span><span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.2</span>),</span>
-<span id="cb46-4"><a href="#cb46-4" tabindex="-1"></a>                  <span class="at">nsample=</span><span class="dv">2000</span>,</span>
-<span id="cb46-5"><a href="#cb46-5" tabindex="-1"></a>                  <span class="at">alpha=</span><span class="fl">0.01</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">run.studies</span>(<span class="cn">TRUE</span>, <span class="co"># continuous data/model</span></span>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>                  <span class="at">study=</span><span class="st">&quot;uniform.linear&quot;</span>,</span>
+<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>                  <span class="at">param_alt=</span><span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.2</span>),</span>
+<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>                  <span class="at">nsample=</span><span class="dv">2000</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>                  <span class="at">alpha=</span><span class="fl">0.01</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">

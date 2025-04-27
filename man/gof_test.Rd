@@ -19,7 +19,7 @@ gof_test(
   B = 5000,
   minexpcount = 5,
   ChiUsePhat = TRUE,
-  maxProcessor = 1,
+  maxProcessor,
   doMethods = "all"
 )
 }

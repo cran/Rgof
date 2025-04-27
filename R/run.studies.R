@@ -61,7 +61,7 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
       }    
     }
   }   
-  if(missing(maxProcessor)) maxProcessor=parallel::detectCores()-1
+  if(missing(maxProcessor)) maxProcessor=parallel::detectCores(logical=FALSE)-1
   I80cont=c(12,11,8,11,13,7,9,9,24,8,12,13,7,13,11,19,8,14,17,13)
   I80disc=c(12,11,9,11,14,7,9,9,21,9,11,13,8,15,8,23,8,14,15,12)
   if(Continuous) I80=I80cont
@@ -185,18 +185,18 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
         if(!Continuous && !WithEstimation && !WithTSextra)
               pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
                    tmp$ralt, tmp$param_alt, TS=TS, 
-                                maxProcessor=maxProcessor, B=B)   
+                                maxProcessor=maxProcessor, B=B) 
         if(length(tmp$param_alt)==1) {       
             dta=tmp$ralt(tmp$param_alt[1])
-            if(Continuous && !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta)) 
-            if(Continuous && WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), TSextra) 
-            if(!Continuous && !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals) 
-            if(!Continuous && WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals, TSextra)
+            if(Continuous & !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta)) 
+            if(Continuous & WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), TSextra) 
+            if(!Continuous & !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals) 
+            if(!Continuous & WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals, TSextra)
             pwr=matrix(pwr, 1, length(pwr))     
             colnames(pwr)=names(nm)
             rownames(pwr)=tmp$param_alt
         }        
-    }   
+    }
     if(BasicComparison) out[[i]]=cbind(pwr, pwrold[I80[i], , drop=FALSE])
     else out[[i]]=cbind(pwr[, , drop=FALSE], pwrold[, , drop=FALSE])
   } 

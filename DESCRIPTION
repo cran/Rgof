@@ -1,6 +1,6 @@
 Package: Rgof
 Title: 1d Goodness of Fit Tests
-Version: 3.1.0
+Version: 3.2.0
 Authors@R: 
     person(given = "Wolfgang",
            family = "Rolke",
@@ -22,8 +22,8 @@ VignetteBuilder: knitr
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2025-03-13 18:52:57 UTC; Wolfgang
+Packaged: 2025-04-27 12:14:46 UTC; Wolfgang
 Author: Wolfgang Rolke [aut, cre] (<https://orcid.org/0000-0002-3514-726X>)
 Maintainer: Wolfgang Rolke <wolfgang.rolke@upr.edu>
 Repository: CRAN
-Date/Publication: 2025-03-13 19:10:02 UTC
+Date/Publication: 2025-04-27 12:30:02 UTC

@@ -2,16 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{calcTS}
 \alias{calcTS}
-\title{This function calculates the test statistics}
+\title{This function calculates the test statistics for  data}
 \usage{
-calcTS(dta, pnull, param, TS, typeTS, TSextra)
+calcTS(dta, TS, typeTS, TSextra)
 }
 \arguments{
-\item{dta}{list with data set}
-
-\item{pnull}{cdf under the null hypothesis}
-
-\item{param}{estimated parameters (or some constant)}
+\item{dta}{data set as a list}
 
 \item{TS}{routine}
 
@@ -23,6 +19,6 @@ calcTS(dta, pnull, param, TS, typeTS, TSextra)
 A vector of numbers
 }
 \description{
-This function calculates the test statistics
+This function calculates the test statistics for  data
 }
 \keyword{internal}

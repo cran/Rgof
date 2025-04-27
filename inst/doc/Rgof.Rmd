@@ -42,7 +42,7 @@ The highlights of this package are:
 set.seed(123)
 ```
 
-**Note** all runs of the test routine are done with *B=1000* and all runs of the power routines with arguments *B=500, maxProcessor = 2* in order to pass *devtools::check()*.
+**Note** all runs of the test routine are done with *B=1000* and all runs of the power routines with arguments *B=500* in order to pass *devtools::check()*.
 
 ## The Methods 
 
@@ -579,6 +579,14 @@ ggplot2::ggplot(data=dta, ggplot2::aes(x=x,y=y,col=Tests))+
   ggplot2::geom_line(linewidth=1.2)+
   ggplot2::labs(x="p value", y="CDF")+
   ggplot2::scale_color_manual(values=c("blue","red", "Orange", "green"))
+```
+
+Here is how to find these adjusted p values with *Rgof*:
+
+```{r}
+x=rnull()
+Rgof::gof_test_adjusted_pvalue(x, NA, pnull, rnull, 
+              B=c(100, 100), maxProcessor = 1)
 ```
 
 

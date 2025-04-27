@@ -1,17 +1,17 @@
-#' Find the power of various gof tests for continuous data.
+#' Find the power of various gof tests.
 #' @param  pnull function to find cdf under  null hypothesis
-#' @param  vals =NA, values of rv, if data is discrete, NA if data is continuous
+#' @param  vals =NA values of discrete random variable, or NA
 #' @param  rnull function to generate data under  null hypothesis
 #' @param  ralt function to generate data under  alternative hypothesis
 #' @param  param_alt  vector of parameter values for distribution under alternative hypothesis
 #' @param  w (Optional) function to calculate weights, returns -99 if no weights
 #' @param  phat =function(x) -99 function to estimate parameters from the data, or -99
 #' @param  TS user supplied function to find test statistics
-#' @param  TSextra =NA, list provided to TS
+#' @param  TSextra list provided to TS (optional)
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any
 #' @param  B =1000 number of simulation runs
-#' @param  nbins =c(100,10), number of bins for chi square tests.
+#' @param  nbins =c(50,10), number of bins for chi square tests.
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  maxProcessor maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing
 #' @param  minexpcount =5 minimal expected bin count required
@@ -53,52 +53,144 @@
 #' gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=200)
 #'
 gof_power=function(pnull, vals=NA, rnull, ralt, param_alt, 
-        w=function(x) -99, phat=function(x) -99, TS, TSextra=NA, 
+        w=function(x) -99, phat=function(x) -99, TS, TSextra, 
         alpha=0.05, Range  =c(-Inf, Inf), B=1000,nbins=c(50,10), 
         rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat=TRUE) {
-  
-  if(missing(maxProcessor)) {
-     if(!is.na(vals[1])) {
-        maxProcessor=1
-        message("For discrete data only a single processor is used if maxProcessor is not specified")
-     }
-     else  {
-       maxProcessor=parallel::detectCores(logical=FALSE)-1
-       message(paste("Using ",maxProcessor," cores.."))
-     }   
-  }   
-  x = ralt(param_alt[1]) # get an example data set
-  # adjust number of bins to account for parameter estimation
-  if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x)) 
-  if(any(is.na(vals))) { # continuous data/model
-    check.functions(pnull, rnull, phat,  x=x) # do some sanity checks
-    if(missing(TS)) # use built-in tests
-        out = gof_power_cont(pnull, rnull, ralt, param_alt, w, phat,  
-                         TSextra=TSextra, alpha=alpha, Range=Range, B=B, 
-                         nbins=nbins, rate=rate, maxProcessor=maxProcessor, 
-                         minexpcount=minexpcount, ChiUsePhat=ChiUsePhat)
-    else # do user-provided tests
-       out = gof_power_cont(pnull, rnull, ralt, param_alt, w, phat,  TS=TS,
-                           TSextra=TSextra, alpha=alpha, Range=Range, B=B, 
-                           nbins=nbins, rate=rate, maxProcessor=maxProcessor, 
-                           minexpcount=minexpcount, ChiUsePhat=ChiUsePhat)  
-  }
-  else { # discrete data
+
+  dta = ralt(param_alt[1]) # get an example data set
+  x = dta
+  Continuous=ifelse(any(is.na(vals)), TRUE, FALSE)
+  if(Continuous) {
+    dta=list(x=x)
+    check.functions(pnull, rnull, phat, x=x)
+  }  
+  else {
+    dta=list(x=x, vals=vals)
     check.functions(pnull, rnull, phat, vals, x)
-    if(missing(TS))
-      out = gof_power_disc(pnull, rnull, vals, ralt, param_alt, phat,  
-                           TSextra=TSextra, alpha=alpha, B=B, 
-                           nbins=nbins, rate=rate, 
-                           maxProcessor=maxProcessor, 
-                           minexpcount=minexpcount,
-                           ChiUsePhat=ChiUsePhat)
-    else
-      out = gof_power_disc(pnull, rnull, vals, ralt, param_alt, phat,  TS=TS,
-                           TSextra=TSextra, alpha=alpha, B=B, 
-                           nbins=nbins, rate=rate, 
-                           maxProcessor=maxProcessor, 
-                           minexpcount=minexpcount,
-                           ChiUsePhat=ChiUsePhat)     
   }
-  out
+
+  if(missing(TSextra)) TSextra=list(pnull=pnull, phat=phat, 
+                            w=w, Continuous=Continuous)
+  else TSextra = c(TSextra, pnull=pnull, phat=phat, 
+                   w=w, Continuous=Continuous)
+  Noqnull=FALSE
+  if(!("qnull" %in% names(TSextra))) {
+    Noqnull=TRUE
+    TSextra=c(TSextra, qnull=function(x) -99)
+  } 
+  WithWeights = TRUE
+  if(length(formals(w))==1) {
+    if(w(x[1])==-99) WithWeights = FALSE
+  }
+  # adjust number of bins to account for parameter estimation
+  if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
+  if(any(is.na(vals))) check.functions(pnull, rnull, phat, x=x)
+  else  check.functions(pnull, rnull, phat, vals, x)
+  if(missing(TS)) {
+    if(Continuous) {
+      if(!WithWeights) { #data is not weighted
+        typeTS=1
+        TS = TS_cont
+      }
+      else {
+        typeTS=2
+        TS = TSw_cont
+      }
+    }
+    else {
+      typeTS = 5
+      TS = TS_disc
+    }
+  }   
+  else {
+    # can't do parallel processing if TS written in C/C++
+    if(substr(deparse(TS)[2], 1, 5)==".Call") {
+      message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
+      maxProcessor=1
+    }
+    if(Continuous) {
+      if(length(formals(TS))>4) {
+        message("TS for continuous data should have either 3 or 4 arguments")
+        return(NULL)
+      }  
+      typeTS=length(formals(TS))
+    }  
+    else {
+      if(length(formals(TS))>6) {
+        message("TS for discrete datashould have either 4 or 5 arguments")
+        return(NULL)
+      }
+      typeTS=length(formals(TS))+1
+    }
+  }
+  TS_data=calcTS(dta, TS, typeTS, TSextra) 
+  if(is.null(names(TS_data))) {
+    message("result of TS has to be a named vector")
+    return(NULL)
+  }
+  if(missing(maxProcessor)) 
+    maxProcessor=parallel::detectCores(logical = FALSE)-1
+  if(maxProcessor>1) {
+    tm=timecheck(dta, TS, typeTS, TSextra)
+    if(tm*length(param_alt)*B<20) {
+      maxProcessor=1
+      message("maxProcessor set to 1 for faster computation")
+    }
+    else message(paste("Using ",maxProcessor," cores.."))
+  }
+  if(maxProcessor==1) {
+    tmp=gof_power_C(rnull, vals, ralt, param_alt, TS, typeTS, TSextra, B)
+    Data=tmp$Data
+    Sim=tmp$Sim
+  }
+  else {
+    cl <- parallel::makeCluster(maxProcessor)
+    z=parallel::clusterCall(cl, gof_power_C, 
+                rnull, vals, ralt, param_alt,  TS, typeTS, TSextra, 
+                B=round(B/maxProcessor))
+    parallel::stopCluster(cl)
+    Sim=z[[1]][["Sim"]]
+    Data=z[[1]][["Data"]]
+    for(i in 2:maxProcessor) {
+      Sim=rbind(Sim,z[[i]][["Sim"]])
+      Data=rbind(Data,z[[i]][["Data"]])
+    }  
+  }
+  pwr=matrix(0, length(param_alt), length(TS_data))
+  colnames(pwr)=names(TS_data)
+  rownames(pwr)=param_alt
+  crtval=apply(Data, 2, quantile, prob=1-alpha, na.rm=TRUE)
+  for(i in seq_along(param_alt)) {
+      tmpS=Sim[Sim[,1]==param_alt[i], -1, drop=FALSE]
+      for(j in seq_along(crtval)) 
+        pwr[i, j]=sum(tmpS[ ,j]>crtval[j])/nrow(tmpS)
+  } 
+  # Do chi square tests if built-in TS is used. Don't run chi square if weights are present.  
+  chiout=NULL
+  if(typeTS==1) { #Run chi square tests
+    if(is.infinite(Range[1])) Range[1]=-99999
+    if(is.infinite(Range[2])) Range[2]=99999  
+    chipwr = chi_power_cont(pnull=pnull, 
+                            ralt = ralt, 
+                            param_alt = param_alt,                             
+                            qnull = ifelse(Noqnull, NA, TSextra$qnull), 
+                            phat = phat, 
+                            w = w,
+                            alpha = alpha, 
+                            Range = Range, 
+                            B= B, 
+                            nbins = nbins, 
+                            rate = rate, 
+                            minexpcount = minexpcount,
+                            ChiUsePhat=ChiUsePhat)  
+  }
+  if(typeTS==5) { #Run chi square tests
+    chipwr = chi_power_disc(pnull, ralt, param_alt, 
+                            phat, alpha , B, 
+                            nbins, rate, minexpcount,
+                            ChiUsePhat)[,1:2, drop=FALSE]
+  }
+  if(typeTS %in% c(1,5)) pwr = cbind(pwr, chipwr)
+  if(is.matrix(pwr) & nrow(pwr)==1) pwr=pwr[1, ]
+  round(pwr, 3)
 }

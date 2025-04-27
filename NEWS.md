@@ -1,3 +1,6 @@
+# Rgof 3.2.0
+    April 2025. Changed some of the helper routines to make them simpler and
+    easier to understand.
 # Rgof 3.1.0
     March 2024. Changed the way power estimation is done, which is now 
     much faster.
