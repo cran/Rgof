@@ -2,7 +2,7 @@
 % Please edit documentation in R/gof_power.R
 \name{gof_power}
 \alias{gof_power}
-\title{Find the power of various gof tests.}
+\title{Power estimation of goodness-of-fit tests.}
 \usage{
 gof_power(
   pnull,
@@ -14,6 +14,7 @@ gof_power(
   phat = function(x) -99,
   TS,
   TSextra,
+  With.p.value = FALSE,
   alpha = 0.05,
   Range = c(-Inf, Inf),
   B = 1000,
@@ -43,6 +44,8 @@ gof_power(
 
 \item{TSextra}{list provided to TS (optional)}
 
+\item{With.p.value}{=FALSE does user supplied routine return p values?}
+
 \item{alpha}{=0.05, the level of the hypothesis test}
 
 \item{Range}{=c(-Inf, Inf) limits of possible observations, if any}
@@ -63,7 +66,10 @@ gof_power(
 A numeric matrix of power values.
 }
 \description{
-Find the power of various gof tests.
+Find the power of various goodness-of-fit tests.
+}
+\details{
+For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
 }
 \examples{
 # Power of tests when null hypothesis specifies the standard normal distribution but 
@@ -75,14 +81,32 @@ TSextra = list(qnull=function(x) qnorm(x))
 gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), TSextra=TSextra, B=200)
 # Power of tests when null hypothesis specifies normal distribution and 
 # mean and standard deviation are estimated from the data. 
-# Example is not run because it takes several minutes.
 # true data comes from a normal distribution with mean different from 0.
 pnull = function(x, p=c(0, 1)) pnorm(x, p[1], ifelse(p[2]>0.001, p[2], 0.001))
 rnull = function(p=c(0, 1))  rnorm(50, p[1], ifelse(p[2]>0.001, p[2], 0.001))
+ralt = function(mu)  rnorm(50, mu)
 phat = function(x) c(mean(x), sd(x))
 TSextra = list(qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  
                ifelse(p[2]>0.001, p[2], 0.001))) 
-gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=200)
+pwr=gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=200)
+pwr
+#' Compare power of a new test based on variants of the Cramer-vonMises
+#' criterion to the methods included in the package: 
+newTS = function(x, pnull, param) {
+   Fx=sort(pnull(x, param))
+   n=length(x)
+   out = c(sum(abs( (2*1:n-1)/2/n-Fx )), sum(sqrt(abs( (2*1:n-1)/2/n-Fx ))))
+   names(out) = c("CvM alt 1","CvM alt 2")
+   out
+}
+#' Compare power to Lilliefors KS test, which finds its own p value:
+LLtest=function(x, pnull, param) {
+  out=nortest::lillie.test(x)$p.value
+  names(out)="KS - Lilliefors"
+  out
+}
+cbind(gof_power(pnull, NA, rnull, ralt, c(0, 1), TS=LLtest, phat=phat, 
+       With.p.value=TRUE, TSextra=TSextra, B=200), pwr)
 # Power of tests when null hypothesis specifies Poisson rv with rate 100 and 
 # true rate is 100.5
 vals = 0:250

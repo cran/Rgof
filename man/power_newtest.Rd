@@ -23,7 +23,7 @@ power_newtest(
 
 \item{pnull}{routine to calculate the cdf under the null hypothesis}
 
-\item{ralt}{generate data under altenative hypothesis}
+\item{ralt}{generate data under alternative hypothesis}
 
 \item{param_alt}{values of parameter under the alternative hypothesis.}
 

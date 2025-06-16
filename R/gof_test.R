@@ -1,4 +1,9 @@
-#' This function performs a number of gof tests
+#' Tests for the univariate goodness-of-fit problem
+#' 
+#' This function runs a number of goodness-of-fit tests using Rcpp and parallel computing.
+#' 
+#' For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
+#'
 #' @param  x data set
 #' @param  vals =NA, values of discrete RV, or NA if data is continuous
 #' @param  pnull  cdf under the null hypothesis
@@ -14,7 +19,7 @@
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
 #' @param  maxProcessor =1, number of processors to use in parallel processing. 
-#' @param  doMethods Methods to include in tests
+#' @param  doMethods ="all", a vector of codes for the methods to include or all of them. 
 #' @return A list with vectors of test statistics and p.values
 #' @export
 #' @examples
@@ -77,6 +82,7 @@ gof_test <- function(x, vals= NA, pnull, rnull,
   }  
   if(length(x)>10000 && maxProcessor==1)
       message("Consider using parallel processing with maxProcessor= (your number of cores)")
+  if(test_methods(doMethods, Continuous, WithWeights)) return(NULL)
 # adjust number of bins to account for parameter estimation
    if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x)) 
    if(missing(TS)) {
@@ -116,7 +122,6 @@ gof_test <- function(x, vals= NA, pnull, rnull,
       typeTS=length(formals(TS))+1
     }
   }
-
   TS_data=calcTS(dta, TS, typeTS, TSextra)  
   if(is.null(names(TS_data))) {
     message("result of TS has to be a named vector")
@@ -164,6 +169,14 @@ gof_test <- function(x, vals= NA, pnull, rnull,
              p.values=c(outTS[2, ], outchi[2, ]))
   }           
   else out=list(statistics=outTS[1, ], p.values=outTS[2, ])
+  if(doMethods[1]!="all") {
+    out[[1]]=out[[1]][doMethods]
+    out[[2]]=out[[2]][doMethods]
+  }  
+  if(Noqnull) {
+    out[[1]]=out[[1]][names(out[[1]])!="Wassp1"]
+    out[[2]]=out[[2]][names(out[[2]])!="Wassp1"]
+  }
   # make output look nice
   signif.digits(out)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/run.studies.R
 \name{run.studies}
 \alias{run.studies}
-\title{This function runs the case studies included in the package}
+\title{Power Comparisons}
 \usage{
 run.studies(
   TS,
@@ -39,10 +39,14 @@ run.studies(
 \item{B}{= 1000 number of simulation runs}
 }
 \value{
-A (list of ) matrices of p.values
+A (list of ) matrices of power values
 }
 \description{
-This function runs the case studies included in the package
+This function runs the case studies included in the package and compares the
+power of a new test to those included.
+}
+\details{
+For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
 }
 \examples{
 # New test is a simple chi-square test: 

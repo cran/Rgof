@@ -4,7 +4,7 @@
 \alias{signif.digits}
 \title{This function does some rounding to nice numbers}
 \usage{
-\method{signif}{digits}(x, d = 4)
+\method{signif}{digits}(x, d = 3)
 }
 \arguments{
 \item{x}{a list of two vectors}

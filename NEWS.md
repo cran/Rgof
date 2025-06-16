@@ -1,3 +1,6 @@
+# Rgof 3.3.0
+    June 2025  User supplied routine can now also return p value for gof_power
+    Some other minor changes
 # Rgof 3.2.0
     April 2025. Changed some of the helper routines to make them simpler and
     easier to understand.

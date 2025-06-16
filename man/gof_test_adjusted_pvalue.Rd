@@ -2,7 +2,7 @@
 % Please edit documentation in R/gof_test_adjusted_pvalue.R
 \name{gof_test_adjusted_pvalue}
 \alias{gof_test_adjusted_pvalue}
-\title{This function performs a number of gof tests and finds the adjusted p value for the combined test}
+\title{Adjusted p values for simultaneous testing in the goodness-of-fit problem.}
 \usage{
 gof_test_adjusted_pvalue(
   x,
@@ -54,13 +54,16 @@ gof_test_adjusted_pvalue(
 
 \item{maxProcessor}{number of cores to use}
 
-\item{doMethods}{Methods to include in tests}
+\item{doMethods}{a vector of codes for the methods to include. If missing, a default selection of methods are used.}
 }
 \value{
 None
 }
 \description{
-This function performs a number of gof tests and finds the adjusted p value for the combined test
+This function performs a number of goodness-of-fit tests and finds the adjusted p value for the combined test.
+}
+\details{
+For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
 }
 \examples{
 # Tests to see whether data comes from a standard normal distribution.

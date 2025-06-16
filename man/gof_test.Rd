@@ -2,7 +2,7 @@
 % Please edit documentation in R/gof_test.R
 \name{gof_test}
 \alias{gof_test}
-\title{This function performs a number of gof tests}
+\title{Tests for the univariate goodness-of-fit problem}
 \usage{
 gof_test(
   x,
@@ -54,13 +54,16 @@ gof_test(
 
 \item{maxProcessor}{=1, number of processors to use in parallel processing.}
 
-\item{doMethods}{Methods to include in tests}
+\item{doMethods}{="all", a vector of codes for the methods to include or all of them.}
 }
 \value{
 A list with vectors of test statistics and p.values
 }
 \description{
-This function performs a number of gof tests
+This function runs a number of goodness-of-fit tests using Rcpp and parallel computing.
+}
+\details{
+For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
 }
 \examples{
 # Tests to see whether data comes from a standard normal distribution.

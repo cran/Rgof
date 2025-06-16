@@ -24,7 +24,8 @@ x = rnull()
 # Basic Test
 gof_test(x, vals, pnull, rnull, B=1000)
 #Test with adjusted overall p value
-gof_test_adjusted_pvalue(x, vals, pnull, rnull, B=c(1000, 500))
+gof_test_adjusted_pvalue(x, vals, pnull, rnull, 
+                         B=c(1000, 500), maxProcessor = 1)
 
 ## ----d2-----------------------------------------------------------------------
 x = table(c(0:20, rbinom(1000, 20, 0.55)))-1
@@ -32,7 +33,8 @@ x = table(c(0:20, rbinom(1000, 20, 0.55)))-1
 # Basic Test
 gof_test(x, vals, pnull, rnull, B=1000, doMethod = "all")$p.value
 #Test with adjusted overall p value
-gof_test_adjusted_pvalue(x, vals, pnull, rnull, B=c(1000, 500))
+gof_test_adjusted_pvalue(x, vals, pnull, rnull, 
+                    B=c(1000, 500), maxProcessor = 1)
 
 ## ----r1-----------------------------------------------------------------------
 rnull = function() table(c(0:20, rbinom(rpois(1, 650), 20, 0.5)))-1 
@@ -86,7 +88,7 @@ x = rnorm(1000)
 #Basic Tests
 gof_test(x, NA, pnull, rnull, B=1000, TSextra=TSextra)$p.value
 #Adjusted p value
-gof_test_adjusted_pvalue(x, NA, pnull, rnull, B=c(1000,500), TSextra=TSextra)
+gof_test_adjusted_pvalue(x, NA, pnull, rnull, B=c(1000,500), TSextra=TSextra, maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 x = rnorm(1000, 0.5) 
@@ -138,7 +140,8 @@ pnull = function() pbinom(0:10, 10, 0.5)
 rnull =function () table(c(0:10, rbinom(100, 10, 0.5)))-1
 ralt =function (p=0.5) table(c(0:10, rbinom(100, 10, p)))-1
 P=gof_power(pnull, vals, rnull, ralt, 
-  param_alt=seq(0.5, 0.6, 0.02), B=Bsim, nbins=c(11, 5))
+  param_alt=seq(0.5, 0.6, 0.02), B=Bsim, 
+  nbins=c(11, 5), maxProcessor = 1)
 plot_power(P, "p", Smooth=FALSE)
 
 ## -----------------------------------------------------------------------------
@@ -150,20 +153,21 @@ phat = function(x) sum(0:10*x)/1000
 ## ----pow2---------------------------------------------------------------------
 ralt =function (p=0.5) table(c(0:10, rbinom(100, 10, p)))-1
 gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 1)
 
 
 ## -----------------------------------------------------------------------------
 ralt =function (p=0.5) table(c(rep(0:10, 2), rbinom(100, 10, p)))
 gof_power(pnull, vals, rnull, ralt, 0.5, phat=phat,
-        B=Bsim, nbins=c(11, 5), maxProcessor = 2)
+        B=Bsim, nbins=c(11, 5), maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 pnull = function(x) pnorm(x)
 TSextra = list(qnull = function(x) qnorm(x))
 rnull = function() rnorm(100)
 ralt = function(mu=0) rnorm(100, mu)
-gof_power(pnull, NA, rnull, ralt, c(0, 1), TSextra=TSextra, B=Bsim)
+gof_power(pnull, NA, rnull, ralt, c(0, 1), 
+          TSextra=TSextra, B=Bsim, maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 pnull = function(x, p=c(0,1)) pnorm(x, p[1], ifelse(p[2]>0, p[2], 0.01))
@@ -172,7 +176,7 @@ rnull = function(p=c(0,1)) rnorm(500, p[1], p[2])
 ralt = function(mu=0) rnorm(100, mu)
 phat = function(x) c(mean(x), sd(x))
 gof_power(pnull, NA, rnull, ralt, c(0, 1), phat= phat, 
-          TSextra=TSextra, B=Bsim, maxProcessor=2)
+          TSextra=TSextra, B=Bsim, maxProcessor=1)
 
 ## -----------------------------------------------------------------------------
 ralt = function(df=1) {
@@ -182,14 +186,14 @@ ralt = function(df=1) {
   x[1:100]
 }  
 gof_power(pnull, NA, rnull, ralt, c(2, 50), phat=phat, 
-          Range=c(-5,5), TSextra=TSextra, B=Bsim, maxProcessor=2)
+          Range=c(-5,5), TSextra=TSextra, B=Bsim, maxProcessor=1)
 
 ## -----------------------------------------------------------------------------
 newTScont = function(x, pnull, param) {
    Fx=sort(pnull(x))
    n=length(x)
-   out = sum(abs( (2*1:n-1)/2/n-Fx ))
-   names(out) = "CvM alt"
+   out = c(sum(abs( (2*1:n-1)/2/n-Fx )),sum(sqrt(abs( (2*1:n-1)/2/n-Fx ))))
+   names(out) = c("CvM alt 1", "CvM alt 2")
    out
 }
 
@@ -206,7 +210,8 @@ ralt = function(slope=0) {
 }
 
 ## -----------------------------------------------------------------------------
-gof_power(pnull, NA, rnull, ralt, TS=newTScont, param_alt=round(seq(0, 0.5, length=3), 3), Range=c(0,1), B=Bsim)
+gof_power(pnull, NA, rnull, ralt, TS=newTScont, param_alt=round(seq(0, 0.5, length=3), 3), 
+          Range=c(0,1), B=Bsim, maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 vals=0:10
@@ -227,11 +232,17 @@ gof_power(pnull, vals, rnull, ralt,
     param_alt=round(seq(0, 0.05, length=3), 3),
     B=Bsim, maxProcessor = 1)
 
+## ----echo=FALSE---------------------------------------------------------------
+pnull=function(x) punif(x)
+rnull=function() runif(250)
+
 ## ----eval=FALSE---------------------------------------------------------------
 # pnull=function(x) punif(x)
 # rnull=function() runif(250)
 # pvals=matrix(0,1000,16)
-# for(i in 1:1000) pvals[i, ]=Rgof::gof_test(rnull(), NA, pnull, rnull,B=1000)$p.values
+# for(i in 1:1000)
+#   pvals[i, ]=Rgof::gof_test(rnull(), NA, pnull,
+#                             rnull,B=1000)$p.values
 
 ## ----eval=FALSE---------------------------------------------------------------
 # colnames(pvals)=names(Rgof::gof_test(rnull(), NA, pnull, rnull,B=10)$p.values)
@@ -258,7 +269,7 @@ ggplot2::ggplot(data=dta, ggplot2::aes(x=x,y=y,col=Tests))+
 ## -----------------------------------------------------------------------------
 x=rnull()
 Rgof::gof_test_adjusted_pvalue(x, NA, pnull, rnull, 
-              B=c(100, 100), maxProcessor = 1)
+              B=c(1000,500), maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 df=3
@@ -269,7 +280,7 @@ x=sort(rnull())
 plot(x, w(x), type="l", ylim=c(0, 2*max(w(x))))
 ralt=function(m=0) {x=rt(2000,df)+m;x=x[abs(x)<3];sort(x[1:1000])}
 set.seed(111)
-Rgof::gof_power(pnull, NA, rnull, ralt, w=w, param_alt = c(0,0.2), Range=c(-3,3),B=Bsim)
+Rgof::gof_power(pnull, NA, rnull, ralt, w=w, param_alt = c(0,0.2), Range=c(-3,3),B=Bsim, maxProcessor = 1)
 
 ## -----------------------------------------------------------------------------
 chitest=function(x, pnull, param, TSextra) {
@@ -293,7 +304,8 @@ chitest=function(x, pnull, param, TSextra) {
 
 ## -----------------------------------------------------------------------------
 TSextra=list(nbins=5, statistic=FALSE)
-pwr=Rgof::run.studies(chitest, "uniform.linear", TSextra=TSextra, With.p.value=TRUE)
+pwr=Rgof::run.studies(chitest, "uniform.linear", 
+                      TSextra=TSextra, With.p.value=TRUE)
 Rgof::plot_power(pwr, "Slope")
 
 ## ----eval=FALSE, message=FALSE------------------------------------------------

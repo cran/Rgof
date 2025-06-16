@@ -1,4 +1,9 @@
-#' This function performs a number of gof tests and finds the adjusted p value for the combined test
+#' Adjusted p values for simultaneous testing in the goodness-of-fit problem.
+#' 
+#' This function performs a number of goodness-of-fit tests and finds the adjusted p value for the combined test.
+#' 
+#' For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
+#' 
 #' @param  x data set
 #' @param  vals =NA, values of discrete RV, or NA if data is continuous
 #' @param  pnull  cdf under the null hypothesis
@@ -14,7 +19,7 @@
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
 #' @param  maxProcessor number of cores to use
-#' @param  doMethods Methods to include in tests
+#' @param  doMethods a vector of codes for the methods to include. If missing, a default selection of methods are used.
 #' @return None 
 #' @export
 #' @examples
@@ -86,7 +91,6 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
      message("Consider using parallel processing with maxProcessor= (your number of cores)")
    # adjust number of bins to account for parameter estimation
    if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x))
- 
    if(missing(TS)) {
      if(Continuous) {
        if(!WithWeights) { #data is not weighted
@@ -154,7 +158,7 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
      parallel::stopCluster(cl)
      pvals=z[[1]]
      for(i in 1:maxProcessor) pvals=rbind(pvals,z[[i]])
-     pvals=pvals/maxProcessor
+     pvals=pvals
    }
    colnames(pvals)=names(TS_data)
    if(typeTS==1 | typeTS==5) { 
@@ -187,6 +191,7 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
       pvals=cbind(pvals, chipvals, 4)
    }
    if(missing(doMethods)) doMethods=colnames(pvals)
+   if(test_methods(doMethods, Continuous, WithWeights)) return(NULL)
    pvals = round(pvals[, doMethods, drop=FALSE],4)
    minp_x=min(pvals[1, ])
    minp_sim=apply(pvals[-1, ,drop=FALSE], 1, min)

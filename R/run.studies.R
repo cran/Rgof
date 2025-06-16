@@ -1,4 +1,10 @@
-#'  This function runs the case studies included in the package
+#' Power Comparisons
+#' 
+#' This function runs the case studies included in the package and compares the
+#' power of a new test to those included.
+#' 
+#' For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
+#' 
 #' @param TS routine to calculate test statistic(s) or p value(s).
 #' @param study either the name of the study, or its number. If missing all the studies are run.
 #' @param TSextra =list(aaa=1), list passed to TS.
@@ -9,7 +15,7 @@
 #' @param param_alt (list of) values of parameter under the alternative hypothesis. If missing included values are used.
 #' @param maxProcessor number of cores to use for parallel programming
 #' @param B = 1000 number of simulation runs
-#' @return A (list of ) matrices of p.values
+#' @return A (list of ) matrices of power values
 #' @examples
 #' # New test is a simple chi-square test: 
 #' chitest=function(x, pnull, param, TSextra) {
@@ -120,8 +126,11 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
     pwrold=Rgof::power_studies_results[[study[i]]]
     tmp=case.studies(study[i], nsample)
     TSextra$pnull=tmp$pnull
-    if("phat"%in%names(tmp)) phat=tmp$phat
-    else phat=function(x) -99
+    if("phat"%in%names(tmp)) TSextra$phat=tmp$phat
+    else TSextra$phat=function(x) -99
+    if("w"%in%names(tmp)) TSextra$w=tmp$w
+    else TSextra$w=function(x) -99
+    
     if(BasicComparison) tmp$param_alt=tmp$param_alt[I80[i]]
     if(NewParams || !is.function(TS)) {
        if(!missing(param_alt)) tmp$param_alt=param_alt[[i]]
@@ -140,17 +149,17 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
        if(!is.matrix(pwrold)) {
           pwrold=rbind(pwrold)
           rownames(pwrold)=tmp$param_alt
-       }   
+       }
     }
     if(!is.function(TS)) {out[[i]]=pwrold;next} 
     if(With.p.value) {
         if(Continuous) {
            pwr=power_newtest(TS, NA, tmp$pnull,
-               tmp$ralt, tmp$param_alt, phat, TSextra, alpha, B[1])     
+               tmp$ralt, tmp$param_alt, tmp$phat, TSextra, alpha, B[1])     
         }
         else {
             pwr=power_newtest(TS, tmp$vals, tmp$pnull,
-               tmp$ralt, tmp$param_alt, phat, TSextra, alpha, B[1])     
+               tmp$ralt, tmp$param_alt, tmp$phat, TSextra, alpha, B[1])     
         } 
     }
     else {
@@ -186,12 +195,15 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
               pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
                    tmp$ralt, tmp$param_alt, TS=TS, 
                                 maxProcessor=maxProcessor, B=B) 
-        if(length(tmp$param_alt)==1) {       
-            dta=tmp$ralt(tmp$param_alt[1])
-            if(Continuous & !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta)) 
-            if(Continuous & WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), TSextra) 
-            if(!Continuous & !WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals) 
-            if(!Continuous & WithTSextra) nm=TS(dta, tmp$pnull, phat(dta), tmp$vals, TSextra)
+        
+        if(length(tmp$param_alt)==1) { 
+            dta=list(x=tmp$ralt(tmp$param_alt[1]))
+            if(Continuous) typeTS=length(formals(TS))
+            else {
+              dta$vals=tmp$vals
+              typeTS=length(formals(TS))+1
+            }  
+            nm=calcTS(dta, TS, typeTS, TSextra)
             pwr=matrix(pwr, 1, length(pwr))     
             colnames(pwr)=names(nm)
             rownames(pwr)=tmp$param_alt
@@ -206,7 +218,7 @@ run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, Basi
      rownames(A) = list.of.studies
      colnames(A) = colnames(out[[1]])
      a1=apply(A, 1, rank)
-     message("Average rank of the tests:")
+     message("Average number of studies a method is close to the best:")
      print(sort(apply(a1,1,mean)))
      return(A)
   }
