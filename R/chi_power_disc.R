@@ -23,7 +23,7 @@ chi_power_disc = function(pnull, ralt, param_alt,
      allbins = make_bins_disc(x, pnull, phat, nbins=nbins, minexpcount=minexpcount)
      for(j in 1:B) {
          x = ralt(param_alt[i])
-         tmp = chi_test_disc(x, pnull, phat, 
+         tmp = chi_test_disc(x, pnull, phat, rate=rate,
                   ChiUsePhat=ChiUsePhat, allbins=allbins)[, 2]
          pwr[i, ] = pwr[i, ] + ifelse(tmp<alpha, 1, 0)
      }

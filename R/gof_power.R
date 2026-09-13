@@ -8,7 +8,7 @@
 #' @param  vals =NA values of discrete random variable, or NA
 #' @param  rnull function to generate data under  null hypothesis
 #' @param  ralt function to generate data under  alternative hypothesis
-#' @param  param_alt  vector of parameter values for distribution under alternative hypothesis
+#' @param  param_alt  ,vector of parameter values for distribution under alternative hypothesis
 #' @param  w (Optional) function to calculate weights, returns -99 if no weights
 #' @param  phat =function(x) -99 function to estimate parameters from the data, or -99
 #' @param  TS user supplied function to find test statistics
@@ -22,7 +22,12 @@
 #' @param  maxProcessor maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
-#' @return A numeric matrix of power values.
+#' @param  SuppressMessages =FALSE
+#' @param  CI =FALSE if TRUE, return Monte Carlo standard errors and Wilson confidence intervals for the estimated power.
+#' @param  conf.level =0.95 confidence level used when CI=TRUE.
+#' @param  seed =NULL, optional seed for reproducabilty
+#' @param  list.with.everything A list with all needed info, such as pnull, rnull etc
+#' @return By default, a numeric matrix (or vector for one alternative) of power values. If CI=TRUE, an object of class \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson confidence limits.
 #' @export 
 #' @examples
 #' # Power of tests when null hypothesis specifies the standard normal distribution but 
@@ -80,11 +85,41 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
         w=function(x) -99, phat=function(x) -99, TS, TSextra, 
         With.p.value=FALSE, 
         alpha=0.05, Range  =c(-Inf, Inf), B=1000,nbins=c(50,10), 
-        rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat=TRUE) {
+        rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat=TRUE,
+        SuppressMessages=FALSE, CI=FALSE, conf.level=0.95,
+        seed=NULL, list.with.everything) {
 
   fff=nortest::lillie.test # avoid issues with CRAN, just ignore!
+  if(!is.logical(CI) || length(CI)!=1L || is.na(CI))
+    stop("CI must be TRUE or FALSE", call.=FALSE)
+  if(!is.numeric(conf.level) || length(conf.level)!=1L ||
+     is.na(conf.level) || conf.level<=0 || conf.level>=1)
+    stop("conf.level must be a single number between 0 and 1", call.=FALSE)
+
+  #list.with.everything is usually supplied by Rgof::case_studies
+  if(!missing(list.with.everything)) {
+    pnull=list.with.everything$pnull
+    vals=list.with.everything$vals
+    rnull=list.with.everything$rnull
+    if(missing(ralt)) ralt=list.with.everything$ralt
+    phat=list.with.everything$phat
+    Range=list.with.everything$Range
+    case_extra <- list.with.everything$TSextra
+    if(is.null(case_extra))
+      case_extra <- list()
+    if(missing(TSextra)) {
+      TSextra <- case_extra
+    } else {
+      TSextra <- utils::modifyList(case_extra, TSextra)
+    }
+  }
   NewTest=TRUE
   if(missing(TS)) NewTest=FALSE
+  if (length(formals(ralt)) == 0L) {
+    ralt0 <- ralt
+    ralt <- function(n) ralt0()
+    param_alt=0
+  }
   dta = ralt(param_alt[1]) # get an example data set
   x = dta
   Continuous=ifelse(any(is.na(vals)), TRUE, FALSE)
@@ -97,15 +132,7 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     check.functions(pnull, rnull, phat, vals, x)
   }
 
-  if(missing(TSextra)) TSextra=list(pnull=pnull, phat=phat, 
-                            w=w, Continuous=Continuous)
-  else TSextra = c(TSextra, pnull=pnull, phat=phat, 
-                   w=w, Continuous=Continuous)
-  Noqnull=FALSE
-  if(!("qnull" %in% names(TSextra))) {
-    Noqnull=TRUE
-    TSextra=c(TSextra, qnull=function(x) -99)
-  } 
+  TSextra=makeTSextra(TSextra, pnull, phat, w, Continuous)
   WithWeights = TRUE
   if(length(formals(w))==1) {
     if(w(x[1])==-99) WithWeights = FALSE
@@ -114,58 +141,39 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
   if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
   if(any(is.na(vals))) check.functions(pnull, rnull, phat, x=x)
   else  check.functions(pnull, rnull, phat, vals, x)
-  if(missing(TS)) {
-    if(Continuous) {
-      if(!WithWeights) { #data is not weighted
-        typeTS=1
-        TS = TS_cont
-      }
-      else {
-        typeTS=2
-        TS = TSw_cont
-      }
-    }
-    else {
-      typeTS = 5
-      TS = TS_disc
-    }
-  }   
-  else {
-    # can't do parallel processing if TS written in C/C++
-    if(substr(deparse(TS)[2], 1, 5)==".Call") {
-      message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
-      maxProcessor=1
-    }
-    if(Continuous) {
-      if(length(formals(TS))>4) {
-        message("TS for continuous data should have either 3 or 4 arguments")
-        return(NULL)
-      }  
-      typeTS=length(formals(TS))
-    }  
-    else {
-      if(length(formals(TS))>6) {
-        message("TS for discrete datashould have either 4 or 5 arguments")
-        return(NULL)
-      }
-      typeTS=length(formals(TS))+1
-    }
+  tmp=maketypeTS(TS, Continuous, WithWeights)
+  typeTS=tmp$typeTS
+  TS=tmp$TS
+  if(!is.null(seed)) {
+    if(length(seed)!=1L || is.na(seed) || !is.finite(seed))
+      stop("seed must be NULL or a single finite number", call.=FALSE)
+    
+    set.seed(seed)
   }
   TS_data=calcTS(dta, TS, typeTS, TSextra) 
   if(is.null(names(TS_data))) {
     message("result of TS has to be a named vector")
     return(NULL)
   }
-  if(missing(maxProcessor)) 
-    maxProcessor=parallel::detectCores(logical = FALSE)-1
-    if(With.p.value) maxProcessor=1
+  #  set number of processors for parallel programming, assure
+  #  that B is a multiple of maxProcessor    
+  m=parallel::detectCores(logical=FALSE)
+  available=max(1, m-1)
+  if(missing(maxProcessor)) maxProcessor=available
+  if(maxProcessor>m-1) maxProcessor=available
+  B=ceiling(B/maxProcessor)*maxProcessor
+  if(With.p.value) maxProcessor=1
   if(maxProcessor>1) {
     tm=timecheck(dta, TS, typeTS, TSextra)
     if(tm*length(param_alt)*B<20) {
       maxProcessor=1
-      message("maxProcessor set to 1 for faster computation")
+      if(!SuppressMessages)
+         message("maxProcessor set to 1 for faster computation")
     }
-    else message(paste("Using ",maxProcessor," cores.."))
+    else {
+      if(!SuppressMessages)
+         message(paste("Using ",maxProcessor," cores.."))
+    }
   }
   if(With.p.value) {
     if(Continuous) {
@@ -183,10 +191,12 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     }
     else {
         cl <- parallel::makeCluster(maxProcessor)
+        on.exit(parallel::stopCluster(cl), add=TRUE)
+        if(!is.null(seed))
+          parallel::clusterSetRNGStream(cl, iseed=seed)
         z=parallel::clusterCall(cl, gof_power_C, 
                 rnull, vals, ralt, param_alt,  TS, typeTS, TSextra, 
                 B=round(B/maxProcessor))
-        parallel::stopCluster(cl)
         Sim=z[[1]][["Sim"]]
         Data=z[[1]][["Data"]]
         for(i in 2:maxProcessor) {
@@ -212,7 +222,7 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     chipwr = chi_power_cont(pnull=pnull, 
                             ralt = ralt, 
                             param_alt = param_alt,                             
-                            qnull = ifelse(Noqnull, NA, TSextra$qnull), 
+                            qnull = ifelse(TSextra$Noqnull, NA, TSextra$qnull), 
                             phat = phat, 
                             w = w,
                             alpha = alpha, 
@@ -230,6 +240,119 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
                             ChiUsePhat)[,1:2, drop=FALSE]
   }
   if(typeTS==1 | typeTS==5) pwr = cbind(pwr, chipwr)
+
+  # Monte Carlo uncertainty of the estimated rejection probability.
+  # Each power estimate is based on B alternative simulations.
+  if(CI) {
+    z <- stats::qnorm(1-(1-conf.level)/2)
+    
+    den <- 1+z^2/B
+    
+    center <- (pwr+z^2/(2*B))/den
+    
+    half <- z*sqrt(
+      pwr*(1-pwr)/B +
+        z^2/(4*B^2)
+    )/den
+    
+    lower <- pmax(center-half, 0)
+    upper <- pmin(center+half, 1)
+    
+    mc.se <- sqrt(pwr*(1-pwr)/B)
+    
+    if(is.matrix(pwr) && nrow(pwr)==1) {
+      
+      method_names <- colnames(pwr)
+      
+      pwr <- as.numeric(pwr[1, ])
+      lower <- as.numeric(lower[1, ])
+      upper <- as.numeric(upper[1, ])
+      mc.se <- as.numeric(mc.se[1, ])
+      
+      names(pwr) <- method_names
+      names(lower) <- method_names
+      names(upper) <- method_names
+      names(mc.se) <- method_names
+    }
+
+    out <- list(
+      power = round(pwr, 3),
+      mc.se = round(mc.se, 4),
+      lower = round(lower, 3),
+      upper = round(upper, 3),
+      B = B,
+      conf.level = conf.level,
+      interval = "Wilson",
+      alpha = alpha,
+      param_alt = param_alt,
+      seed = seed
+    )
+    
+    class(out) <- "Rgof_power"
+    return(out)
+  }
+
   if(is.matrix(pwr) & nrow(pwr)==1) pwr=pwr[1, ]
   round(pwr, 3)
+}
+
+#' @export
+print.Rgof_power <- function(x, ...) {
+  cat(sprintf("Estimated power with %.1f%% Wilson confidence intervals (B = %d)\n",
+              100*x$conf.level, x$B))
+
+  if(is.matrix(x$power)) {
+    for(i in seq_len(nrow(x$power))) {
+      cat("\nAlternative parameter:", rownames(x$power)[i], "\n")
+      out <- data.frame(
+        power = x$power[i, ],
+        mc.se = x$mc.se[i, ],
+        lower = x$lower[i, ],
+        upper = x$upper[i, ],
+        row.names = colnames(x$power),
+        check.names = FALSE
+      )
+      print(out)
+    }
+  } else {
+    out <- data.frame(
+      power = x$power,
+      mc.se = x$mc.se,
+      lower = x$lower,
+      upper = x$upper,
+      row.names = names(x$power),
+      check.names = FALSE
+    )
+    print(out)
+  }
+  invisible(x)
+}
+
+#' @export
+as.data.frame.Rgof_power <- function(x, ...) {
+  if(is.matrix(x$power)) {
+    nr <- nrow(x$power)
+    nc <- ncol(x$power)
+    return(data.frame(
+      param_alt = rep(rownames(x$power), times=nc),
+      method = rep(colnames(x$power), each=nr),
+      power = c(x$power),
+      mc.se = c(x$mc.se),
+      lower = c(x$lower),
+      upper = c(x$upper),
+      row.names = NULL,
+      check.names = FALSE
+    ))
+  }
+
+  data.frame(
+    param_alt = rep(as.character(x$param_alt[1]), length(x$power)),
+    method = names(x$power),
+    power = unname(x$power),
+    mc.se = unname(x$mc.se),
+    lower = unname(x$lower),
+    upper = unname(x$upper),
+    row.names = NULL,
+    check.names = FALSE
+  )
 }

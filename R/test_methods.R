@@ -10,7 +10,7 @@ test_methods=function(doMethods, Continuous, WithWeights) {
     if(Continuous & !WithWeights) 
        methods=c("KS","Kuiper","CvM","AD","W","ZA","ZK","ZC",
                  "Wassp1","ES-l-P","ES-s-P","EP-l-P","EP-s-P",
-                          "ES-l-P","ES-s-P","EP-l-P","EP-s-P")
+                          "ES-l-L","ES-s-L","EP-l-L","EP-s-L")
     if(Continuous & WithWeights) 
        methods=c("KS","Kuiper","CvM","AD")
     if(!Continuous) 

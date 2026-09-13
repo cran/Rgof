@@ -5,69 +5,53 @@
 \title{Power Comparisons}
 \usage{
 run.studies(
+  studies = 1:60,
+  types = 1:5,
+  data_type = "cont",
   TS,
-  study,
-  TSextra = list(aaa = 1),
+  TSextra,
   With.p.value = FALSE,
-  BasicComparison = TRUE,
-  nsample = 500,
+  n,
   alpha = 0.05,
-  param_alt,
-  maxProcessor,
-  B = 1000
+  B = 1000,
+  SuppressMessages = TRUE,
+  RerunIncludedCases = FALSE
 )
 }
 \arguments{
-\item{TS}{routine to calculate test statistic(s) or p value(s).}
+\item{studies}{=1:50, either the names of the studies, or their numbers. If missing all the studies are run.}
 
-\item{study}{either the name of the study, or its number. If missing all the studies are run.}
+\item{types}{=1:5, either the types of studies, or their numbers. If missing all types are run.}
 
-\item{TSextra}{=list(aaa=1), list passed to TS.}
+\item{data_type}{="cont", continuous or discrete data}
+
+\item{TS}{routine to calculate test statistics.}
+
+\item{TSextra}{list passed to TS.}
 
 \item{With.p.value}{=FALSE does user supplied routine return p values?}
 
-\item{BasicComparison}{=TRUE if true compares tests on one default value of parameter of the alternative distribution.}
-
-\item{nsample}{= 500, desired sample size.}
+\item{n}{desired sample size.}
 
 \item{alpha}{=0.05  type I error}
 
-\item{param_alt}{(list of) values of parameter under the alternative hypothesis. If missing included values are used.}
+\item{B}{= 1000}
 
-\item{maxProcessor}{number of cores to use for parallel programming}
+\item{SuppressMessages}{=TRUE}
 
-\item{B}{= 1000 number of simulation runs}
+\item{RerunIncludedCases}{=FALSE, set to true to verify powers in Rgof::power_study}
 }
 \value{
-A (list of ) matrices of power values
+A matrix of power values.
 }
 \description{
 This function runs the case studies included in the package and compares the
 power of a new test to those included.
 }
 \details{
-For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
+For details consult vignette("Rgof","Rgof")
 }
 \examples{
-# New test is a simple chi-square test: 
-chitest=function(x, pnull, param, TSextra) {
-    nbins=TSextra$nbins
-    bins=quantile(x, (0:nbins)/nbins)
-    O=hist(x, bins, plot=FALSE)$counts
-    if(param[1]!=-99) { #with parameter estimation
-        E=length(x)*diff(pnull(bins, param))
-        chi=sum((O-E)^2/E)
-        pval=1-pchisq(chi, nbins-1-length(param))
-    }
-    else {
-      E=length(x)*diff(pnull(bins))
-      chi=sum((O-E)^2/E)
-      pval=1-pchisq(chi,nbins-1)
-    }  
-    out=ifelse(TSextra$statistic, chi, pval)
-    names(out)="ChiSquare"
-    out
-}
-TSextra=list(nbins=10, statistic=FALSE) # Use 10 bins, test routine returns p-value
-run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, maxProcessor=1, B=200)
+TSextra=list(nbins=5, statistic=FALSE) # Use 5 bins and calculate p values
+run.studies(1:2, 1:2, TS=myTS_cont, TSextra=TSextra, With.p.value=TRUE, B=100)
 }

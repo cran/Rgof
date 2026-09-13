@@ -84,7 +84,7 @@ make_bins_cont = function(x, pnull, qnull=NA, phat=function(x) -99,
     }  
     if(Range[1]==-99999&Range[2]!=99999) {
       bins = seq(min(x)-1e-05, Range[2], length=nbins[i]+1)
-      bins[1] = Inf 
+      bins[1] = -Inf 
     }  
     if(Range[1]!=-99999&Range[2]!=99999)
       bins = seq(Range[1], Range[2], length=nbins[i]+1)

@@ -3,225 +3,111 @@
 #' This function runs the case studies included in the package and compares the
 #' power of a new test to those included.
 #' 
-#' For details on the usage of this routine consult the vignette with vignette("Rgof","Rgof")
-#' 
-#' @param TS routine to calculate test statistic(s) or p value(s).
-#' @param study either the name of the study, or its number. If missing all the studies are run.
-#' @param TSextra =list(aaa=1), list passed to TS.
+#' For details consult vignette("Rgof","Rgof")
+#'
+#' @param studies =1:50, either the names of the studies, or their numbers. If missing all the studies are run. 
+#' @param types =1:5, either the types of studies, or their numbers. If missing all types are run. 
+#' @param data_type ="cont", continuous or discrete data
+#' @param TS routine to calculate test statistics.
+#' @param TSextra list passed to TS.
 #' @param With.p.value =FALSE does user supplied routine return p values?
-#' @param BasicComparison =TRUE if true compares tests on one default value of parameter of the alternative distribution.
-#' @param nsample = 500, desired sample size.
+#' @param n desired sample size.
 #' @param alpha =0.05  type I error
-#' @param param_alt (list of) values of parameter under the alternative hypothesis. If missing included values are used.
-#' @param maxProcessor number of cores to use for parallel programming
-#' @param B = 1000 number of simulation runs
-#' @return A (list of ) matrices of power values
+#' @param B = 1000
+#' @param SuppressMessages =TRUE
+#' @param RerunIncludedCases =FALSE, set to true to verify powers in Rgof::power_study
+#' @return A matrix of power values.
 #' @examples
-#' # New test is a simple chi-square test: 
-#' chitest=function(x, pnull, param, TSextra) {
-#'     nbins=TSextra$nbins
-#'     bins=quantile(x, (0:nbins)/nbins)
-#'     O=hist(x, bins, plot=FALSE)$counts
-#'     if(param[1]!=-99) { #with parameter estimation
-#'         E=length(x)*diff(pnull(bins, param))
-#'         chi=sum((O-E)^2/E)
-#'         pval=1-pchisq(chi, nbins-1-length(param))
-#'     }
-#'     else {
-#'       E=length(x)*diff(pnull(bins))
-#'       chi=sum((O-E)^2/E)
-#'       pval=1-pchisq(chi,nbins-1)
-#'     }  
-#'     out=ifelse(TSextra$statistic, chi, pval)
-#'     names(out)="ChiSquare"
-#'     out
-#' }
-#' TSextra=list(nbins=10, statistic=FALSE) # Use 10 bins, test routine returns p-value
-#' run.studies(chitest, TSextra=TSextra, With.p.value=TRUE, maxProcessor=1, B=200)
+#' TSextra=list(nbins=5, statistic=FALSE) # Use 5 bins and calculate p values
+#' run.studies(1:2, 1:2, TS=myTS_cont, TSextra=TSextra, With.p.value=TRUE, B=100)
 #' @export
-
-run.studies <- function(TS, study, TSextra=list(aaa=1), With.p.value=FALSE, BasicComparison=TRUE, 
-                nsample=500, alpha=0.05, param_alt, maxProcessor, B=1000) {
+run.studies=function(studies=1:60, types=1:5, data_type="cont",
+                     TS, TSextra, With.p.value =FALSE, n, 
+                     alpha=0.05, B=1000, SuppressMessages=TRUE,
+                     RerunIncludedCases=FALSE) {
   
-  B=B[1] 
-  if(!is.function(TS)) {
-      if(missing(TS) || !is.logical(TS)) {
-         message("TS should either be a function, or TRUE/FALSE (for continuous or discrete) to run the included tests") 
-         return(NULL)
-      }   
-      Continuous=TS
-  }    
-  else {
-    Continuous=ifelse("vals" %in% names(formals(TS)), FALSE, TRUE)  
-    WithTSextra=ifelse("aaa"%in%names(TSextra), FALSE, TRUE) 
-    if(Continuous) {
-      if(any(names(unlist(formals(TS))[1:3])!=c("x", "pnull", "param"))) {
-          message("for continuous data the function TS should have arguments x, pnull, param and TSextra (optional)")
-          return(NULL)
-      }    
+# check if old version is assumed
+  if(is.function(studies)) {
+    stop("the arguments list of the function run.studies has changed.\n 
+          Please check the help file or the vignette",
+         call.=FALSE)
+  }
+  list.of.studies=Rgof::case_studies(ReturnCaseNames = TRUE)
+  if(is.numeric(studies[1])) studies=list.of.studies[studies]
+  all_types=names(Rgof::power_study[[1]])
+  if(is.numeric(types)) types=all_types[types]
+  studytype=cbind(rep(studies, length(types)),
+                      rep(types, each=length(studies)))
+  k=NULL
+  for(i in 1:nrow(studytype)) {
+    if(studytype[i,1]%in%list.of.studies[1:20] && studytype[i,2]=="mixed")
+       k=c(k, i)
+    if(studytype[i,1]%in%list.of.studies[-c(1:20)]) {
+       studytype[i,2]="mixed"
+    }  
+  }  
+  if(!is.null(k)) studytype=studytype[-k,]
+  studytype=unique(studytype)
+  num_old_tests=ncol(Rgof::power_study[[data_type]][[1]])
+  num_studies=nrow(studytype)
+  if(missing(TSextra)) TSextra=list(aaa=NULL)
+  NewTest=ifelse(missing(TS), FALSE, TRUE)
+  out_old_test=matrix(0, nrow(studytype), num_old_tests)
+  colnames(out_old_test)=colnames(Rgof::power_study[[data_type]][[1]])
+  rownames(out_old_test)=paste0(studytype[,1], "/", studytype[,2])
+  out_new_test=NULL
+  Old_n=FALSE
+  if(missing(n)) {
+    Old_n=TRUE
+    n=rep(0, nrow(studytype))
+    for(i in 1:nrow(studytype)) {
+       if(studytype[i, 2]=="mixed")
+         n[i]=Rgof::case_studies_sample_sizes[[data_type]][[2]][studytype[i,1]]
+       else
+         n[i]=Rgof::case_studies_sample_sizes[[data_type]][[1]][studytype[i,1], studytype[i,2]]
     }
-    else {
-      if(any(names(unlist(formals(TS))[1:4])!=c("x", "pnull", "param", "vals"))) {
-         message("for discrete data the function TS should have arguments x, pnull, param, vals and TSextra (optional)")
-         return(NULL)
-      }    
-    }
-  }   
-  if(missing(maxProcessor)) maxProcessor=parallel::detectCores(logical=FALSE)-1
-  I80cont=c(12,11,8,11,13,7,9,9,24,8,12,13,7,13,11,19,8,14,17,13)
-  I80disc=c(12,11,9,11,14,7,9,9,21,9,11,13,8,15,8,23,8,14,15,12)
-  if(Continuous) I80=I80cont
-  else I80=I80disc
-  NewParams=ifelse(alpha==0.05, FALSE, TRUE)
-  if(!missing(param_alt)) {
-      NewParams=TRUE
-      message("For new parameter values under the alternative or alpha!=0.05 power values 
-        will also be calculated for included tests")
-      if(!missing(study) && length(study)>1) {
-        if(!is.list(param_alt)) {
-           message("param_alt has to be a list with the same length as study")
-           return(NULL)
+  }
+  for(i in 1:nrow(studytype)) {
+      tmp <- Rgof::case_studies(
+        which = studytype[i,1],
+        which_diff = studytype[i,2],
+        n = n[i],
+        data_type = data_type
+      )
+      if(data_type=="cont") tmp$vals=NA
+      if(NewTest) {
+        pwr=Rgof::gof_power(list.with.everything = tmp,  
+                       TS=TS, TSextra= TSextra,
+                       With.p.value=With.p.value, alpha=alpha, 
+                       B=B, SuppressMessages=SuppressMessages)
+        if(i==1) {
+          if(is.matrix(pwr)) {
+            num_new_test <- ncol(pwr)
+            nm <- colnames(pwr)
+          } else {
+            num_new_test <- length(pwr)
+            nm <- names(pwr)
+          }
+          out_new_test=matrix(0, nrow(studytype), num_new_test)
+          colnames(out_new_test)=nm
+          rownames(out_new_test)=names(out_old_test)
         }
+        out_new_test[i, ]=pwr 
+      }    
+      if(Old_n&&alpha==0.05&&(!RerunIncludedCases)) {
+          out_old_test[i, ]=
+            Rgof::power_study[[data_type]][[studytype[i,2]]][studytype[i, 1], ]
       }
-      else if(!is.list(param_alt)) param_alt=list(param_alt)
-  } 
-  if(NewParams) BasicComparison=FALSE 
-  list.of.studies=c(
-  "uniform.linear",
-  "uniform.quadratic",
-  "uniform.bump",
-  "uniform.sine",
-  "beta22.betaaa",
-  "beta22.beta2a",
-  "normal.shift",
-  "normal.stretch",
-  "normal.t",
-  "normal.outlier1",
-  "normal.outlier2",
-  "exponential.gamma",
-  "exponential.weibull",
-  "exponential.bump",
-  "trunc.exponential.linear",
-  "normal.t.est",
-  "exponential.weibull.est",
-  "trunc.exponential.linear.est",
-  "exponential.gamma.est",
-  "normal.cauchy.est"
-  )
-  if(Continuous) list.of.studies=paste0(list.of.studies,".cont")
-  else list.of.studies=paste0(list.of.studies,".disc")
-  if(missing(study)) study=1:20
-  else BasicComparison=FALSE
-  if(is.numeric(study)) study=list.of.studies[study]
-  else {
-    if(Continuous) study=paste0(study,".cont")
-    else study=paste0(study,".disc")
-  }
-  out=as.list(seq_along(study))
-  names(out)=study
-  for(i in seq_along(study)) {
-    message(paste("Running case", study[i], "..."))
-    WithEstimation=FALSE
-    if(endsWith(substring(study[i],1,nchar(study[i])-5),"est")) WithEstimation=TRUE
-    pwrold=Rgof::power_studies_results[[study[i]]]
-    tmp=case.studies(study[i], nsample)
-    TSextra$pnull=tmp$pnull
-    if("phat"%in%names(tmp)) TSextra$phat=tmp$phat
-    else TSextra$phat=function(x) -99
-    if("w"%in%names(tmp)) TSextra$w=tmp$w
-    else TSextra$w=function(x) -99
-    
-    if(BasicComparison) tmp$param_alt=tmp$param_alt[I80[i]]
-    if(NewParams || !is.function(TS)) {
-       if(!missing(param_alt)) tmp$param_alt=param_alt[[i]]
-       if(Continuous) {
-            if(WithEstimation) pwrold=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, phat=tmp$phat, maxProcessor=maxProcessor,B=B)
-            else pwrold=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, maxProcessor=maxProcessor,B=B)            
-       }
-       else {
-            if(WithEstimation) pwrold=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                    tmp$ralt, tmp$param_alt, phat=tmp$phat, maxProcessor=maxProcessor,B=B)
-            else pwrold=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, maxProcessor=maxProcessor,B=B) 
-       }
-       if(!is.matrix(pwrold)) {
-          pwrold=rbind(pwrold)
-          rownames(pwrold)=tmp$param_alt
-       }
-    }
-    if(!is.function(TS)) {out[[i]]=pwrold;next} 
-    if(With.p.value) {
-        if(Continuous) {
-           pwr=power_newtest(TS, NA, tmp$pnull,
-               tmp$ralt, tmp$param_alt, tmp$phat, TSextra, alpha, B[1])     
-        }
-        else {
-            pwr=power_newtest(TS, tmp$vals, tmp$pnull,
-               tmp$ralt, tmp$param_alt, tmp$phat, TSextra, alpha, B[1])     
-        } 
-    }
-    else {
-        if(Continuous && WithEstimation && WithTSextra) 
-               pwr=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, phat=tmp$phat, TS=TS, 
-                          TSextra=TSextra, maxProcessor=maxProcessor, B=B)
-        if(Continuous && !WithEstimation && WithTSextra)
-               pwr=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, TS=TS, TSextra=TSextra, 
-                                maxProcessor=maxProcessor, B=B)
-        if(!Continuous && WithEstimation && WithTSextra)
-              pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, phat=tmp$phat, TS=TS, 
-                    TSextra=TSextra, maxProcessor=maxProcessor, B=B)
-        if(!Continuous && !WithEstimation && WithTSextra)
-              pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, TS=TS, TSextra=TSextra, 
-                                maxProcessor=maxProcessor, B=B)
-        if(Continuous && WithEstimation && !WithTSextra) 
-               pwr=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, phat=tmp$phat, TS=TS, 
-                                maxProcessor=maxProcessor, B=B)
-        if(Continuous && !WithEstimation && !WithTSextra)
-               pwr=Rgof::gof_power(tmp$pnull, NA, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, TS=TS, 
-                                maxProcessor=maxProcessor, B=B)      
-        if(!Continuous && WithEstimation && !WithTSextra)
-              pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, phat=tmp$phat, TS=TS, 
-                                maxProcessor=maxProcessor, B=B)
-        if(!Continuous && !WithEstimation && !WithTSextra)
-              pwr=Rgof::gof_power(tmp$pnull, tmp$vals, tmp$rnull, 
-                   tmp$ralt, tmp$param_alt, TS=TS, 
-                                maxProcessor=maxProcessor, B=B) 
-        
-        if(length(tmp$param_alt)==1) { 
-            dta=list(x=tmp$ralt(tmp$param_alt[1]))
-            if(Continuous) typeTS=length(formals(TS))
-            else {
-              dta$vals=tmp$vals
-              typeTS=length(formals(TS))+1
-            }  
-            nm=calcTS(dta, TS, typeTS, TSextra)
-            pwr=matrix(pwr, 1, length(pwr))     
-            colnames(pwr)=names(nm)
-            rownames(pwr)=tmp$param_alt
-        }        
-    }
-    if(BasicComparison) out[[i]]=cbind(pwr, pwrold[I80[i], , drop=FALSE])
-    else out[[i]]=cbind(pwr[, , drop=FALSE], pwrold[, , drop=FALSE])
-  } 
-  if(BasicComparison) {
-     A=matrix(0, 20, ncol(out[[1]]))
-     for(i in 1:20) A[i, ]= out[[i]][1, ]
-     rownames(A) = list.of.studies
-     colnames(A) = colnames(out[[1]])
-     a1=apply(A, 1, rank)
-     message("Average number of studies a method is close to the best:")
-     print(sort(apply(a1,1,mean)))
-     return(A)
-  }
-  if(length(out)==1) return(out[[1]])
+      else {
+        out_old_test[i, ]=Rgof::gof_power(
+          list.with.everything = tmp, 
+          With.p.value=With.p.value, alpha=alpha, B=B,
+          SuppressMessages=SuppressMessages)
+      }
+  }  
+  out = cbind(out_new_test, out_old_test)
+  a1=apply(out, 1, rank)
+  message("Average rank of a method:")
+  print(round(100*sort(apply(a1,1,mean), decreasing = TRUE)/nrow(a1),1))
   out
 }

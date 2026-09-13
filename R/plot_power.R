@@ -9,6 +9,11 @@
 
 plot_power=function(pwr, xname=" ", title, Smooth=TRUE, span=0.25) {
 
+  if(inherits(pwr, "Rgof_power")) pwr <- pwr$power
+  if(!is.matrix(pwr))
+    stop("plot_power requires power estimates for at least two alternative parameter values",
+         call.=FALSE)
+
 # For CRAN CMD check
   x=NULL
   y=NULL

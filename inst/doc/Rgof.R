@@ -145,6 +145,11 @@ P=gof_power(pnull, vals, rnull, ralt,
 plot_power(P, "p", Smooth=FALSE)
 
 ## -----------------------------------------------------------------------------
+gof_power_adaptive(pnull, vals, rnull, ralt, 
+  param_alt=0.5, nbins=c(11, 5), 
+  conf.level=0.9, maxProcessor = 1)
+
+## -----------------------------------------------------------------------------
 vals = 0:10
 pnull = function(p=0.5) pbinom(0:10, 10, ifelse(0<p&p<1,p,0.001))
 rnull = function (p=0.5) table(c(0:10, rbinom(100, 10, ifelse(0<p&p<1,p,0.001))))-1
@@ -282,39 +287,51 @@ ralt=function(m=0) {x=rt(2000,df)+m;x=x[abs(x)<3];sort(x[1:1000])}
 set.seed(111)
 Rgof::gof_power(pnull, NA, rnull, ralt, w=w, param_alt = c(0,0.2), Range=c(-3,3),B=Bsim, maxProcessor = 1)
 
+## ----eval=FALSE---------------------------------------------------------------
+# rnull=function() runif(n)
+# pnull=function(x) punif(x)
+# TSextra(qnull=function(x) qunif(x))
+# ralt=function(a=0.3) {
+#     if(a==0) return(runif(n))
+#     (-(1-a)+sqrt((1-a)^2+4*a*runif(n)))/2/a
+# }
+# pwr=Rgof::gof_power(pnull, NA, rnull, ralt,
+#         param_alt =seq(0.01, 0.5, length=21),
+#         Range=c(0,1))
+
+## ----echo=FALSE---------------------------------------------------------------
+pwr=Rgof::power.uniform.linear
+
 ## -----------------------------------------------------------------------------
-chitest=function(x, pnull, param, TSextra) {
-    nbins=TSextra$nbins #number of bins
-    bins=seq(min(x)-1e-10, max(x)+1e-10, length=nbins+1)
-    O=hist(x, bins, plot=FALSE)$counts #bin counts
-    if(param[1]!=-99) { #with parameter estimation
-        E=length(x)*diff(pnull(bins, param)) #expected counts
-        chi=sum((O-E)^2/E) #Pearson's chi square
-        pval=1-pchisq(chi, nbins-1-length(param)) #p value
-    }
-    else {
-      E=length(x)*diff(pnull(bins))
-      chi=sum((O-E)^2/E)
-      pval=1-pchisq(chi,nbins-1)
-    }  
-    out=ifelse(TSextra$statistic, chi, pval)
-    names(out)="ChiSquare"
-    out
-}
+Rgof::plot_power(pwr, "Uniform vs Linear")
+
+## -----------------------------------------------------------------------------
+f=Rgof::case_studies("uniform", "mean", n=1e4)
+x=0:100/100
+dta=data.frame(x=c(x,x), 
+               y=c(f$dnull(x), Rgof::funs_list[["cont"]][["uniform"]][["mean"]]$density(x)),
+          Distribution=rep(c("Uniform", 
+                           "Alternative"), each=101))
+ggplot(dta, aes(x, y, col=Distribution)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0, 2)) +
+  labs(y="Density")
 
 ## -----------------------------------------------------------------------------
 TSextra=list(nbins=5, statistic=FALSE)
-pwr=Rgof::run.studies(chitest, "uniform.linear", 
-                      TSextra=TSextra, With.p.value=TRUE)
-Rgof::plot_power(pwr, "Slope")
+Rgof::run.studies(1:2, 1:2,  
+        TS=Rgof::myTS_cont, TSextra=TSextra, 
+        With.p.value = TRUE)
 
-## ----eval=FALSE, message=FALSE------------------------------------------------
-# Rgof::run.studies(chitest, TSextra=TSextra, With.p.value=TRUE)
+## -----------------------------------------------------------------------------
+Rgof::case_studies("noncentral")[2:4]
 
-## ----eval=FALSE, message=FALSE------------------------------------------------
-# Rgof::run.studies(TRUE, # continuous data/model
-#                   study="uniform.linear",
-#                   param_alt=c(0.1, 0.2),
-#                   nsample=2000,
-#                   alpha=0.01)
+## ----eval=FALSE---------------------------------------------------------------
+# Rgof::run.studies(TS=myTS_cont, TSextra=TSextra, With.p.value=TRUE)
+
+## ----eval=FALSE---------------------------------------------------------------
+# Rgof::run.studies(data_type="disc", alpha=0.1)
+
+## ----eval=FALSE---------------------------------------------------------------
+# Rgof::run.studies(data_type="disc", RerunIncludedCases = TRUE)
 

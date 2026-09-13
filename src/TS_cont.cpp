@@ -92,7 +92,10 @@ Rcpp::NumericVector TS_cont(
     }
  
  /* Wasserstein */
-  NumericVector tmp2=qnull(0.5);
+  NumericVector tmp2;
+  if(resqnull.size()==1) tmp2=qnull(0.5);
+  else tmp2=qnull(0.5, param);
+    
   if(std::abs(tmp2[0]+99)>0.01) {
     NumericVector a1(n+1),a2(n);
     for(i=0;i<=n;++i) {

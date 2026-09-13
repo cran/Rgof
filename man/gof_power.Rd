@@ -22,7 +22,12 @@ gof_power(
   rate = 0,
   maxProcessor,
   minexpcount = 5,
-  ChiUsePhat = TRUE
+  ChiUsePhat = TRUE,
+  SuppressMessages = FALSE,
+  CI = FALSE,
+  conf.level = 0.95,
+  seed = NULL,
+  list.with.everything
 )
 }
 \arguments{
@@ -34,7 +39,7 @@ gof_power(
 
 \item{ralt}{function to generate data under  alternative hypothesis}
 
-\item{param_alt}{vector of parameter values for distribution under alternative hypothesis}
+\item{param_alt}{,vector of parameter values for distribution under alternative hypothesis}
 
 \item{w}{(Optional) function to calculate weights, returns -99 if no weights}
 
@@ -61,9 +66,19 @@ gof_power(
 \item{minexpcount}{=5 minimal expected bin count required}
 
 \item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
+
+\item{SuppressMessages}{=FALSE}
+
+\item{CI}{=FALSE if TRUE, return Monte Carlo standard errors and Wilson confidence intervals for the estimated power.}
+
+\item{conf.level}{=0.95 confidence level used when CI=TRUE.}
+
+\item{seed}{=NULL, optional seed for reproducabilty}
+
+\item{list.with.everything}{A list with all needed info, such as pnull, rnull etc}
 }
 \value{
-A numeric matrix of power values.
+By default, a numeric matrix (or vector for one alternative) of power values. If CI=TRUE, an object of class \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson confidence limits.
 }
 \description{
 Find the power of various goodness-of-fit tests.

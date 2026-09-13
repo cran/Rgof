@@ -12,7 +12,7 @@ gof_test_adjusted_pvalue(
   w = function(x) -99,
   phat = function(x) -99,
   TS,
-  TSextra = NA,
+  TSextra,
   nbins = c(50, 10),
   rate = 0,
   Range = c(-Inf, Inf),
@@ -38,7 +38,7 @@ gof_test_adjusted_pvalue(
 
 \item{TS}{user supplied function to find test statistics, if any}
 
-\item{TSextra}{=NA, list passed to TS, if desired, or NA}
+\item{TSextra}{list passed to TS, if desired, or missing}
 
 \item{nbins}{=c(100, 10) number of bins for chi-square tests}
 

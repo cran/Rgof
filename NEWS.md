@@ -1,3 +1,7 @@
+# Rgof 4.0.0
+    September 2026  Added 100 more case studies
+    Substancial changes to run.studies routine
+    Some minor bug fixes and changes
 # Rgof 3.3.0
     June 2025  User supplied routine can now also return p value for gof_power
     Some other minor changes

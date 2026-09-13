@@ -11,7 +11,7 @@
 #' @param  w (Optional) function to calculate weights, returns -99 if no weights
 #' @param  phat  =function(x) -99, function to estimate parameters from the data, or -99 if no parameters are estimated
 #' @param  TS user supplied function to find test statistics, if any
-#' @param  TSextra =NA, list passed to TS, if desired, or NA
+#' @param  TSextra list passed to TS, if desired, or missing
 #' @param  nbins =c(100, 10) number of bins for chi-square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any, for chi-square tests
@@ -54,7 +54,7 @@
 #'                         B=c(500, 200), maxProcessor=1) 
 gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull, 
                     w=function(x) -99, phat=function(x) -99, 
-                    TS, TSextra=NA, nbins=c(50, 10), rate=0, 
+                    TS, TSextra, nbins=c(50, 10), rate=0, 
                     Range=c(-Inf, Inf), B=c(5000,1000),  minexpcount=5.0,  
                     ChiUsePhat=TRUE, maxProcessor, doMethods) {
  
@@ -69,95 +69,51 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
      dta=list(x=x, vals=vals)
      check.functions(pnull, rnull, phat, vals, x)
    }  
-   if(any(is.na(TSextra))) TSextra=list(pnull=pnull, phat=phat, 
-                                    w=w, Continuous=Continuous)
-   else TSextra = c(TSextra, pnull=pnull, phat=phat, 
-                    w=w, Continuous=Continuous)
-   Noqnull=FALSE
-   if(!("qnull" %in% names(TSextra))) {
-     Noqnull=TRUE
-     TSextra=c(TSextra, qnull=function(x) -99)
-   }
-   Noqnull=FALSE
-   if(!("qnull" %in% names(TSextra))) {
-     Noqnull=TRUE
-     TSextra=c(TSextra, qnull=function(x) -99)
-   }   
+   TSextra=makeTSextra(TSextra, pnull, phat, w, Continuous)
    WithWeights = TRUE
    if(length(formals(w))==1) {
      if(w(x[1])==-99) WithWeights = FALSE
    }
-   if(length(x)>10000 && maxProcessor==1)
-     message("Consider using parallel processing with maxProcessor= (your number of cores)")
    # adjust number of bins to account for parameter estimation
-   if(abs(phat(x)[1]+99)<0.001) nbins=nbins+length(phat(x))
-   if(missing(TS)) {
-     if(Continuous) {
-       if(!WithWeights) { #data is not weighted
-         typeTS=1
-         TS = TS_cont
-         if(missing(doMethods)) doMethods=c("W", "ZC", "AD", "ES-s-P")
-       }
-       else {
-         typeTS=2
-         TS = TSw_cont
-       }
-     }
-     else {
-       typeTS = 5
-       TS = TS_disc
-       if(missing(doMethods)) doMethods=c("W", "AD", "s-P")
-     }
-   }   
-   else {
-     # can't do parallel processing if TS written in C/C++
-     if(substr(deparse(TS)[2], 1, 5)==".Call") {
-       message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
-       maxProcessor=1
-     }
-     if(Continuous) {
-       if(length(formals(TS))>4) {
-         message("TS for continuous data should have either 3 or 4 arguments")
-         return(NULL)
-       }  
-       typeTS=length(formals(TS))
-     }  
-     else {
-       if(length(formals(TS))>6) {
-         message("TS for discrete datashould have either 4 or 5 arguments")
-         return(NULL)
-       }
-       typeTS=length(formals(TS))+1
-     }
-   }
+   if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
+   tmp=maketypeTS(TS, Continuous, WithWeights)
+   if(tmp$useSingleProcessor)  maxProcessor=1
+   typeTS=tmp$typeTS
+   TS=tmp$TS
    TS_data=calcTS(dta, TS, typeTS, TSextra)  
    if(is.null(names(TS_data))) {
      message("result of TS has to be a named vector")
      return(NULL)
    }
-   if(missing(maxProcessor)) {
-     maxProcessor=parallel::detectCores(logical = FALSE)-1
-     message(paste("Using",maxProcessor,"cores ..."))
-   } 
+   #  set number of processors for parallel programming, assure
+   #  that B is a multiple of maxProcessor    
+   m=parallel::detectCores(logical=FALSE)
+   available=max(1, m-1)
+   if(missing(maxProcessor)) maxProcessor=available
+   if(maxProcessor>m-1) maxProcessor=available
+   B[1]=ceiling(B[1]/maxProcessor)*maxProcessor
+   if(length(x)>10000 && maxProcessor==1)
+     message("Consider using parallel processing with maxProcessor= (your number of cores)")
+   
    if(maxProcessor==1) {
       A=gof_adj_C1(dta, rnull, vals, TS, typeTS, TSextra, B[1])
       pvals=gof_adj_C2(dta, rnull, vals, TS, typeTS, TSextra, A, B[2])
    }    
    else {
      cl = parallel::makeCluster(maxProcessor)
+     on.exit(parallel::stopCluster(cl), add=TRUE)
      z=parallel::clusterCall(cl, gof_adj_C1, 
                 dta, rnull, vals, TS, typeTS, TSextra, 
                              B=round(B[1]/maxProcessor)
      )
      A=z[[1]]
-     for(i in 1:maxProcessor) A=rbind(A, z[[i]])
+     for(i in 2:maxProcessor) A=rbind(A, z[[i]])
      z=parallel::clusterCall(cl, gof_adj_C2, 
                           dta, rnull, vals, TS, typeTS, TSextra, 
                           A, B=round(B[2]/maxProcessor)
      )
-     parallel::stopCluster(cl)
      pvals=z[[1]]
-     for(i in 1:maxProcessor) pvals=rbind(pvals,z[[i]])
+     for(i in 2:maxProcessor) pvals=rbind(pvals,z[[i]])
      pvals=pvals
    }
    colnames(pvals)=names(TS_data)
@@ -188,7 +144,7 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
         }                  
      }
       colnames(chipvals)=rownames(tmp)
-      pvals=cbind(pvals, chipvals, 4)
+      pvals=cbind(pvals, chipvals)
    }
    if(missing(doMethods)) doMethods=colnames(pvals)
    if(test_methods(doMethods, Continuous, WithWeights)) return(NULL)
@@ -198,9 +154,8 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
    z=seq(0, 1, length=250)
    y=z
    for(i in 1:250) y[i]=sum(minp_sim<=z[i])/B[2]
-   I=c(1:250)[z>minp_x][1]-1
-   slope=(y[I+1]-y[I])/(z[I+1]-z[I])
-   minp_adj=round(y[I]+slope*(minp_x-z[I]),4)
+   minp_adj <- stats::approx(z, y, xout=minp_x, rule=2)$y
+   minp_adj <- round(minp_adj, 4)
    message("p values of individual tests:")
    for(i in 1:ncol(pvals)) message(paste(doMethods[i],": ", pvals[1,i]))
    message(paste0("adjusted p value of combined tests: ", minp_adj))

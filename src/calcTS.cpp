@@ -24,17 +24,14 @@ NumericVector calcTS(
    if(typeTS==2) {
      if(resw.size()==1) wx=w(dta["x"]);
      else wx=w(dta["x"],p);
-   }   
-   if(typeTS<5) {
-     if(typeTS==1) TS_data=TS(dta["x"], TSextra["pnull"], p, TSextra["qnull"]); 
-     if(typeTS==2) TS_data=TS(dta["x"], TSextra["pnull"], p, wx); 
-     if(typeTS==3) TS_data=TS(dta["x"], TSextra["pnull"], p);   
-     if(typeTS==4) TS_data=TS(dta["x"], TSextra["pnull"], p, TSextra);
    }
-   else {
-     if(typeTS==5) TS_data=TS(dta["x"], TSextra["pnull"], p, dta["vals"]);
-     if(typeTS==6) TS_data=TS(dta["x"], TSextra["pnull"], p, dta["vals"], TSextra);  
-   }
+   if(typeTS==1) TS_data=TS(dta["x"], TSextra["pnull"], p, TSextra["qnull"]); 
+   if(typeTS==2) TS_data=TS(dta["x"], TSextra["pnull"], p, wx); 
+   if(typeTS==3) TS_data=TS(dta["x"], TSextra["pnull"], p);   
+   if(typeTS==4) TS_data=TS(dta["x"], TSextra["pnull"], p, TSextra);
+   if(typeTS==5) TS_data=TS(dta["x"], TSextra["pnull"], p, dta["vals"]);
+   if(typeTS==6) TS_data=TS(dta["x"], TSextra["pnull"], p, dta["vals"], TSextra);  
+   
    return  TS_data;
  }
  

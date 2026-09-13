@@ -12,12 +12,17 @@
 
 power_newtest <- function(TS, vals=NA, pnull, ralt, param_alt, phat, TSextra, alpha=0.05, B=1000) {
      Continuous=ifelse(is.na(vals)[1], TRUE, FALSE)
+     if (length(formals(ralt)) == 0L) {
+       ralt0 <- ralt
+       ralt <- function(n) ralt0()
+       param_alt=0
+     }
      dta=list(x=ralt(param_alt[1]))
      if(!Continuous) dta$vals=vals
      if(Continuous) typeTS=length(formals(TS))
      else typeTS=length(formals(TS))+1
      tmp=calcTS(dta, TS, typeTS, TSextra)
-     pwr=matrix(0, length(param_alt), length(TS))
+     pwr=matrix(0, length(param_alt), length(tmp))
      rownames(pwr)=param_alt
      colnames(pwr)=names(tmp)
      for(j in 1:length(param_alt)) {
