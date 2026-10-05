@@ -32,7 +32,7 @@ mlemix=function(fx, gx, acc=0.001) {
 #' @export 
 mletexp=function(x) {
   mx=mean(x)
-  Mx=max(x)
+  Mx=max(x)*(1+1/length(x))
   ow=1/mx 
   k=0
   repeat {

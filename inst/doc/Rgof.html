@@ -501,21 +501,21 @@ n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Basic Test</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; Rgof goodness-of-fit tests</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; Data: discrete  | n = 1000  | B = 1012 </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; Data: discrete  | n = 1000  | B = 1000 </span></span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;  method statistic p.value</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;      KS   0.17000  0.6640</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;       K   0.17380  0.7559</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;      AD   0.13280  0.9960</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;     CvM   0.02492  0.9684</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;       W   2.04530  0.6690</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;     l-P   2.60110  0.9978</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;     s-P   1.25890  0.9986</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;     l-L   2.67520  0.9974</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;     s-L   1.33580  0.9982</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;  method  statistic p.value</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;      KS 1.7000e-01   0.664</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;       K 1.7380e-01   0.757</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;      AD 1.3280e-01   0.996</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;     CvM 2.4920e-02   0.968</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;       W 2.0453e+00   0.667</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;     l-P 1.0000e+20   0.000</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;     s-P 1.0000e+20   0.000</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;     l-L 1.0000e+20   0.000</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;     s-L 1.0000e+20   0.000</span></span>
 <span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
 <span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, vals, pnull, rnull, </span>
 <span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>                         <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>), <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
@@ -537,7 +537,7 @@ n=20 and success probability 0.5, and then test <span class="math inline">\(H_0:
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#true p is 0.55, not 0.5</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># Basic Test</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">doMethod =</span> <span class="st">&quot;all&quot;</span>)<span class="sc">$</span>p.value</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;  KS   K  AD CvM   W l-P s-P l-L s-L </span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;   0   0   0   0   0   0   0   0   0</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#Test with adjusted overall p value</span></span>
@@ -601,9 +601,9 @@ distribution with a known rate. Our package runs this as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="fu">rpois</span>(<span class="dv">1</span>, <span class="dv">650</span>), <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">rate=</span><span class="dv">650</span>, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W    l-P    s-P    l-L    s-L </span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 0.3656 0.3053 0.2095 0.2668 0.5583 0.7485 0.6682 0.6592 0.5713</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;    KS     K    AD   CvM     W   l-P   s-P   l-L   s-L </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 0.142 0.115 0.305 0.233 0.098 0.000 0.000 0.000 0.000</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis" class="section level4">
 <h4>Composite Null Hypothesis</h4>
@@ -619,27 +619,27 @@ estimated from data.</p>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.5</span>)))<span class="sc">-</span><span class="dv">1</span>  </span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W    l-P    s-P    l-L    s-L </span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 0.3962 0.1650 0.0751 0.0899 0.1146 0.1360 0.0713 0.1631 0.0874</span></span></code></pre></div>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;    KS     K    AD   CvM     W   l-P   s-P   l-L   s-L </span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 0.408 0.453 0.874 0.766 0.262 0.000 0.000 0.000 0.000</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="dv">20</span>, <span class="fl">0.55</span>)))<span class="sc">-</span><span class="dv">1</span> </span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># p is not 0.5, but data is still from a binomial distribution with n=20</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W    l-P    s-P    l-L    s-L </span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 0.0425 0.0593 0.1551 0.0692 0.3083 0.0091 0.0182 0.0048 0.0172</span></span></code></pre></div>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;    KS     K    AD   CvM     W   l-P   s-P   l-L   s-L </span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 0.432 0.509 0.626 0.669 0.408 0.000 0.000 0.000 0.000</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">table</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="dv">5</span>), <span class="fu">rbinom</span>(<span class="dv">1000-21</span><span class="sc">*</span><span class="dv">5</span>, <span class="dv">20</span>, <span class="fl">0.53</span>))) </span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># data has to many small and large values to be from a binomial</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W    l-P    s-P    l-L    s-L </span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 0.8251 0.0109 0.0000 0.0000 0.0069 0.0000 0.0000 0.0000 0.0000</span></span></code></pre></div>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;    KS     K    AD   CvM     W   l-P   s-P   l-L   s-L </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 0.059 0.006 0.000 0.000 0.000 0.000 0.000 0.000 0.000</span></span></code></pre></div>
 <p>The arguments are the same as for the simple hypothesis case, except
 that the user has to supply a routine phat to estimate the parameters,
 and the functions pnull and rnull now have one argument, namely the
@@ -680,9 +680,9 @@ distribution, truncated to the interval 0-2:</p>
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>}</span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  </span>
 <span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull)<span class="sc">$</span>p.value</span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W    l-P    s-P    l-L    s-L </span></span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; 0.4940 0.9268 0.8043 0.7764 0.7329 0.6612 0.7879 0.6235 0.7815</span></span></code></pre></div>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; 0.4504 0.2346 0.2596 0.1912 0.5150 0.0000 0.0000 0.0000 0.0000</span></span></code></pre></div>
 </div>
 <div id="continuous-data" class="section level3">
 <h3>Continuous Data</h3>
@@ -697,11 +697,11 @@ distribution, truncated to the interval 0-2:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#Basic Tests</span></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; 0.3419 0.3419 0.1542 0.1512 0.5692 0.4476 0.5613 0.4842 0.1423 0.5029 0.5250 </span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; 0.1700 0.1700 0.5790 0.4800 0.4510 0.8250 0.4760 0.8800 0.6900 0.5301 0.5411 </span></span>
 <span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 0.7947 0.7792 0.8290 0.5400 0.7835 0.7841</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 0.9374 0.2954 0.5188 0.5357 0.9193 0.3084</span></span>
 <span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#Adjusted p value</span></span>
 <span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">gof_test_adjusted_pvalue</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="fu">c</span>(<span class="dv">1000</span>,<span class="dv">500</span>), <span class="at">TSextra=</span>TSextra, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; K is not an included Method!</span></span>
@@ -722,7 +722,7 @@ distribution, truncated to the interval 0-2:</p>
 </ul>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">B=</span><span class="dv">1000</span>, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
 <span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
 <span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
@@ -739,27 +739,27 @@ distribution, truncated to the interval 0-2:</p>
 </ul>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>) </span>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 0.5474 0.5474 0.6304 0.4486 0.4308 0.6235 0.1848 0.6087 0.6453 0.9799 0.9016 </span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 0.9320 0.9320 0.8860 0.9100 0.9300 0.6350 0.6530 0.7920 0.8090 0.7161 0.2808 </span></span>
 <span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 0.9857 0.5749 0.9791 0.9016 0.9867 0.5515</span></span></code></pre></div>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 0.3351 0.4956 0.5898 0.2648 0.3918 0.4879</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra)<span class="sc">$</span>p.value</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; 0.4485 0.4485 0.4178 0.3548 0.4108 0.1324 0.3981 0.1683 0.4378 0.5085 0.2793 </span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; 0.5578 0.5578 0.2912 0.5062 0.4684 0.4714 0.4508 0.4362 0.4026 0.6505 0.6904 </span></span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; 0.5492 0.5999 0.4297 0.2839 0.5134 0.6126</span></span></code></pre></div>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; 0.1880 0.2226 0.5316 0.6824 0.1569 0.2119</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="dv">2</span>) </span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
 <span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
@@ -780,37 +780,37 @@ case of parameeter estimation.</p>
 </ul>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>) </span>
 <span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; 0.8864 0.8864 0.8409 0.7619 0.7698 0.9990 0.9852 0.9951 0.8844 0.7839 0.9037 </span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; 0.2200 0.2200 0.2420 0.1890 0.1620 0.7010 0.7380 0.6020 0.2810 0.0309 0.0598 </span></span>
 <span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; 0.4139 0.6504 0.8070 0.9008 0.2726 0.6296</span></span></code></pre></div>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt; 0.0155 0.0763 0.0151 0.0600 0.0224 0.0761</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>) </span>
 <span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; 0.5761 0.5761 0.5375 0.6680 0.6601 0.5791 0.3202 0.7589 0.5099 0.6509 0.1144 </span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; 0.8750 0.8750 0.9290 0.8540 0.8380 0.5730 0.8390 0.6810 0.9190 0.9687 0.9461 </span></span>
 <span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; 0.1979 0.5807 0.6134 0.1109 0.1683 0.5997</span></span></code></pre></div>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; 0.6034 0.9824 0.9620 0.9390 0.5573 0.9820</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is true</strong></li>
 </ul>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="dv">2</span>) </span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
-<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; 0.4565 0.4565 0.2994 0.2688 0.3053 0.8864 0.1443 0.8775 0.3883 0.4820 0.2503 </span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; 0.6860 0.6860 0.6240 0.5380 0.4960 0.7500 0.8910 0.6180 0.5830 0.8912 0.4589 </span></span>
 <span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co">#&gt; 0.2198 0.8972 0.4712 0.2676 0.2134 0.9006</span></span></code></pre></div>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co">#&gt; 0.9483 0.6853 0.8859 0.4558 0.9210 0.6818</span></span></code></pre></div>
 <ul>
 <li><strong>Null Hypothesis is false</strong></li>
 </ul>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rt</span>(<span class="dv">1000</span>, <span class="dv">2</span>) </span>
 <span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TSextra=</span>TSextra, <span class="at">B=</span><span class="dv">1000</span>)<span class="sc">$</span>p.value</span>
-<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W     ZA     ZK     ZC Wassp1 ES-l-P ES-s-P </span></span>
 <span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="co">#&gt;      0      0      0      0      0      0      0      0      0      0      0 </span></span>
 <span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a><span class="co">#&gt; EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L </span></span>
@@ -835,7 +835,7 @@ hypothesis:</p>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  <span class="at">param_alt=</span><span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.02</span>), <span class="at">B=</span>Bsim, </span>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>  <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
 <span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="fu">plot_power</span>(P, <span class="st">&quot;p&quot;</span>, <span class="at">Smooth=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
 <p>In all cases the arguments are the same as for <em>gof_test</em>. In
 addition we now have</p>
 <ul>
@@ -857,19 +857,8 @@ run the power routine until this level is achieved, using the routine
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">gof_power_adaptive</span>(pnull, vals, rnull, ralt, </span>
 <span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="at">param_alt=</span><span class="fl">0.5</span>, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), </span>
 <span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="at">conf.level=</span><span class="fl">0.9</span>, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt; B = 750, maximum MCSE = 0.00998</span></span>
-<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co">#&gt; Adaptive Monte Carlo power estimation</span></span>
-<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="co">#&gt; Alternative simulations: 750 | null simulations: 1000 | target MCSE: 0.01 | converged: yes </span></span>
-<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a><span class="co">#&gt; 90.0% Wilson confidence intervals</span></span>
-<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a><span class="co">#&gt;             power       mc.se      lower      upper rejections</span></span>
-<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a><span class="co">#&gt; KS     0.05066667 0.008008292 0.03903417 0.06552936         38</span></span>
-<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a><span class="co">#&gt; K      0.06533333 0.009023295 0.05199825 0.08179317         49</span></span>
-<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a><span class="co">#&gt; AD     0.05466667 0.008300861 0.04254456 0.06999020         41</span></span>
-<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a><span class="co">#&gt; CvM    0.05066667 0.008008292 0.03903417 0.06552936         38</span></span>
-<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a><span class="co">#&gt; W      0.08133333 0.009981197 0.06638117 0.09929522         61</span></span>
-<span id="cb25-14"><a href="#cb25-14" tabindex="-1"></a><span class="co">#&gt; Wassp1 0.04933333 0.007907765 0.03786884 0.06403760         37</span></span>
-<span id="cb25-15"><a href="#cb25-15" tabindex="-1"></a><span class="co">#&gt; l-P    0.03733333 0.006922385 0.02750951 0.05048320         28</span></span>
-<span id="cb25-16"><a href="#cb25-16" tabindex="-1"></a><span class="co">#&gt; s-P    0.04133333 0.007268644 0.03093429 0.05502966         31</span></span></code></pre></div>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt; Error in `gof_power_adaptive()`:</span></span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co">#&gt; ! could not find function &quot;gof_power_adaptive&quot;</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis-1" class="section level4">
 <h4>Composite Null Hypothesis</h4>
@@ -883,9 +872,9 @@ run the power routine until this level is achieved, using the routine
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>ralt <span class="ot">=</span><span class="cf">function</span> (<span class="at">p=</span><span class="fl">0.5</span>) <span class="fu">table</span>(<span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">10</span>, p)))<span class="sc">-</span><span class="dv">1</span></span>
 <span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), <span class="at">phat=</span>phat,</span>
 <span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;        KS     K    AD  CvM     W Wassp1   l-P   s-P</span></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.060 0.062 0.056 0.06 0.058  0.066 0.042 0.042</span></span>
-<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.088 0.086 0.062 0.06 0.080  0.048 0.052 0.052</span></span></code></pre></div>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a><span class="co">#&gt;        KS     K    AD   CvM    W Wassp1 l-P s-P</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="co">#&gt; 0.5 0.044 0.054 0.042 0.040 0.04  0.052   1   1</span></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; 0.6 0.052 0.050 0.030 0.032 0.06  0.032   1   1</span></span></code></pre></div>
 <p>Note that power estimation in the case of a composite hypothesis (aka
 with parameters estimated) is much slower than the simple hypothesis
 case.</p>
@@ -896,7 +885,7 @@ case.</p>
 <span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, vals, rnull, ralt, <span class="fl">0.5</span>, <span class="at">phat=</span>phat,</span>
 <span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>        <span class="at">B=</span>Bsim, <span class="at">nbins=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">5</span>), <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
 <span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt;     KS      K     AD    CvM      W Wassp1    l-P    s-P </span></span>
-<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="co">#&gt;  0.110  0.324  1.000  1.000  0.662  1.000  1.000  1.000</span></span></code></pre></div>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="co">#&gt;  0.086  0.224  1.000  1.000  0.602  1.000  1.000  1.000</span></span></code></pre></div>
 </div>
 </div>
 <div id="continuous-datamodel" class="section level3">
@@ -909,12 +898,12 @@ case.</p>
 <span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">mu=</span><span class="dv">0</span>) <span class="fu">rnorm</span>(<span class="dv">100</span>, mu)</span>
 <span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), </span>
 <span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a>          <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
-<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt;      KS     K    AD   CvM     W    ZA    ZK   ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
-<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; 0 0.056 0.056 0.054 0.042 0.056 0.076 0.046 0.06  0.052   0.05   0.04  0.038</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 1 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.00  1.000   1.00   1.00  1.000</span></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt;      KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">#&gt; 0 0.044 0.044 0.046 0.046 0.048 0.044 0.038 0.038  0.048  0.038  0.048  0.056</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">#&gt; 1 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000  1.000  1.000  1.000  1.000</span></span>
 <span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="co">#&gt;   EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; 0   0.04  0.056  0.038  0.042  0.044</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 1   1.00  1.000  1.000  1.000  1.000</span></span></code></pre></div>
+<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; 0  0.038  0.036  0.042  0.054  0.046</span></span>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="co">#&gt; 1  1.000  1.000  1.000  1.000  1.000</span></span></code></pre></div>
 </div>
 <div id="composite-null-hypothesis-2" class="section level4">
 <h4>Composite Null Hypothesis</h4>
@@ -925,12 +914,12 @@ case.</p>
 <span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a>phat <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="fu">mean</span>(x), <span class="fu">sd</span>(x))</span>
 <span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">phat=</span> phat, </span>
 <span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>          <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">1</span>)</span>
-<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a><span class="co">#&gt;     KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
-<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt; 0 0.97 0.928 0.044 0.044 0.042 0.592 0.002 0.014  0.998  0.058  0.050  0.044</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 1 0.97 0.918 0.050 0.054 0.044 0.540 0.010 0.012  0.996  0.054  0.048  0.056</span></span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a><span class="co">#&gt;      KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a><span class="co">#&gt; 0 0.970 0.924 0.044 0.048 0.046 0.578 0.010 0.020  0.970  0.058  0.040  0.042</span></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co">#&gt; 1 0.966 0.910 0.058 0.060 0.054 0.548 0.004 0.014  0.972  0.060  0.056  0.056</span></span>
 <span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="co">#&gt;   EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 0  0.062  0.068  0.066  0.050  0.062</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 1  0.056  0.056  0.056  0.062  0.070</span></span></code></pre></div>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a><span class="co">#&gt; 0  0.042  0.072  0.050  0.052  0.048</span></span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a><span class="co">#&gt; 1  0.060  0.058  0.064  0.062  0.066</span></span></code></pre></div>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">df=</span><span class="dv">1</span>) {</span>
 <span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="co"># t distribution truncated at +- 5  </span></span>
 <span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">1000</span>, df)</span>
@@ -939,12 +928,12 @@ case.</p>
 <span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>}  </span>
 <span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">50</span>), <span class="at">phat=</span>phat, </span>
 <span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>          <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>), <span class="at">TSextra=</span>TSextra, <span class="at">B=</span>Bsim, <span class="at">maxProcessor=</span><span class="dv">1</span>)</span>
-<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="co">#&gt;       KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
-<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="co">#&gt; 2  1.000 0.998 0.648 0.632 0.632 0.952 0.184 0.162   1.00  0.258  0.366  0.266</span></span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="co">#&gt; 50 0.982 0.912 0.058 0.066 0.048 0.626 0.004 0.026   0.57  0.064  0.074  0.062</span></span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="co">#&gt;       KS    K    AD   CvM     W    ZA    ZK    ZC Wassp1 ES-l-P ES-s-P EP-l-P</span></span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="co">#&gt; 2  1.000 1.00 0.636 0.618 0.628 0.956 0.238 0.172  0.996   0.16  0.196  0.132</span></span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="co">#&gt; 50 0.986 0.92 0.052 0.056 0.060 0.626 0.010 0.024  0.582   0.03  0.042  0.032</span></span>
 <span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a><span class="co">#&gt;    EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="co">#&gt; 2   0.292  0.270  0.366  0.256   0.28</span></span>
-<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="co">#&gt; 50  0.064  0.062  0.076  0.056   0.07</span></span></code></pre></div>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="co">#&gt; 2   0.174  0.184  0.216  0.162  0.202</span></span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="co">#&gt; 50  0.048  0.038  0.044  0.050  0.056</span></span></code></pre></div>
 </div>
 </div>
 <div id="power-with" class="section level3">
@@ -981,14 +970,14 @@ vector.</p>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>rnull <span class="ot">=</span> <span class="cf">function</span>() <span class="fu">runif</span>(<span class="dv">500</span>)</span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>()</span>
 <span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_test</span>(x, <span class="cn">NA</span>, pnull, rnull, <span class="at">TS=</span>newTScont)</span>
-<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a><span class="co">#&gt; Rgof goodness-of-fit tests</span></span>
-<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="co">#&gt; Data: continuous  | n = 500  | B = 5014 </span></span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a><span class="co">#&gt; Data: continuous  | n = 500  | B = 5000 </span></span>
 <span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a><span class="co">#&gt;     method statistic p.value</span></span>
-<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a><span class="co">#&gt;  CvM alt 1    7.0769  0.3909</span></span>
-<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a><span class="co">#&gt;  CvM alt 2   53.9150  0.4282</span></span></code></pre></div>
+<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a><span class="co">#&gt;  CvM alt 1    5.4693  0.6264</span></span>
+<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a><span class="co">#&gt;  CvM alt 2   47.9620  0.6374</span></span></code></pre></div>
 <p>Say we want to find the power of this test when the true distribution
 is a linear:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">slope=</span><span class="dv">0</span>) {</span>
@@ -998,8 +987,8 @@ is a linear:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">TS=</span>newTScont, <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>), </span>
 <span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>          <span class="at">Range=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">B=</span>Bsim, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
 <span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="co">#&gt;      CvM alt 1 CvM alt 2</span></span>
-<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="co">#&gt; 0        0.046     0.052</span></span>
-<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="co">#&gt; 0.25     0.896     0.912</span></span>
+<span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a><span class="co">#&gt; 0        0.054     0.058</span></span>
+<span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a><span class="co">#&gt; 0.25     0.898     0.906</span></span>
 <span id="cb35-6"><a href="#cb35-6" tabindex="-1"></a><span class="co">#&gt; 0.5      1.000     1.000</span></span></code></pre></div>
 <p>for discrete data we will write the routine using Rcpp:</p>
 <p>(For reasons to avoid issues with CRAN submission this routine is
@@ -1046,20 +1035,20 @@ from the data:</p>
 <span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>phat<span class="ot">=</span><span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span><span class="sc">*</span>x)<span class="sc">/</span><span class="dv">100000</span></span>
 <span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>x <span class="ot">=</span> <span class="fu">rnull</span>(<span class="fl">0.5</span>)</span>
 <span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="fu">gof_test</span>(x, vals, pnull, rnull, <span class="at">phat=</span>phat, <span class="at">TS=</span>Rgof<span class="sc">::</span>newTSdisc)</span>
-<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 for faster computation</span></span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; maxProcessor set to 1 because parallel overhead would dominate this short computation</span></span>
 <span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co">#&gt; Rgof goodness-of-fit tests</span></span>
-<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt; Data: discrete  | n = 10000  | B = 5014 </span></span>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a><span class="co">#&gt; Data: discrete  | n = 10000  | B = 5000 </span></span>
 <span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a><span class="co">#&gt;   method statistic p.value</span></span>
-<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt;  CvM alt  0.002139  0.4035</span></span>
-<span id="cb37-14"><a href="#cb37-14" tabindex="-1"></a><span class="co">#&gt;      l-P  7.309100  0.6050</span></span>
-<span id="cb37-15"><a href="#cb37-15" tabindex="-1"></a><span class="co">#&gt;      s-P  7.309100  0.6050</span></span>
-<span id="cb37-16"><a href="#cb37-16" tabindex="-1"></a><span class="co">#&gt;      l-L  6.931000  0.6443</span></span>
-<span id="cb37-17"><a href="#cb37-17" tabindex="-1"></a><span class="co">#&gt;      s-L  6.931000  0.6443</span></span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a><span class="co">#&gt;  CvM alt  1.29e-03  0.8342</span></span>
+<span id="cb37-14"><a href="#cb37-14" tabindex="-1"></a><span class="co">#&gt;      l-P  1.00e+20  0.0000</span></span>
+<span id="cb37-15"><a href="#cb37-15" tabindex="-1"></a><span class="co">#&gt;      s-P  1.00e+20  0.0000</span></span>
+<span id="cb37-16"><a href="#cb37-16" tabindex="-1"></a><span class="co">#&gt;      l-L  1.00e+20  0.0000</span></span>
+<span id="cb37-17"><a href="#cb37-17" tabindex="-1"></a><span class="co">#&gt;      s-L  1.00e+20  0.0000</span></span>
 <span id="cb37-18"><a href="#cb37-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb37-19"><a href="#cb37-19" tabindex="-1"></a><span class="co">#&gt; Estimated parameters:</span></span>
-<span id="cb37-20"><a href="#cb37-20" tabindex="-1"></a><span class="co">#&gt; [1] 0.49673</span></span></code></pre></div>
+<span id="cb37-20"><a href="#cb37-20" tabindex="-1"></a><span class="co">#&gt; [1] 0.5009</span></span></code></pre></div>
 <p>For the power calculations we will consider data that is actually a
 mixture of two Binomials:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>ralt <span class="ot">=</span> <span class="cf">function</span>(<span class="at">tau=</span><span class="dv">0</span>) {</span>
@@ -1072,8 +1061,8 @@ mixture of two Binomials:</p>
 <span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a>    <span class="at">param_alt=</span><span class="fu">round</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.05</span>, <span class="at">length=</span><span class="dv">3</span>), <span class="dv">3</span>),</span>
 <span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a>    <span class="at">B=</span>Bsim, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
 <span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a><span class="co">#&gt;       CvM alt</span></span>
-<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co">#&gt; 0       0.042</span></span>
-<span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a><span class="co">#&gt; 0.025   0.222</span></span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co">#&gt; 0       0.036</span></span>
+<span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a><span class="co">#&gt; 0.025   0.192</span></span>
 <span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a><span class="co">#&gt; 0.05    1.000</span></span></code></pre></div>
 <p>If the new routine can also calculate p values use the argument
 <em>With.p.value=TRUE</em> to indicate that. In that case the return
@@ -1164,7 +1153,7 @@ a t distribution with 3 degrees of freedom:</p>
 <span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a>w<span class="ot">=</span><span class="cf">function</span>(x) (<span class="fu">dnorm</span>(x)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="dv">3</span>)<span class="sc">-</span><span class="dv">1</span>))<span class="sc">/</span>(<span class="fu">dt</span>(x,df)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="dv">3</span>,df)<span class="sc">-</span><span class="dv">1</span>))</span>
 <span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">sort</span>(<span class="fu">rnull</span>())</span>
 <span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="fu">w</span>(x), <span class="at">type=</span><span class="st">&quot;l&quot;</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(<span class="fu">w</span>(x))))</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>ralt<span class="ot">=</span><span class="cf">function</span>(<span class="at">m=</span><span class="dv">0</span>) {x<span class="ot">=</span><span class="fu">rt</span>(<span class="dv">2000</span>,df)<span class="sc">+</span>m;x<span class="ot">=</span>x[<span class="fu">abs</span>(x)<span class="sc">&lt;</span><span class="dv">3</span>];<span class="fu">sort</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>])}</span>
 <span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
 <span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">gof_power</span>(pnull, <span class="cn">NA</span>, rnull, ralt, <span class="at">w=</span>w, <span class="at">param_alt =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.2</span>), <span class="at">Range=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">3</span>),<span class="at">B=</span>Bsim, <span class="at">maxProcessor =</span> <span class="dv">1</span>)</span>
@@ -1212,17 +1201,21 @@ variance=1/12, skewness=0 and kurtosis=1.8. Next we find a distribution
 with the same variance, skewness and kurtosis, but with a mean of 0.53.
 Their densities look as follows:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>f<span class="ot">=</span>Rgof<span class="sc">::</span><span class="fu">case_studies</span>(<span class="st">&quot;uniform&quot;</span>, <span class="st">&quot;mean&quot;</span>, <span class="at">n=</span><span class="fl">1e4</span>)</span>
-<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>x<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">100</span><span class="sc">/</span><span class="dv">100</span></span>
-<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>dta<span class="ot">=</span><span class="fu">data.frame</span>(<span class="at">x=</span><span class="fu">c</span>(x,x), </span>
-<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>               <span class="at">y=</span><span class="fu">c</span>(f<span class="sc">$</span><span class="fu">dnull</span>(x), Rgof<span class="sc">::</span>funs_list[[<span class="st">&quot;cont&quot;</span>]][[<span class="st">&quot;uniform&quot;</span>]][[<span class="st">&quot;mean&quot;</span>]]<span class="sc">$</span><span class="fu">density</span>(x)),</span>
-<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>          <span class="at">Distribution=</span><span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Uniform&quot;</span>, </span>
-<span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a>                           <span class="st">&quot;Alternative&quot;</span>), <span class="at">each=</span><span class="dv">101</span>))</span>
-<span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a><span class="fu">ggplot</span>(dta, <span class="fu">aes</span>(x, y, <span class="at">col=</span>Distribution)) <span class="sc">+</span></span>
-<span id="cb47-8"><a href="#cb47-8" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb47-9"><a href="#cb47-9" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb47-10"><a href="#cb47-10" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&quot;Density&quot;</span>)</span>
-<span id="cb47-11"><a href="#cb47-11" tabindex="-1"></a><span class="co">#&gt; Error in `ggplot()`:</span></span>
-<span id="cb47-12"><a href="#cb47-12" tabindex="-1"></a><span class="co">#&gt; ! could not find function &quot;ggplot&quot;</span></span></code></pre></div>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a><span class="co">#&gt; Error:</span></span>
+<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a><span class="co">#&gt; ! &#39;case_studies&#39; is not an exported object from &#39;namespace:Rgof&#39;</span></span>
+<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>x<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">100</span><span class="sc">/</span><span class="dv">100</span></span>
+<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>dta<span class="ot">=</span><span class="fu">data.frame</span>(<span class="at">x=</span><span class="fu">c</span>(x,x), </span>
+<span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a>               <span class="at">y=</span><span class="fu">c</span>(f<span class="sc">$</span><span class="fu">dnull</span>(x), Rgof<span class="sc">::</span>funs_list[[<span class="st">&quot;cont&quot;</span>]][[<span class="st">&quot;uniform&quot;</span>]][[<span class="st">&quot;mean&quot;</span>]]<span class="sc">$</span><span class="fu">density</span>(x)),</span>
+<span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a>          <span class="at">Distribution=</span><span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;Uniform&quot;</span>, </span>
+<span id="cb47-8"><a href="#cb47-8" tabindex="-1"></a>                           <span class="st">&quot;Alternative&quot;</span>), <span class="at">each=</span><span class="dv">101</span>))</span>
+<span id="cb47-9"><a href="#cb47-9" tabindex="-1"></a><span class="co">#&gt; Error:</span></span>
+<span id="cb47-10"><a href="#cb47-10" tabindex="-1"></a><span class="co">#&gt; ! object &#39;f&#39; not found</span></span>
+<span id="cb47-11"><a href="#cb47-11" tabindex="-1"></a><span class="fu">ggplot</span>(dta, <span class="fu">aes</span>(x, y, <span class="at">col=</span>Distribution)) <span class="sc">+</span></span>
+<span id="cb47-12"><a href="#cb47-12" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb47-13"><a href="#cb47-13" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb47-14"><a href="#cb47-14" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&quot;Density&quot;</span>)</span>
+<span id="cb47-15"><a href="#cb47-15" tabindex="-1"></a><span class="co">#&gt; Error in `ggplot()`:</span></span>
+<span id="cb47-16"><a href="#cb47-16" tabindex="-1"></a><span class="co">#&gt; ! could not find function &quot;ggplot&quot;</span></span></code></pre></div>
 <p>These alternative distributions are designed so that for a true type
 I error of <span class="math inline">\(\alpha=0.05\)</span> the best
 method as a power of between <span class="math inline">\(70\%\)</span>
@@ -1238,15 +1231,15 @@ or a p value, depending on what is specified in <em>TSextra</em>.</p>
 <span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>        <span class="at">TS=</span>Rgof<span class="sc">::</span>myTS_cont, <span class="at">TSextra=</span>TSextra, </span>
 <span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a>        <span class="at">With.p.value =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a><span class="co">#&gt; Average rank of a method:</span></span>
-<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a><span class="co">#&gt;     ZC     ZA     ZK     AD ES-l-P EP-l-P ES-l-L EP-l-L EP-s-P ES-s-P ES-s-L </span></span>
-<span id="cb48-7"><a href="#cb48-7" tabindex="-1"></a><span class="co">#&gt;  100.0   94.4   88.9   77.8   61.8   61.8   56.2   53.5   52.8   50.0   47.9 </span></span>
-<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a><span class="co">#&gt; EP-s-L        Wassp1    CvM      W     KS      K </span></span>
-<span id="cb48-9"><a href="#cb48-9" tabindex="-1"></a><span class="co">#&gt;   46.5   45.8   30.6   23.6   23.6   17.4   17.4</span></span>
+<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a><span class="co">#&gt;     ZC     ZA     ZK     AD ES-l-P EP-l-P ES-l-L EP-s-P EP-l-L ES-s-P ES-s-L </span></span>
+<span id="cb48-7"><a href="#cb48-7" tabindex="-1"></a><span class="co">#&gt;  100.0   94.4   88.9   77.8   61.8   61.8   56.2   54.2   53.5   52.8   50.7 </span></span>
+<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a><span class="co">#&gt; EP-s-L        Wassp1      W    CvM     KS      K </span></span>
+<span id="cb48-9"><a href="#cb48-9" tabindex="-1"></a><span class="co">#&gt;   47.9   34.7   31.9   25.0   23.6   17.4   17.4</span></span>
 <span id="cb48-10"><a href="#cb48-10" tabindex="-1"></a><span class="co">#&gt;                           KS     K    AD   CvM     W    ZA    ZK    ZC Wassp1</span></span>
-<span id="cb48-11"><a href="#cb48-11" tabindex="-1"></a><span class="co">#&gt; uniform/mean     0.605 0.458 0.458 0.756 0.545 0.153 0.833 0.826 0.852  0.565</span></span>
-<span id="cb48-12"><a href="#cb48-12" tabindex="-1"></a><span class="co">#&gt; linear/mean      0.314 0.203 0.203 0.527 0.258 0.085 0.846 0.816 0.890  0.269</span></span>
-<span id="cb48-13"><a href="#cb48-13" tabindex="-1"></a><span class="co">#&gt; uniform/variance 0.105 0.057 0.057 0.179 0.057 0.099 0.764 0.745 0.874  0.060</span></span>
-<span id="cb48-14"><a href="#cb48-14" tabindex="-1"></a><span class="co">#&gt; linear/variance  0.092 0.049 0.049 0.170 0.055 0.117 0.707 0.622 0.817  0.059</span></span>
+<span id="cb48-11"><a href="#cb48-11" tabindex="-1"></a><span class="co">#&gt; uniform/mean     0.617 0.458 0.458 0.756 0.545 0.153 0.833 0.826 0.852  0.565</span></span>
+<span id="cb48-12"><a href="#cb48-12" tabindex="-1"></a><span class="co">#&gt; linear/mean      0.266 0.203 0.203 0.527 0.258 0.085 0.846 0.816 0.890  0.269</span></span>
+<span id="cb48-13"><a href="#cb48-13" tabindex="-1"></a><span class="co">#&gt; uniform/variance 0.088 0.057 0.057 0.179 0.057 0.099 0.764 0.745 0.874  0.060</span></span>
+<span id="cb48-14"><a href="#cb48-14" tabindex="-1"></a><span class="co">#&gt; linear/variance  0.093 0.049 0.049 0.170 0.055 0.117 0.707 0.622 0.817  0.059</span></span>
 <span id="cb48-15"><a href="#cb48-15" tabindex="-1"></a><span class="co">#&gt;                  ES-l-P ES-s-P EP-l-P EP-s-P ES-l-L ES-s-L EP-l-L EP-s-L</span></span>
 <span id="cb48-16"><a href="#cb48-16" tabindex="-1"></a><span class="co">#&gt; uniform/mean      0.443  0.674  0.443  0.674  0.433  0.673  0.433  0.673</span></span>
 <span id="cb48-17"><a href="#cb48-17" tabindex="-1"></a><span class="co">#&gt; linear/mean       0.458  0.276  0.418  0.327  0.383  0.278  0.375  0.321</span></span>
@@ -1327,29 +1320,8 @@ and kurtosis but differs in the fourth. The distributions are:</p>
 </ol>
 <p>For the exact definitions run <em>case.studies</em>:</p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a>Rgof<span class="sc">::</span><span class="fu">case_studies</span>(<span class="st">&quot;noncentral&quot;</span>)[<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a><span class="co">#&gt; $rnull</span></span>
-<span id="cb49-3"><a href="#cb49-3" tabindex="-1"></a><span class="co">#&gt; function () </span></span>
-<span id="cb49-4"><a href="#cb49-4" tabindex="-1"></a><span class="co">#&gt; {</span></span>
-<span id="cb49-5"><a href="#cb49-5" tabindex="-1"></a><span class="co">#&gt;     x = rchisq(1.1 * n, 5, 0.875)</span></span>
-<span id="cb49-6"><a href="#cb49-6" tabindex="-1"></a><span class="co">#&gt;     x = x[x &lt; 25]</span></span>
-<span id="cb49-7"><a href="#cb49-7" tabindex="-1"></a><span class="co">#&gt;     x[1:n]</span></span>
-<span id="cb49-8"><a href="#cb49-8" tabindex="-1"></a><span class="co">#&gt; }</span></span>
-<span id="cb49-9"><a href="#cb49-9" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x000001e511c4c7e0&gt;</span></span>
-<span id="cb49-10"><a href="#cb49-10" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001e51ae41b60&gt;</span></span>
-<span id="cb49-11"><a href="#cb49-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb49-12"><a href="#cb49-12" tabindex="-1"></a><span class="co">#&gt; $TSextra</span></span>
-<span id="cb49-13"><a href="#cb49-13" tabindex="-1"></a><span class="co">#&gt; $TSextra$qnull</span></span>
-<span id="cb49-14"><a href="#cb49-14" tabindex="-1"></a><span class="co">#&gt; function (x) </span></span>
-<span id="cb49-15"><a href="#cb49-15" tabindex="-1"></a><span class="co">#&gt; qchisq(x * pchisq(25, 5, 0.875), 5, 0.875)</span></span>
-<span id="cb49-16"><a href="#cb49-16" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x000001e511c4c070&gt;</span></span>
-<span id="cb49-17"><a href="#cb49-17" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001e51ae41b60&gt;</span></span>
-<span id="cb49-18"><a href="#cb49-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb49-19"><a href="#cb49-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb49-20"><a href="#cb49-20" tabindex="-1"></a><span class="co">#&gt; $phat</span></span>
-<span id="cb49-21"><a href="#cb49-21" tabindex="-1"></a><span class="co">#&gt; function (x) </span></span>
-<span id="cb49-22"><a href="#cb49-22" tabindex="-1"></a><span class="co">#&gt; -99</span></span>
-<span id="cb49-23"><a href="#cb49-23" tabindex="-1"></a><span class="co">#&gt; &lt;bytecode: 0x000001e511baa4a0&gt;</span></span>
-<span id="cb49-24"><a href="#cb49-24" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001e51ae31c08&gt;</span></span></code></pre></div>
+<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a><span class="co">#&gt; Error:</span></span>
+<span id="cb49-3"><a href="#cb49-3" tabindex="-1"></a><span class="co">#&gt; ! &#39;case_studies&#39; is not an exported object from &#39;namespace:Rgof&#39;</span></span></code></pre></div>
 <p>In addition there are another 30 case studies where most of the
 parameters are different:</p>
 <ol start="21" style="list-style-type: decimal">

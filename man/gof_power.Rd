@@ -22,7 +22,7 @@ gof_power(
   rate = 0,
   maxProcessor,
   minexpcount = 5,
-  ChiUsePhat = TRUE,
+  ChiUsePhat = FALSE,
   SuppressMessages = FALSE,
   CI = FALSE,
   conf.level = 0.95,
@@ -65,7 +65,7 @@ gof_power(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
+\item{ChiUsePhat}{= FALSE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
 \item{SuppressMessages}{=FALSE}
 
@@ -73,7 +73,7 @@ gof_power(
 
 \item{conf.level}{=0.95 confidence level used when CI=TRUE.}
 
-\item{seed}{=NULL, optional seed for reproducabilty}
+\item{seed}{=NULL, optional seed for reproducibility}
 
 \item{list.with.everything}{A list with all needed info, such as pnull, rnull etc}
 }
@@ -103,7 +103,7 @@ ralt = function(mu)  rnorm(50, mu)
 phat = function(x) c(mean(x), sd(x))
 TSextra = list(qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  
                ifelse(p[2]>0.001, p[2], 0.001))) 
-pwr=gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=200)
+pwr=gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=100)
 pwr
 #' Compare power of a new test based on variants of the Cramer-vonMises
 #' criterion to the methods included in the package: 
@@ -128,7 +128,7 @@ vals = 0:250
 pnull = function() ppois(0:250, 100)
 rnull =function () table(c(0:250, rpois(1000, 100)))-1
 ralt =function (p) table(c(0:250, rpois(1000, p)))-1
-gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=200)
+gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=100)
 # Power of tests when null hypothesis specifies a Binomial n=10 distribution 
 # with the success probability estimated
 vals = 0:10
@@ -136,6 +136,6 @@ pnull=function(p) pbinom(0:10, 10, ifelse(0<p&p<1, p, 0.001))
 rnull=function(p) table(c(0:10, rbinom(1000, 10, ifelse(0<p&p<1, p, 0.001))))-1
 ralt=function(p) table(c(0:10, rbinom(1000, 10, p)))-1
 phat=function(x) mean(rep(0:10,x))/10
-gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=200)
+gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=100)
 
 }

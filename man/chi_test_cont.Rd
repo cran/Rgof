@@ -14,7 +14,7 @@ chi_test_cont(
   rate = 0,
   Range = c(-99999, 99999),
   minexpcount = 5,
-  ChiUsePhat = TRUE,
+  ChiUsePhat = FALSE,
   allbins
 )
 }
@@ -37,7 +37,7 @@ chi_test_cont(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{=TRUE, if TRUE param is estimated parameters and no minimization is used}
+\item{ChiUsePhat}{=FALSE, if TRUE param is estimated parameters and no minimization is used}
 
 \item{allbins}{set of bins to use}
 }

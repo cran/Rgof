@@ -14,7 +14,7 @@ chi_power_disc(
   nbins = c(50, 10),
   rate = 0,
   minexpcount = 5,
-  ChiUsePhat = TRUE
+  ChiUsePhat = FALSE
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ chi_power_disc(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{= TRUE, should chi square use minimum chi square method?}
+\item{ChiUsePhat}{= FALSE, should chi square use minimum chi square method?}
 }
 \value{
 A numeric matrix of power values.

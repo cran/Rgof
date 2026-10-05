@@ -17,7 +17,7 @@ chi_power_cont(
   nbins = c(50, 10),
   rate = 0,
   minexpcount = 5,
-  ChiUsePhat = TRUE
+  ChiUsePhat = FALSE
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ chi_power_cont(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{=TRUE, if TRUE param is estimated parameters and no minimization is used}
+\item{ChiUsePhat}{=FALSE, if TRUE param is estimated parameters and no minimization is used}
 }
 \value{
 A numeric matrix of power values.

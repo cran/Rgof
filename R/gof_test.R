@@ -24,8 +24,10 @@
 #' @param B =5000, number of simulation runs. If \code{B=0}, only test
 #'   statistics are calculated and p-values are returned as \code{NA}.
 #' @param minexpcount =5 minimal expected bin count required.
-#' @param ChiUsePhat =TRUE, if TRUE param is estimated parameter, otherwise
+#' @param ChiUsePhat =FALSE, if TRUE param is estimated parameter, otherwise
 #'   minimum chi square method is used.
+#' @param  SuppressMessages =FALSE
+#' @param  seed =NULL, optional seed for reproducibility
 #' @param maxProcessor Number of processors to use in parallel processing.
 #' @param doMethods ="all", a vector of codes for the methods to include or all
 #'   of them.
@@ -51,7 +53,8 @@ gof_test <- function(x, vals=NA, pnull, rnull,
                      w=function(x) -99, phat=function(x) -99,
                      TS, TSextra, nbins=c(50, 10), rate=0,
                      Range=c(-Inf, Inf), B=5000, minexpcount=5.0,
-                     ChiUsePhat=TRUE, maxProcessor, doMethods="all") {
+                     ChiUsePhat = FALSE, SuppressMessages=FALSE,
+                     seed=NULL, maxProcessor, doMethods="all") {
 
   call <- match.call()
   B_requested <- B
@@ -90,7 +93,13 @@ gof_test <- function(x, vals=NA, pnull, rnull,
   tmp <- maketypeTS(TS, Continuous, WithWeights)
   typeTS <- tmp$typeTS
   TS <- tmp$TS
-
+  useSingleProcessor <- tmp$useSingleProcessor
+  if(!is.null(seed)) {
+    if(length(seed)!=1L || is.na(seed) || !is.finite(seed))
+      stop("seed must be NULL or a single finite number", call.=FALSE)
+    
+    set.seed(seed)
+  }
   TS_data <- calcTS(dta, TS, typeTS, TSextra)
   if(is.null(names(TS_data))) {
     message("result of TS has to be a named vector")
@@ -121,25 +130,17 @@ gof_test <- function(x, vals=NA, pnull, rnull,
     ))
   }
 
-  # Set number of processors for parallel programming and assure that B is a
-  # multiple of maxProcessor.
-  m <- parallel::detectCores(logical=FALSE)
-  available <- max(1, m-1)
-  if(missing(maxProcessor)) maxProcessor <- available
-  if(maxProcessor > m-1) maxProcessor <- available
-  B <- ceiling(B/maxProcessor)*maxProcessor
+  # Choose number of processors after dta, TS and typeTS are known.
+  maxProcessor <- makemaxProcessor(maxProcessor,
+      dta=dta, TS=TS, typeTS=typeTS, TSextra=TSextra, B=B,
+      SuppressMessages=SuppressMessages,
+      useSingleProcessor=useSingleProcessor
+    )
+  # Assure that B is a multiple of maxProcessor.
+  B=ceiling(B/maxProcessor)*maxProcessor
 
   if(length(x) > 10000 && maxProcessor == 1)
     message("Consider using parallel processing with maxProcessor= (your number of cores)")
-
-  if(maxProcessor > 1) {
-    tm <- timecheck(dta, TS, typeTS, TSextra)
-    if(tm*B < 20) {
-      maxProcessor <- 1
-      message("maxProcessor set to 1 for faster computation")
-    }
-    else message(paste("Using ", maxProcessor, " cores.."))
-  }
 
   if(maxProcessor == 1) {
     outTS <- gof_test_C(dta, rnull, TS, typeTS, TSextra, B)
@@ -147,6 +148,8 @@ gof_test <- function(x, vals=NA, pnull, rnull,
   else {
     cl <- parallel::makeCluster(maxProcessor)
     on.exit(parallel::stopCluster(cl), add=TRUE)
+    if(!is.null(seed))
+      parallel::clusterSetRNGStream(cl, iseed=seed)
     z <- parallel::clusterCall(
       cl, gof_test_C,
       dta, rnull, TS, typeTS, TSextra,

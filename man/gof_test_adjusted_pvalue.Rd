@@ -18,8 +18,10 @@ gof_test_adjusted_pvalue(
   Range = c(-Inf, Inf),
   B = c(5000, 1000),
   minexpcount = 5,
-  ChiUsePhat = TRUE,
+  ChiUsePhat = FALSE,
   maxProcessor,
+  SuppressMessages = FALSE,
+  seed = NULL,
   doMethods
 )
 }
@@ -50,9 +52,13 @@ gof_test_adjusted_pvalue(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
+\item{ChiUsePhat}{= FALSE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
 \item{maxProcessor}{number of cores to use}
+
+\item{SuppressMessages}{=FALSE}
+
+\item{seed}{=NULL, optional seed for reproducibility}
 
 \item{doMethods}{a vector of codes for the methods to include. If missing, a default selection of methods are used.}
 }

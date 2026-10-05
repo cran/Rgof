@@ -11,14 +11,14 @@
 #' @param  nbins =c(50,10), number of bins for chi square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  minexpcount =5 minimal expected bin count required
-#' @param  ChiUsePhat =TRUE, if TRUE param is estimated parameters and no minimization is used
+#' @param  ChiUsePhat =FALSE, if TRUE param is estimated parameters and no minimization is used
 #' @return A numeric matrix of power values.
 
 chi_power_cont = function(
         pnull, ralt, param_alt, qnull=NA,
         phat=function(x) -99, w=function(x) -99,
         alpha=0.05, Range=c(-99999, 99999), B=1000,  
-        nbins=c(50, 10), rate=0, minexpcount=5, ChiUsePhat=TRUE) {
+        nbins=c(50, 10), rate=0, minexpcount=5, ChiUsePhat = FALSE) {
 
    pwr=matrix(0, length(param_alt), 8)
    colnames(pwr) = c("ES-l-P", "ES-s-P", "EP-l-P", "EP-s-P",

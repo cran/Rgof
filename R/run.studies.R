@@ -5,7 +5,7 @@
 #' 
 #' For details consult vignette("Rgof","Rgof")
 #'
-#' @param studies =1:50, either the names of the studies, or their numbers. If missing all the studies are run. 
+#' @param studies =1:60, either the names of the studies, or their numbers. If missing all the studies are run. 
 #' @param types =1:5, either the types of studies, or their numbers. If missing all types are run. 
 #' @param data_type ="cont", continuous or discrete data
 #' @param TS routine to calculate test statistics.
@@ -32,7 +32,7 @@ run.studies=function(studies=1:60, types=1:5, data_type="cont",
           Please check the help file or the vignette",
          call.=FALSE)
   }
-  list.of.studies=Rgof::case_studies(ReturnCaseNames = TRUE)
+  list.of.studies=Rgof::case.studies(ReturnCaseNames = TRUE)
   if(is.numeric(studies[1])) studies=list.of.studies[studies]
   all_types=names(Rgof::power_study[[1]])
   if(is.numeric(types)) types=all_types[types]
@@ -68,7 +68,7 @@ run.studies=function(studies=1:60, types=1:5, data_type="cont",
     }
   }
   for(i in 1:nrow(studytype)) {
-      tmp <- Rgof::case_studies(
+      tmp <- Rgof::case.studies(
         which = studytype[i,1],
         which_diff = studytype[i,2],
         n = n[i],
@@ -77,7 +77,7 @@ run.studies=function(studies=1:60, types=1:5, data_type="cont",
       if(data_type=="cont") tmp$vals=NA
       if(NewTest) {
         pwr=Rgof::gof_power(list.with.everything = tmp,  
-                       TS=TS, TSextra= TSextra,
+                       param_alt=tmp$apar, TS=TS, TSextra= TSextra,
                        With.p.value=With.p.value, alpha=alpha, 
                        B=B, SuppressMessages=SuppressMessages)
         if(i==1) {
@@ -100,7 +100,7 @@ run.studies=function(studies=1:60, types=1:5, data_type="cont",
       }
       else {
         out_old_test[i, ]=Rgof::gof_power(
-          list.with.everything = tmp, 
+          list.with.everything = tmp, param_alt=tmp$apar, 
           With.p.value=With.p.value, alpha=alpha, B=B,
           SuppressMessages=SuppressMessages)
       }

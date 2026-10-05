@@ -21,11 +21,11 @@
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  maxProcessor maximum of number of processors to use, 1 if no parallel processing is needed or number of cores-1 if missing
 #' @param  minexpcount =5 minimal expected bin count required
-#' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
+#' @param  ChiUsePhat = FALSE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
 #' @param  SuppressMessages =FALSE
 #' @param  CI =FALSE if TRUE, return Monte Carlo standard errors and Wilson confidence intervals for the estimated power.
 #' @param  conf.level =0.95 confidence level used when CI=TRUE.
-#' @param  seed =NULL, optional seed for reproducabilty
+#' @param  seed =NULL, optional seed for reproducibility
 #' @param  list.with.everything A list with all needed info, such as pnull, rnull etc
 #' @return By default, a numeric matrix (or vector for one alternative) of power values. If CI=TRUE, an object of class \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson confidence limits.
 #' @export 
@@ -46,7 +46,7 @@
 #' phat = function(x) c(mean(x), sd(x))
 #' TSextra = list(qnull = function(x, p=c(0, 1)) qnorm(x, p[1],  
 #'                ifelse(p[2]>0.001, p[2], 0.001))) 
-#' pwr=gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=200)
+#' pwr=gof_power(pnull, NA, rnull, ralt, c(0, 1), phat=phat, TSextra=TSextra, B=100)
 #' pwr
 #' #' Compare power of a new test based on variants of the Cramer-vonMises
 #' #' criterion to the methods included in the package: 
@@ -71,7 +71,7 @@
 #' pnull = function() ppois(0:250, 100)
 #' rnull =function () table(c(0:250, rpois(1000, 100)))-1
 #' ralt =function (p) table(c(0:250, rpois(1000, p)))-1
-#' gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=200)
+#' gof_power(pnull, vals, rnull, ralt, param_alt=100.5,  B=100)
 #' # Power of tests when null hypothesis specifies a Binomial n=10 distribution 
 #' # with the success probability estimated
 #' vals = 0:10
@@ -79,13 +79,13 @@
 #' rnull=function(p) table(c(0:10, rbinom(1000, 10, ifelse(0<p&p<1, p, 0.001))))-1
 #' ralt=function(p) table(c(0:10, rbinom(1000, 10, p)))-1
 #' phat=function(x) mean(rep(0:10,x))/10
-#' gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=200)
+#' gof_power(pnull, vals, rnull, ralt, c(0.5, 0.6), phat=phat, B=100)
 #'
 gof_power=function(pnull, vals=NA, rnull, ralt, param_alt, 
         w=function(x) -99, phat=function(x) -99, TS, TSextra, 
         With.p.value=FALSE, 
         alpha=0.05, Range  =c(-Inf, Inf), B=1000,nbins=c(50,10), 
-        rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat=TRUE,
+        rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat = FALSE,
         SuppressMessages=FALSE, CI=FALSE, conf.level=0.95,
         seed=NULL, list.with.everything) {
 
@@ -96,7 +96,7 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
      is.na(conf.level) || conf.level<=0 || conf.level>=1)
     stop("conf.level must be a single number between 0 and 1", call.=FALSE)
 
-  #list.with.everything is usually supplied by Rgof::case_studies
+  #list.with.everything is usually supplied by Rgof::case.studies
   if(!missing(list.with.everything)) {
     pnull=list.with.everything$pnull
     vals=list.with.everything$vals
@@ -141,9 +141,10 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
   if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
   if(any(is.na(vals))) check.functions(pnull, rnull, phat, x=x)
   else  check.functions(pnull, rnull, phat, vals, x)
-  tmp=maketypeTS(TS, Continuous, WithWeights)
-  typeTS=tmp$typeTS
-  TS=tmp$TS
+  tmp <- maketypeTS(TS, Continuous, WithWeights)
+  typeTS <- tmp$typeTS
+  TS <- tmp$TS
+  useSingleProcessor <- tmp$useSingleProcessor
   if(!is.null(seed)) {
     if(length(seed)!=1L || is.na(seed) || !is.finite(seed))
       stop("seed must be NULL or a single finite number", call.=FALSE)
@@ -157,24 +158,15 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
   }
   #  set number of processors for parallel programming, assure
   #  that B is a multiple of maxProcessor    
-  m=parallel::detectCores(logical=FALSE)
-  available=max(1, m-1)
-  if(missing(maxProcessor)) maxProcessor=available
-  if(maxProcessor>m-1) maxProcessor=available
+  # Choose number of processors after dta, TS and typeTS are known.
+  maxProcessor <- makemaxProcessor(maxProcessor,
+               dta=dta, TS=TS, typeTS=typeTS, TSextra=TSextra, B=B,
+               SuppressMessages=SuppressMessages,
+               useSingleProcessor=useSingleProcessor
+  )
   B=ceiling(B/maxProcessor)*maxProcessor
   if(With.p.value) maxProcessor=1
-  if(maxProcessor>1) {
-    tm=timecheck(dta, TS, typeTS, TSextra)
-    if(tm*length(param_alt)*B<20) {
-      maxProcessor=1
-      if(!SuppressMessages)
-         message("maxProcessor set to 1 for faster computation")
-    }
-    else {
-      if(!SuppressMessages)
-         message(paste("Using ",maxProcessor," cores.."))
-    }
-  }
+
   if(With.p.value) {
     if(Continuous) {
       pwr=power_newtest(TS, NA, pnull, ralt, param_alt, TSextra$phat, TSextra, alpha, B)     

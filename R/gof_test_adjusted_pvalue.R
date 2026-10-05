@@ -17,8 +17,10 @@
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any, for chi-square tests
 #' @param  B   =c(5000,1000)  number of simulation runs for individual and for adjusted p values
 #' @param  minexpcount =5 minimal expected bin count required
-#' @param  ChiUsePhat = TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
+#' @param  ChiUsePhat = FALSE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.
 #' @param  maxProcessor number of cores to use
+#' @param  SuppressMessages =FALSE
+#' @param  seed =NULL, optional seed for reproducibility
 #' @param  doMethods a vector of codes for the methods to include. If missing, a default selection of methods are used.
 #' @return None 
 #' @export
@@ -56,7 +58,8 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
                     w=function(x) -99, phat=function(x) -99, 
                     TS, TSextra, nbins=c(50, 10), rate=0, 
                     Range=c(-Inf, Inf), B=c(5000,1000),  minexpcount=5.0,  
-                    ChiUsePhat=TRUE, maxProcessor, doMethods) {
+                    ChiUsePhat = FALSE, maxProcessor, 
+                    SuppressMessages =FALSE, seed=NULL, doMethods) {
  
    if(length(B)==1) B=c(B, B) # this routine needs two simulation sizes
    if(any(is.na(vals))) {
@@ -68,7 +71,7 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
      Continuous=FALSE
      dta=list(x=x, vals=vals)
      check.functions(pnull, rnull, phat, vals, x)
-   }  
+   } 
    TSextra=makeTSextra(TSextra, pnull, phat, w, Continuous)
    WithWeights = TRUE
    if(length(formals(w))==1) {
@@ -76,21 +79,27 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
    }
    # adjust number of bins to account for parameter estimation
    if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
-   tmp=maketypeTS(TS, Continuous, WithWeights)
-   if(tmp$useSingleProcessor)  maxProcessor=1
-   typeTS=tmp$typeTS
-   TS=tmp$TS
+   tmp <- maketypeTS(TS, Continuous, WithWeights)
+   typeTS <- tmp$typeTS
+   TS <- tmp$TS
+   useSingleProcessor <- tmp$useSingleProcessor
+   if(!is.null(seed)) {
+     if(length(seed)!=1L || is.na(seed) || !is.finite(seed))
+       stop("seed must be NULL or a single finite number", call.=FALSE)
+     
+     set.seed(seed)
+   }
    TS_data=calcTS(dta, TS, typeTS, TSextra)  
    if(is.null(names(TS_data))) {
      message("result of TS has to be a named vector")
      return(NULL)
    }
-   #  set number of processors for parallel programming, assure
-   #  that B is a multiple of maxProcessor    
-   m=parallel::detectCores(logical=FALSE)
-   available=max(1, m-1)
-   if(missing(maxProcessor)) maxProcessor=available
-   if(maxProcessor>m-1) maxProcessor=available
+   # Choose number of processors after dta, TS and typeTS are known.
+   maxProcessor <- makemaxProcessor(maxProcessor,
+             dta=dta, TS=TS, typeTS=typeTS, TSextra=TSextra, B=B,
+             SuppressMessages=SuppressMessages,
+             useSingleProcessor=useSingleProcessor
+   )
    B[1]=ceiling(B[1]/maxProcessor)*maxProcessor
    if(length(x)>10000 && maxProcessor==1)
      message("Consider using parallel processing with maxProcessor= (your number of cores)")
@@ -102,6 +111,8 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
    else {
      cl = parallel::makeCluster(maxProcessor)
      on.exit(parallel::stopCluster(cl), add=TRUE)
+     if(!is.null(seed))
+       parallel::clusterSetRNGStream(cl, iseed=seed)
      z=parallel::clusterCall(cl, gof_adj_C1, 
                 dta, rnull, vals, TS, typeTS, TSextra, 
                              B=round(B[1]/maxProcessor)

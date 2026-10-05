@@ -11,7 +11,7 @@ chi_test_disc(
   nbins = c(50, 10),
   rate = 0,
   minexpcount = 5,
-  ChiUsePhat = TRUE,
+  ChiUsePhat = FALSE,
   allbins
 )
 }
@@ -28,7 +28,7 @@ chi_test_disc(
 
 \item{minexpcount}{=5 minimal expected bin count required}
 
-\item{ChiUsePhat}{= TRUE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
+\item{ChiUsePhat}{= FALSE, if TRUE param is estimated parameter, otherwise minimum chi square method is used.}
 
 \item{allbins}{set of bins to use}
 }

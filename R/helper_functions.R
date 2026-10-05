@@ -1,3 +1,19 @@
+#' validate_integer_scalar
+#'
+#' Validate a positive integer-valued scalar.
+#'
+#' @param x value to validate
+#' @param name argument name used in error messages
+#' @param lower smallest permitted value
+#' @return invisibly returns the validated integer
+#' @keywords internal
+validate_integer_scalar <- function(x, name, lower=1L) {
+  if(!is.numeric(x) || length(x)!=1L || is.na(x) || !is.finite(x) ||
+     x != floor(x) || x < lower)
+    stop(name, " must be a single integer >= ", lower, call.=FALSE)
+  invisible(as.integer(x))
+}
+
 #' makeTSextra
 #' 
 #' create the TSextra list required by many routines.
@@ -76,4 +92,49 @@ maketypeTS=function(TS, Continuous, WithWeights) {
   }  
   list(TS=TS, typeTS=typeTS, 
        useSingleProcessor=useSingleProcessor)
+}
+
+#' makemaxProcessor
+#'
+#' Choose the number of processors for a simulation.
+#'
+#' @param maxProcessor maximum number of processors requested
+#' @param dta data set used for a timing check
+#' @param TS test-statistic routine
+#' @param typeTS test-statistic interface code
+#' @param TSextra additional information passed to TS
+#' @param B number of simulation runs
+#' @param SuppressMessages suppress informative messages?
+#' @param useSingleProcessor force a single processor, e.g. for a C++ custom TS
+#' @return an integer giving the number of processors to use
+#' @keywords internal
+#' @export
+makemaxProcessor <- function(maxProcessor, dta, TS, typeTS, TSextra, B,
+                             SuppressMessages=FALSE,
+                             useSingleProcessor=FALSE) {
+  if(useSingleProcessor) return(1L)
+  
+  if(!missing(maxProcessor)) {
+    validate_integer_scalar(maxProcessor, "maxProcessor", 1L)
+    return(as.integer(maxProcessor))
+  }
+  
+  m <- parallel::detectCores(logical=FALSE)
+  if(is.na(m) || m < 1L) m <- 1L
+  ans <- max(1L, as.integer(m)-1L)
+  
+  if(ans > 1L) {
+    tm <- timecheck(dta, TS, typeTS, TSextra)
+    if(length(tm) > 1L) tm <- max(tm, na.rm=TRUE)
+    
+    if(!is.finite(tm) || 2*tm*B < 20 || B < 2*ans) {
+      ans <- 1L
+      if(!SuppressMessages)
+        message("maxProcessor set to 1 because parallel overhead would dominate this short computation")
+    }
+    else if(!SuppressMessages)
+      message("Using ", ans, " cores.")
+  }
+  
+  ans
 }

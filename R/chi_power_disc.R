@@ -8,13 +8,13 @@
 #' @param  nbins =c(50,10), number of bins for chi square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  minexpcount =5 minimal expected bin count required
-#' @param  ChiUsePhat = TRUE, should chi square use minimum chi square method?
+#' @param  ChiUsePhat = FALSE, should chi square use minimum chi square method?
 #' @return A numeric matrix of power values.
 
 chi_power_disc = function(pnull, ralt, param_alt, 
                 phat=function(x) -99, alpha=0.05, B=1000,  
                 nbins=c(50, 10), rate=0, minexpcount=5, 
-                ChiUsePhat=TRUE) {
+                ChiUsePhat = FALSE) {
    pwr=matrix(0, length(param_alt), 4)
    colnames(pwr) = c(c("l-P", "s-P", "l-L", "s-L"))
    rownames(pwr) = param_alt

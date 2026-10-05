@@ -19,7 +19,7 @@ run.studies(
 )
 }
 \arguments{
-\item{studies}{=1:50, either the names of the studies, or their numbers. If missing all the studies are run.}
+\item{studies}{=1:60, either the names of the studies, or their numbers. If missing all the studies are run.}
 
 \item{types}{=1:5, either the types of studies, or their numbers. If missing all types are run.}
 

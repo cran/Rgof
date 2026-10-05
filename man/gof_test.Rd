@@ -18,7 +18,9 @@ gof_test(
   Range = c(-Inf, Inf),
   B = 5000,
   minexpcount = 5,
-  ChiUsePhat = TRUE,
+  ChiUsePhat = FALSE,
+  SuppressMessages = FALSE,
+  seed = NULL,
   maxProcessor,
   doMethods = "all"
 )
@@ -53,8 +55,12 @@ statistics are calculated and p-values are returned as \code{NA}.}
 
 \item{minexpcount}{=5 minimal expected bin count required.}
 
-\item{ChiUsePhat}{=TRUE, if TRUE param is estimated parameter, otherwise
+\item{ChiUsePhat}{=FALSE, if TRUE param is estimated parameter, otherwise
 minimum chi square method is used.}
+
+\item{SuppressMessages}{=FALSE}
+
+\item{seed}{=NULL, optional seed for reproducibility}
 
 \item{maxProcessor}{Number of processors to use in parallel processing.}
 
