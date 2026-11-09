@@ -7,6 +7,7 @@
 #' @param  x      data
 #' @return NULL
 #' 
+#' @noRd
 check.functions=function(pnull, rnull, phat=function(x) -99, vals, x) {
   is.wholenumber <-
     function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol

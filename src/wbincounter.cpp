@@ -9,6 +9,7 @@ using namespace Rcpp;
 //' @param w numeric vector of weights 
 //' @keywords internal
 //' @return sum of weights in bins
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericVector wbincounter(Rcpp::NumericVector x, 
                                 Rcpp::NumericVector bins, 

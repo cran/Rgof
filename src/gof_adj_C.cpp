@@ -12,6 +12,7 @@ using namespace Rcpp;
 //' @param B  =1000 Number of simulation runs
 //' @keywords internal
 //' @return A matrix of powers
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericMatrix gof_adj_C1(
         List dta,
@@ -55,6 +56,7 @@ Rcpp::NumericMatrix gof_adj_C1(
 //' @param B  =1000 Number of simulation runs
 //' @keywords internal
 //' @return A matrix of powers
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericMatrix gof_adj_C2(
      List dta,
@@ -78,18 +80,22 @@ Rcpp::NumericMatrix gof_adj_C2(
    double dd=1.0/double(m);
    List dtasim=List::create(Named("x")=xsim, Named("vals")=vals);
    NumericMatrix pvals(B+1, num_tests);
+/* row 0: the observed data, rows 1,..,B: data simulated under H0. 
+   p value = proportion of the values in A at least as large as the 
+   test statistic. */
    for(i=0;i<=B;++i) {
-       if(i==1) dtasim=dta;
+       if(i==0) TS_sim=calcTS(dta, TS, typeTS, TSextra);
        else {
          if(resrnull.size()==0) xsim=rnull();
          else xsim=rnull(p);
          dtasim["x"]=xsim;
+         TS_sim=calcTS(dtasim, TS, typeTS, TSextra);
        }      
-       TS_sim=calcTS(dtasim, TS, typeTS, TSextra);    
        for(j=0;j<num_tests;++j) {       
           pvals(i,j)=0.0;   
+          double tol=1e-9*std::abs(TS_sim(j));
           for(k=0;k<m;++k) {
-             if(TS_sim(j)<A(k,j))  pvals(i, j)=pvals(i, j)+dd;
+             if(A(k,j)>=TS_sim(j)-tol)  pvals(i, j)=pvals(i, j)+dd;
          }
        }   
    }

@@ -13,6 +13,9 @@
 #' @param  phat =function(x) -99 function to estimate parameters from the data, or -99
 #' @param  TS user supplied function to find test statistics
 #' @param  TSextra list provided to TS (optional)
+#' @param  qnull (optional) quantile function under the null hypothesis, with the same arguments as
+#'   pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+#'   is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.
 #' @param  With.p.value =FALSE does user supplied routine return p values?
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any
@@ -27,7 +30,11 @@
 #' @param  conf.level =0.95 confidence level used when CI=TRUE.
 #' @param  seed =NULL, optional seed for reproducibility
 #' @param  list.with.everything A list with all needed info, such as pnull, rnull etc
-#' @return By default, a numeric matrix (or vector for one alternative) of power values. If CI=TRUE, an object of class \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson confidence limits.
+#' @return By default, a numeric matrix (or vector for one alternative) of power values, with
+#'   class \code{"Rgof_power_values"} so that \code{summary} gives a summary of the study
+#'   (it prints and is used like the plain matrix). If CI=TRUE, an object of class
+#'   \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson
+#'   confidence limits.
 #' @export 
 #' @examples
 #' # Power of tests when null hypothesis specifies the standard normal distribution but 
@@ -35,8 +42,8 @@
 #' pnull = function(x) pnorm(x)
 #' rnull = function()  rnorm(50)
 #' ralt = function(mu)  rnorm(50, mu)
-#' TSextra = list(qnull=function(x) qnorm(x))
-#' gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), TSextra=TSextra, B=200)
+#' qnull = function(x) qnorm(x)
+#' gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), qnull=qnull, B=200)
 #' # Power of tests when null hypothesis specifies normal distribution and 
 #' # mean and standard deviation are estimated from the data. 
 #' # true data comes from a normal distribution with mean different from 0.
@@ -87,7 +94,7 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
         alpha=0.05, Range  =c(-Inf, Inf), B=1000,nbins=c(50,10), 
         rate=0, maxProcessor, minexpcount=5.0, ChiUsePhat = FALSE,
         SuppressMessages=FALSE, CI=FALSE, conf.level=0.95,
-        seed=NULL, list.with.everything) {
+        seed=NULL, list.with.everything, qnull) {
 
   fff=nortest::lillie.test # avoid issues with CRAN, just ignore!
   if(!is.logical(CI) || length(CI)!=1L || is.na(CI))
@@ -112,6 +119,11 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     } else {
       TSextra <- utils::modifyList(case_extra, TSextra)
     }
+  }
+  # qnull can be given as an argument or (as in earlier versions) in TSextra
+  if(!missing(qnull)) {
+    if(missing(TSextra)) TSextra <- list()
+    TSextra$qnull <- qnull
   }
   NewTest=TRUE
   if(missing(TS)) NewTest=FALSE
@@ -138,7 +150,8 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     if(w(x[1])==-99) WithWeights = FALSE
   }
   # adjust number of bins to account for parameter estimation
-  if(abs(phat(x)[1]+99)>0.001) nbins=nbins+length(phat(x))
+  Estimated = abs(phat(x)[1]+99)>0.001
+  if(Estimated) nbins=nbins+length(phat(x))
   if(any(is.na(vals))) check.functions(pnull, rnull, phat, x=x)
   else  check.functions(pnull, rnull, phat, vals, x)
   tmp <- maketypeTS(TS, Continuous, WithWeights)
@@ -199,11 +212,17 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
     pwr=matrix(0, length(param_alt), length(TS_data))
     colnames(pwr)=names(TS_data)
     rownames(pwr)=param_alt
-    crtval=apply(Data, 2, quantile, prob=1-alpha, na.rm=TRUE)
+# For each data set simulated under the alternative find the p value from
+# the simulated null distribution, counting ties as in gof_test, and
+# reject if p<alpha
     for(i in seq_along(param_alt)) {
       tmpS=Sim[Sim[,1]==param_alt[i], -1, drop=FALSE]
-      for(j in seq_along(crtval)) 
-        pwr[i, j]=sum(tmpS[ ,j]>crtval[j])/nrow(tmpS)
+      for(j in 1:ncol(Data)) {
+        nulls=sort(Data[, j])
+        obs=tmpS[, j]
+        nless=findInterval(obs-1e-9*abs(obs), nulls, left.open=TRUE)
+        pwr[i, j]=mean((length(nulls)-nless)/length(nulls)<alpha)
+      }
     }
   }
   # Do chi square tests if built-in TS is used. Don't run chi square if weights are present.  
@@ -232,6 +251,20 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
                             ChiUsePhat)[,1:2, drop=FALSE]
   }
   if(typeTS==1 | typeTS==5) pwr = cbind(pwr, chipwr)
+  # without qnull the Wasserstein test can not be done for continuous data
+  if(Continuous && TSextra$Noqnull && !NewTest)
+    pwr = pwr[, colnames(pwr)!="Wassp1", drop=FALSE]
+  metadata = list(
+    n = if(Continuous) length(x) else sum(x),
+    data.type = if(Continuous) "continuous" else "discrete",
+    B = B,
+    maxProcessor = maxProcessor,
+    alpha = alpha,
+    estimated = Estimated,
+    ChiUsePhat = ChiUsePhat,
+    param_alt = param_alt,
+    seed = seed
+  )
 
   # Monte Carlo uncertainty of the estimated rejection probability.
   # Each power estimate is based on B alternative simulations.
@@ -277,15 +310,96 @@ gof_power=function(pnull, vals=NA, rnull, ralt, param_alt,
       interval = "Wilson",
       alpha = alpha,
       param_alt = param_alt,
-      seed = seed
+      seed = seed,
+      metadata = metadata
     )
     
     class(out) <- "Rgof_power"
     return(out)
   }
 
-  if(is.matrix(pwr) & nrow(pwr)==1) pwr=pwr[1, ]
-  round(pwr, 3)
+  # setNames: pwr[1, ] drops the name if there is only one method
+  if(is.matrix(pwr) & nrow(pwr)==1) pwr=stats::setNames(pwr[1, ], colnames(pwr))
+  pwr = round(pwr, 3)
+  attr(pwr, "metadata") = metadata
+  class(pwr) = c("Rgof_power_values", class(pwr))
+  pwr
+}
+
+#' @export
+print.Rgof_power_values <- function(x, ...) {
+  attr(x, "metadata") <- NULL
+  print(unclass(x), ...)
+  invisible(x)
+}
+
+#' Summarize an Rgof power study
+#'
+#' @param object An object of class \code{"Rgof_power_values"} (the default output of
+#'   \code{gof_power}) or \code{"Rgof_power"} (the output with CI=TRUE).
+#' @param ... Currently unused.
+#' @return An object of class \code{"summary.Rgof_power"}.
+#' @export
+summary.Rgof_power_values <- function(object, ...) {
+  pwr <- object
+  attr(pwr, "metadata") <- NULL
+  pwr <- unclass(pwr)
+  md <- attr(object, "metadata")
+  if(!is.matrix(pwr)) {
+    pwr <- matrix(pwr, nrow=1, dimnames=list(md$param_alt[1], names(pwr)))
+  }
+  out <- list(power=pwr, metadata=md, CI=FALSE)
+  class(out) <- "summary.Rgof_power"
+  out
+}
+
+#' @rdname summary.Rgof_power_values
+#' @export
+summary.Rgof_power <- function(object, ...) {
+  out <- list(power=object$power, mc.se=object$mc.se, lower=object$lower,
+              upper=object$upper, conf.level=object$conf.level,
+              metadata=object$metadata, CI=TRUE)
+  class(out) <- "summary.Rgof_power"
+  out
+}
+
+#' @export
+print.summary.Rgof_power <- function(x, ...) {
+  md <- x$metadata
+  hybrid <- isTRUE(md$hybrid)
+  cat(ifelse(hybrid, "\nRgof hybrid power study summary\n\n",
+             "\nRgof power study summary\n\n"))
+  if(!is.null(md)) {
+    cat("Data type: ", md$data.type, "\n", sep="")
+    cat("Sample size: ", md$n, "\n", sep="")
+    if(hybrid) cat("Monte Carlo sample size: ", md$nMC, "\n", sep="")
+    cat("Simulation runs: ", md$B, "\n", sep="")
+    if(!is.null(md$maxProcessor) && !is.na(md$maxProcessor))
+      cat("Processors used: ", md$maxProcessor, "\n", sep="")
+    cat("Type I error probability: ", md$alpha, "\n", sep="")
+    cat("Parameters estimated: ", ifelse(md$estimated, "yes", "no"), "\n", sep="")
+    if(md$estimated && !hybrid)
+      cat("Chi-square tests: ", ifelse(md$ChiUsePhat, "use phat",
+          "minimum chi-square estimate"), "\n", sep="")
+    if(!is.null(md$seed)) cat("Seed: ", md$seed, "\n", sep="")
+  }
+  if(!x$CI) {
+    cat("\nPower (rows: parameter of the alternative, columns: methods):\n")
+    print(x$power)
+  } else {
+    cat(sprintf("\nPower with %.1f%% Wilson confidence intervals:\n", 100*x$conf.level))
+    if(is.matrix(x$power)) {
+      for(i in seq_len(nrow(x$power))) {
+        cat("\nAlternative parameter:", rownames(x$power)[i], "\n")
+        print(data.frame(power=x$power[i, ], mc.se=x$mc.se[i, ], lower=x$lower[i, ],
+              upper=x$upper[i, ], row.names=colnames(x$power), check.names=FALSE))
+      }
+    } else {
+      print(data.frame(power=x$power, mc.se=x$mc.se, lower=x$lower, upper=x$upper,
+            row.names=names(x$power), check.names=FALSE))
+    }
+  }
+  invisible(x)
 }
 
 #' @export

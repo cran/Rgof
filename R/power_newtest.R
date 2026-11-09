@@ -9,6 +9,7 @@
 #' @param alpha =0.05  type I error.
 #' @param B = 1000 number of simulation runs to estimate the power.
 #' @return A matrix of power values
+#' @noRd
 
 power_newtest <- function(TS, vals=NA, pnull, ralt, param_alt, phat, TSextra, alpha=0.05, B=1000) {
      Continuous=ifelse(is.na(vals)[1], TRUE, FALSE)

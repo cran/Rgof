@@ -22,7 +22,8 @@ gof_test(
   SuppressMessages = FALSE,
   seed = NULL,
   maxProcessor,
-  doMethods = "all"
+  doMethods = "all",
+  qnull
 )
 }
 \arguments{
@@ -66,6 +67,10 @@ minimum chi square method is used.}
 
 \item{doMethods}{="all", a vector of codes for the methods to include or all
 of them.}
+
+\item{qnull}{(optional) quantile function under the null hypothesis, with the same arguments as
+pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.}
 }
 \value{
 An object of class \code{"Rgof_test"}. Its main components are
@@ -90,6 +95,8 @@ rnull <- function() rnorm(100)
 x <- rnorm(100)
 z <- gof_test(x, NA, pnull, rnull, B=500)
 z
+# with the quantile function the Wasserstein test is included as well
+gof_test(x, NA, pnull, rnull, B=500, qnull=function(x) qnorm(x))
 z$results
 summary(z)
 as.data.frame(z)

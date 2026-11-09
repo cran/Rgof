@@ -8,6 +8,7 @@ using namespace Rcpp;
 //' @param bins numeric vector
 //' @keywords internal
 //' @return Integer vector of counts
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::IntegerVector bincounter(Rcpp::NumericVector x, Rcpp::NumericVector bins) {
   int n=x.size(), m=bins.size(), i, j;

@@ -10,6 +10,7 @@ using namespace Rcpp;
 //' @param w weights 
 //' @keywords internal
 //' @return A vector with test statistics
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericVector TSw_disc(
         Rcpp::IntegerVector x, 
@@ -55,19 +56,27 @@ Rcpp::NumericVector TSw_disc(
     else TS(0)=std::abs(Mx);
     TS(1)=Mx+mx; 
  
- /* Cramer-von Mises and  Anderson-Darling */
+ /* Cramer-von Mises and  Anderson-Darling, with the weights
+    t(j)=(p(j)+p(j+1))/2 of Choulakian, Lockhart and Stephens (1994) */
  
-    TS(2) = (edf[0]-Fx[0])*(edf[0]-Fx[0])*Fx[0];
-    if(Fx[0]<1) TS(3) = (edf[0]-Fx[0])*(edf[0]-Fx[0])/(1-Fx[0]);
-    else TS(3) = 0.0;    
-    for(i=1;i<k;++i) {
-      tmp = (edf[i]-Fx[i])*(edf[i]-Fx[i]);
-      TS(2) = TS(2) + tmp*(Fx[i]-Fx[i-1]);
-      if( (Fx[i]>0)&&(Fx[i]<1) ) {
-        TS(3) = TS(3) + tmp/Fx[i]/(1-Fx[i])*(Fx[i]-Fx[i-1]); 
-      }     
+    NumericVector p(k), t(k);
+    for(i=0;i<k;++i) {
+      if(i==0) p[0]=Fx[0];
+      else p[i]=Fx[i]-Fx[i-1];
     }
-    TS(2) = 1/(12.0*n)+n*TS(2);
+    for(i=0;i<k;++i) {
+      if(i<k-1) t[i]=(p[i]+p[i+1])/2.0;
+      else t[i]=(p[k-1]+p[0])/2.0;
+    }
+    TS(2) = 0.0;
+    TS(3) = 0.0;
+    for(i=0;i<k;++i) {
+      tmp = (edf[i]-Fx[i])*(edf[i]-Fx[i]);
+      TS(2) = TS(2) + tmp*t[i];
+      if( (i<k-1)&&(Fx[i]>0)&&(Fx[i]<1) ) 
+        TS(3) = TS(3) + tmp/Fx[i]/(1-Fx[i])*t[i]; 
+    }
+    TS(2) = n*TS(2);
     TS(3) = n*TS(3);
  
     return TS;

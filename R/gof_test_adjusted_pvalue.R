@@ -12,6 +12,9 @@
 #' @param  phat  =function(x) -99, function to estimate parameters from the data, or -99 if no parameters are estimated
 #' @param  TS user supplied function to find test statistics, if any
 #' @param  TSextra list passed to TS, if desired, or missing
+#' @param  qnull (optional) quantile function under the null hypothesis, with the same arguments as
+#'   pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+#'   is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.
 #' @param  nbins =c(100, 10) number of bins for chi-square tests
 #' @param  rate =0 rate of Poisson if sample size is random, 0 if sample size is fixed
 #' @param  Range  =c(-Inf, Inf) limits of possible observations, if any, for chi-square tests
@@ -22,7 +25,7 @@
 #' @param  SuppressMessages =FALSE
 #' @param  seed =NULL, optional seed for reproducibility
 #' @param  doMethods a vector of codes for the methods to include. If missing, a default selection of methods are used.
-#' @return None 
+#' @return (invisibly) a list with the p values of the individual tests and the adjusted p value. These are also printed as messages.
 #' @export
 #' @examples
 #' # Tests to see whether data comes from a standard normal distribution.
@@ -35,11 +38,11 @@
 #' # and the mean estimated.
 #' pnull=function(x, m) pnorm(x, m)
 #' rnull=function(m) rnorm(100, m)
-#' TSextra = list(qnull=function(x, m=0) qnorm(x, m))
+#' qnull = function(x, m=0) qnorm(x, m)
 #' phat=function(x) mean(x)
 #' x = rnorm(100, 1, 2)
 #' gof_test_adjusted_pvalue(x, NA, pnull, rnull, phat=phat, 
-#'                         TSextra=TSextra, B=c(500, 200), maxProcessor=1)
+#'                         qnull=qnull, B=c(500, 200), maxProcessor=1)
 #' # Tests to see whether data comes from a binomial (10, 0.5) distribution.
 #' vals=0:10
 #' pnull = function() pbinom(0:10, 10, 0.5)
@@ -59,7 +62,7 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
                     TS, TSextra, nbins=c(50, 10), rate=0, 
                     Range=c(-Inf, Inf), B=c(5000,1000),  minexpcount=5.0,  
                     ChiUsePhat = FALSE, maxProcessor, 
-                    SuppressMessages =FALSE, seed=NULL, doMethods) {
+                    SuppressMessages =FALSE, seed=NULL, doMethods, qnull) {
  
    if(length(B)==1) B=c(B, B) # this routine needs two simulation sizes
    if(any(is.na(vals))) {
@@ -72,6 +75,11 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
      dta=list(x=x, vals=vals)
      check.functions(pnull, rnull, phat, vals, x)
    } 
+   # qnull can be given as an argument or (as in earlier versions) in TSextra
+   if(!missing(qnull)) {
+     if(missing(TSextra)) TSextra <- list()
+     TSextra$qnull <- qnull
+   }
    TSextra=makeTSextra(TSextra, pnull, phat, w, Continuous)
    WithWeights = TRUE
    if(length(formals(w))==1) {
@@ -123,9 +131,9 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
                           dta, rnull, vals, TS, typeTS, TSextra, 
                           A, B=round(B[2]/maxProcessor)
      )
+# row 1 of each result is the observed data, keep it only once
      pvals=z[[1]]
-     for(i in 2:maxProcessor) pvals=rbind(pvals,z[[i]])
-     pvals=pvals
+     for(i in 2:maxProcessor) pvals=rbind(pvals,z[[i]][-1, , drop=FALSE])
    }
    colnames(pvals)=names(TS_data)
    if(typeTS==1 | typeTS==5) { 
@@ -157,18 +165,25 @@ gof_test_adjusted_pvalue <- function(x, vals= NA, pnull, rnull,
       colnames(chipvals)=rownames(tmp)
       pvals=cbind(pvals, chipvals)
    }
+   # without qnull the Wasserstein test can not be done for continuous data
+   if(Continuous && TSextra$Noqnull) {
+     pvals = pvals[, colnames(pvals)!="Wassp1", drop=FALSE]
+     if(!missing(doMethods)) {
+       if("Wassp1" %in% doMethods && !SuppressMessages)
+         message("Wassp1 needs qnull and is not run")
+       doMethods = doMethods[doMethods!="Wassp1"]
+     }
+   }
    if(missing(doMethods)) doMethods=colnames(pvals)
    if(test_methods(doMethods, Continuous, WithWeights)) return(NULL)
    pvals = round(pvals[, doMethods, drop=FALSE],4)
    minp_x=min(pvals[1, ])
    minp_sim=apply(pvals[-1, ,drop=FALSE], 1, min)
-   z=seq(0, 1, length=250)
-   y=z
-   for(i in 1:250) y[i]=sum(minp_sim<=z[i])/B[2]
-   minp_adj <- stats::approx(z, y, xout=minp_x, rule=2)$y
-   minp_adj <- round(minp_adj, 4)
+# adjusted p value = P(smallest p value <= observed smallest p value | H0)
+   minp_adj <- round(mean(minp_sim<=minp_x), 4)
    message("p values of individual tests:")
    for(i in 1:ncol(pvals)) message(paste(doMethods[i],": ", pvals[1,i]))
    message(paste0("adjusted p value of combined tests: ", minp_adj))
-   
+   invisible(list(p.values=stats::setNames(pvals[1, ], colnames(pvals)), adjusted.p.value=minp_adj))
+
 }

@@ -73,23 +73,58 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
   }
   
   phat=function(x) -99
+  # quantile function by vectorized bisection: f is called about 50 times with
+  # the whole vector p, instead of uniroot once for each element of p
   finv <- function(p, f, Ra) {
-    y=sapply(p, function(pp) {
-      if (pp <= 0) return(-Inf)
-      if (pp >= 1) return(Inf)
-      
-      uniroot(
-        function(x) f(x) - pp,
-        interval = Ra
-      )$root
-    })
+    lo <- rep(Ra[1], length(p))
+    hi <- rep(Ra[2], length(p))
+    for(k in 1:50) {
+      mid <- (lo+hi)/2
+      below <- f(mid) < p
+      lo[below] <- mid[below]
+      hi[!below] <- mid[!below]
+    }
+    y <- (lo+hi)/2
+    y[p <= 0] <- -Inf
+    y[p >= 1] <- Inf
     if (f(0) == 0) y[p == 0] <- 0
     if (f(1) == 1) y[p == 1] <- 1
     y
   }
+  # quantile function of a null distribution without parameters, from a table:
+  # F is evaluated once (on first use) at m equally spaced points of the range Ra
+  # and at points close to its ends, then the inverse is interpolated with a
+  # monotone cubic spline. Much faster than finv; the error is below 1e-6, except
+  # for probabilities below 1e-6 or above 1-1e-6 (below 1e-4 there).
+  qtab <- function(f, Ra, m=20001) {
+    Q <- NULL
+    lo <- NULL
+    hi <- NULL
+    function(p) {
+      if(is.null(Q)) {
+        d <- diff(Ra)*10^seq(-12, -4, length.out=200)
+        x <- sort(unique(c(seq(Ra[1], Ra[2], length.out=m), Ra[1]+d, Ra[2]-d)))
+        Fx <- f(x)
+        k <- c(TRUE, diff(Fx) > 0)
+        Q <<- stats::splinefun(Fx[k], x[k], method="monoH.FC")
+        lo <<- c(min(Fx), if(Fx[1] == 0) Ra[1] else -Inf)
+        hi <<- c(max(Fx), if(Fx[length(x)] == 1) Ra[2] else Inf)
+      }
+      y <- Q(pmin(pmax(p, lo[1]), hi[1]))
+      y[p <= 0] <- lo[2]
+      y[p >= 1] <- hi[2]
+      y
+    }
+  }
+# sizes of mixture components that add up to n exactly
+  msizes=function(n, p) {
+    k=floor(n*p)
+    k[length(k)]=n-sum(k[-length(k)])
+    k
+  }
   collect_case <- function(env) {
     keep <- c("pnull", "dnull", "rnull", "palt", "ralt", "TSextra",
-              "phat", "pnullD", "rnullD", "bins", "Ra", "apar")
+              "phat", "phatD", "pnullD", "rnullD", "bins", "Ra", "apar")
     present <- vapply(keep, exists, logical(1), envir=env, inherits=FALSE)
     mget(keep[present], envir=env, inherits=FALSE)
   }
@@ -136,8 +171,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
         a=-0.5;
         ifelse(x<0, 0, ifelse(x>1, 0, 3*a*(x-1/2)^2+1-a/4))
         }
-      TSextra =  list(qnull = function(x) 
-           finv(x, pnull, c(0, 1)))
+      TSextra =  list(qnull = qtab(pnull, c(0, 1)))
       bins=seq(0, 1, length=nbins+1)  
       collect_case(environment())
     })(),
@@ -147,7 +181,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       rnull=function() c(runif(floor(n*0.825)), 
                           rbeta(ceiling(n*0.175), 25, 25))
       dnull=function(x) 0.825*dunif(x)+0.175*dbeta(x, 25, 25)
-      TSextra =  list(qnull = function(x) finv(x, pnull, c(0, 1)))
+      TSextra =  list(qnull = qtab(pnull, c(0, 1)))
       bins=seq(0, 1, length=nbins+1)    
       collect_case(environment())
     })(),
@@ -158,7 +192,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       rnull=function() acos(2*runif(n)-1)/pi   
       dnull=function(x) 
         ifelse(x<0, 0, ifelse(x>1, 0, pi*sin(pi*x)/2))
-      TSextra=list(qnull = function(x) finv(x, pnull, c(0, 1)))
+      TSextra=list(qnull = qtab(pnull, c(0, 1)))
       bins=seq(0, 1, length=nbins+1)  
       collect_case(environment())
     })(),
@@ -187,9 +221,10 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
           ifelse(x<0, 0, ifelse(x>1, 1, y))
          }
        rnull=function() {
-         y=runif(0.35*n)
+         k=msizes(n, c(0.35, 0.65))
+         y=runif(k[1])
          y=ifelse(y<1/2, sqrt(y/2), 1-sqrt((1-y)/2))
-         c(y, runif(0.65*n))
+         c(y, runif(k[2]))
       }    
       dnull=function(x) {
         y=0.65*dunif(x)+0.35*ifelse(x<0.5, 4*x, 4-4*x)
@@ -203,13 +238,16 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 9
     "uniformmixture" = (function() {
       pnull=function(x) (punif(x, 0, 1/3)+2*punif(x,1/3,2/3)+3*punif(x, 2/3, 1))/6
-      rnull=function() c(runif(n/6, 0, 1/3), runif(n/3,1/3,2/3), runif(n/2, 2/3, 1))
+      rnull=function() {
+        k=msizes(n, c(1/6, 1/3, 1/2))
+        c(runif(k[1], 0, 1/3), runif(k[2],1/3,2/3), runif(k[3], 2/3, 1))
+      }
       dnull=function(x) (dunif(x, 0, 1/3)+2*dunif(x,1/3,2/3)+3*dunif(x, 2/3, 1))/6
       TSextra=list(
           qnull=function(x) {
              y=2*x
-             y[x>1/6]=x+1/6
-             y[x>1/2]=(2*x+1)/3
+             y[x>1/6]=x[x>1/6]+1/6
+             y[x>1/2]=(2*x[x>1/2]+1)/3
              y[x<0]=0
              y[x>1]=1
              y
@@ -221,11 +259,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 10
     "betamixture" = (function() {
       pnull=function(x) (punif(x)+pbeta(x, 2, 2))/2
-      rnull=function() c(runif(n/2), rbeta(n/2, 2, 2))
+      rnull=function() {k=msizes(n, c(1/2, 1/2)); c(runif(k[1]), rbeta(k[2], 2, 2))}
       dnull=function(x) (dunif(x)+dbeta(x, 2, 2))/2
-      TSextra=list(qnull =function(x) {
-        finv(x, pnull, c(0, 1))
-      })
+      TSextra=list(qnull =qtab(pnull, c(0, 1)))
       bins=seq(0, 1, length=nbins+1)    
       collect_case(environment())
     })(),
@@ -244,7 +280,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnull=function(x) (pnorm(x)+pnorm(x, 0, 3))/2
       rnull=function() c(rnorm(floor(n/2)), rnorm(ceiling(n/2), 0, 3))
       dnull=function(x) (dnorm(x)+dnorm(x, 0, 3))/2
-      TSextra=list(qnull=function(x) finv(x, pnull, c(-20, 20)))
+      TSextra=list(qnull=qtab(pnull, c(-20, 20)))
       bins=seq(-12, 12, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf
         
@@ -255,7 +291,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnull=function(x) (pnorm(x)+pnorm(x, 1))/2
       rnull=function() c(rnorm(floor(n/2)), rnorm(ceiling(n/2), 1))
       dnull=function(x) (dnorm(x)+dnorm(x, 1))/2
-      TSextra=list(qnull=function(x) finv(x, pnull, c(-20, 20)))
+      TSextra=list(qnull=qtab(pnull, c(-20, 20)))
       bins=seq(-12, 12, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf  
       collect_case(environment())
@@ -263,9 +299,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 14
     "normal-mix3" = (function() {
       pnull=function(x) pnorm(x, -3)/4+pnorm(x)/2+pnorm(x, 5)/4
-      rnull=function() c(rnorm(n/4, -3), rnorm(n/2), rnorm(n/4,5))
+      rnull=function() {k=msizes(n, c(1/4, 1/2, 1/4)); c(rnorm(k[1], -3), rnorm(k[2]), rnorm(k[3],5))}
       dnull=function(x) dnorm(x, -3)/4+dnorm(x)/2+dnorm(x, 5)/4
-      TSextra=list(qnull=function(x) finv(x, pnull, c(-20, 20)))
+      TSextra=list(qnull=qtab(pnull, c(-20, 20)))
       bins=seq(-3, 4, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf
         
@@ -274,9 +310,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 15
     "normal-mix4" = (function() {
       pnull=function(x) (2*pnorm(x)+pnorm(x, 0, 3)+pnorm(x, 0, 5))/4
-      rnull=function() c(rnorm(n/2), rnorm(n/4, 0, 3), rnorm(n/4, 0, 5))
+      rnull=function() {k=msizes(n, c(1/2, 1/4, 1/4)); c(rnorm(k[1]), rnorm(k[2], 0, 3), rnorm(k[3], 0, 5))}
       dnull=function(x) (2*dnorm(x)+dnorm(x, 0, 3)+dnorm(x, 0, 5))/4
-      TSextra=list(qnull=function(x) finv(x, pnull, c(-50, 50)))
+      TSextra=list(qnull=qtab(pnull, c(-50, 50)))
       bins=seq(-25, 20, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf
         
@@ -285,9 +321,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 16
     "gamma1" = (function() {
       pnull=function(x) 0.2*pexp(x, 1)+0.8*pgamma(x, 2, 0.5)    
-      rnull=function() c(rexp(0.2*n, 1), rgamma(0.8*n, 2, 0.5))
+      rnull=function() {k=msizes(n, c(0.2, 0.8)); c(rexp(k[1], 1), rgamma(k[2], 2, 0.5))}
       dnull=function(x) 0.2*dexp(x, 1)+0.8*dgamma(x, 2, 0.5)
-      TSextra=list(qnull=function(x) finv(x, pnull, c(0, 100)))
+      TSextra=list(qnull=qtab(pnull, c(0, 100)))
       bins=seq(0, 25, length=nbins+1)
       bins[nbins+1]=Inf
         
@@ -296,9 +332,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 17
     "gamma2" = (function() {
       pnull=function(x) 0.2*pgamma(x, 2, 2)+0.8*pgamma(x, 3, 5)    
-      rnull=function() c(rgamma(0.2*n, 2, 2), rgamma(0.8*n, 3, 5))
+      rnull=function() {k=msizes(n, c(0.2, 0.8)); c(rgamma(k[1], 2, 2), rgamma(k[2], 3, 5))}
       dnull=function(x) 0.2*dgamma(x, 2, 2)+0.8*dgamma(x, 3, 5)
-      TSextra=list(qnull=function(x) finv(x, pnull, c(0, 40)))
+      TSextra=list(qnull=qtab(pnull, c(0, 40)))
       bins=seq(0, 5, length=nbins+1)
       bins[nbins+1]=Inf
         
@@ -307,9 +343,9 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
     # 18
     "gammamixture" = (function() {
       pnull=function(x) (pgamma(x, 2, 1)+pgamma(x, 10,1))/2
-      rnull=function() c(rgamma(n/2, 2, 1), rgamma(n/2, 10,1))
+      rnull=function() {k=msizes(n, c(1/2, 1/2)); c(rgamma(k[1], 2, 1), rgamma(k[2], 10,1))}
       dnull=function(x) (dgamma(x, 2, 1)+dgamma(x, 10,1))/2
-      TSextra=list(qnull=function(x) finv(x, pnull, c(0, 100)))
+      TSextra=list(qnull=qtab(pnull, c(0, 100)))
       bins=seq(0, 30, length=nbins+1)
       bins[nbins+1]=Inf
         
@@ -321,7 +357,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       rnull=function() c(rexp(floor(n/2), 1), 
               rexp(ceiling(n/2), 3))
       dnull=function(x) (dexp(x, 1)+dexp(x, 3))/2
-      TSextra=list(qnull=function(x) finv(x, pnull, c(0, 30)))
+      TSextra=list(qnull=qtab(pnull, c(0, 30)))
       bins=seq(0, 8, length=nbins+1)
       bins[nbins+1]=Inf
         
@@ -339,8 +375,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
         x[1:n]
       }
       TSextra=list(
-        qnull=function(x)
-          qchisq(x*pchisq(25,5,0.875), 5, 0.875)
+        qnull=qtab(pnull, c(0, 25))
       )
       bins=seq(0, 25, length=nbins+1)
       bins[nbins+1]=Inf
@@ -380,7 +415,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
         for(i in 1:n) {
           repeat {
             z=runif(1)
-            if(runif(1)<3*a*(z-1/2)^2+1-a/4) {
+            if(max(1-a/4, 1+a/2)*runif(1)<3*a*(z-1/2)^2+1-a/4) { # divide by max of density
               x[i]=z
               break
             }
@@ -429,7 +464,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
         y = NULL
         repeat { 
           z=runif(n)
-          I=ifelse(runif(n)<1+a*sin(4*pi*z), TRUE, FALSE)
+          I=ifelse((1+abs(a))*runif(n)<1+a*sin(4*pi*z), TRUE, FALSE) # divide by max of density
           y = c(y, z[I]) 
           if(length(y)>n) break
         }
@@ -536,7 +571,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       dnull=function(x) dnorm(x)
       pnull=function(x) pnorm(x)
       palt=function(x, a=apar[1]) ifelse(x<0, pnorm(x), pnorm(x, 0, a))
-      ralt=function(a=apar[1])  c(-abs(rnorm(n/2)), abs(rnorm(n/2, 0,a)))
+      ralt=function(a=apar[1]) {k=msizes(n, c(1/2, 1/2)); c(-abs(rnorm(k[1])), abs(rnorm(k[2], 0,a)))}
       TSextra=list(qnull=function(x) qnorm(x))
       bins=seq(-4, 4, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf
@@ -612,7 +647,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       dnull=function(x) dnorm(x)
       pnull=function(x) pnorm(x)
       palt=function(x, a=apar[1]) (pnorm(x,-a)+pnorm(x, a))/2
-      ralt=function(a=apar[1]) c(rnorm(n/2, -a), rnorm(n/2, a))
+      ralt=function(a=apar[1]) {k=msizes(n, c(1/2, 1/2)); c(rnorm(k[1], -a), rnorm(k[2], a))}
       TSextra=list(qnull=function(x) qnorm(x))
       bins=seq(-3, 3, length=nbins+1)
       bins[1]=-Inf;bins[nbins+1]=Inf   
@@ -1015,7 +1050,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       apar=c(2.5, 2)
       pnull = function(x, a=1/2) a*pbeta(x, 1, 1)+(1-a)*pbeta(x, 2, 2)
       dnull = function(x, a=1/2) a*dbeta(x, 1, 1)+(1-a)*dbeta(x, 2, 2)
-      TSextra=list(qnull = function(x, a=1/2) finv(x, pnull, c(0, 1)))
+      TSextra=list(qnull = function(x, a=1/2) finv(x, function(y) pnull(y, a), c(0, 1)))
       rnull = function(a=1/2) c(rbeta(floor(a*n), 1, 1), rbeta(ceiling((1-a)*n), 2, 2))
       palt=function(x, a=3) pbeta(x, 1, 1)/2+pbeta(x, a, a)/2
       ralt = function(a=apar[1]) 
@@ -1032,7 +1067,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       apar=c(1.15, 0)
       pnull = function(x, a=1/2) a*pbeta(x, 3, 1)+(1-a)*pbeta(x, 1, 3)
       dnull = function(x, a=1/2) a*dbeta(x, 3, 1)+(1-a)*dbeta(x, 1, 3)
-      TSextra=list(qnull = function(x, a=1/2) finv(x, pnull, c(0, 1)))
+      TSextra=list(qnull = function(x, a=1/2) finv(x, function(y) pnull(y, a), c(0, 1)))
       rnull = function(a=1/2) c(rbeta(floor(a*n), 3, 1), rbeta(ceiling((1-a)*n), 1, 3))
       palt=function(x, a=apar[1]) 
         pbeta(x, 3+a, 1)/2+pbeta(x, 1, 3)/2
@@ -1051,7 +1086,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnull = function(x, a=1/2) a*pbeta(x, 5, 2)+(1-a)*pbeta(x, 2, 5)
       dnull = function(x, a=1/2) a*dbeta(x, 5, 2)+(1-a)*dbeta(x, 2, 5)
       TSextra=list(qnull = function(x, a=1/2) 
-        finv(x, pnull, c(0, 1)))
+        finv(x, function(y) pnull(y, a), c(0, 1)))
       rnull = function(a=1/2) 
         c(rbeta(floor(a*n), 5, 2), rbeta(ceiling((1-a)*n), 2, 5))
       palt=function(x, a=apar[1]) 
@@ -1070,10 +1105,10 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       apar=c(2.3, 2)
       pnull = function(x, a=1/2) a*pnorm(x)+(1-a)*pnorm(x, 2)
       dnull = function(x, a=1/2) a*dnorm(x)+(1-a)*dnorm(x, 2)
-      TSextra=list(qnull = function(x, a=1/2)  finv(x, pnull, c(-10, 10)))
+      TSextra=list(qnull = function(x, a=1/2)  finv(x, function(y) pnull(y, a), c(-10, 10)))
       rnull = function(a=1/2) c(rnorm(floor(a*n)), rnorm(ceiling((1-a)*n), 2))
       palt=function(x, a=apar[1]) 0.5*pnorm(x)+0.5*pnorm(x, a)
-      ralt = function(a=apar[1]) c(rnorm(n/2), rnorm(n/2, a))      
+      ralt = function(a=apar[1]) {k=msizes(n, c(1/2, 1/2)); c(rnorm(k[1]), rnorm(k[2], a))}
       phat = function(x) Rgof::mlemix(dnorm(x), dnorm(x, 2))
       bins=seq(-3, 5, length=nbins+1)
       bins[1]=-Inf
@@ -1131,6 +1166,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnullD=function(p=c(0,1)) pnull(bins[-1],p)
       rnullD=function(p=c(0, 1)) 
         c(rmultinom(1, n, diff(pnull(bins, p))))
+      phatD=function(x) grouped_mle_laplace(x, bins, pnull, phat)
       collect_case(environment())
     })(),
     #56
@@ -1162,6 +1198,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnullD=function(p=c(0, 1)) pnull(bins[-1],p)
       rnullD=function(p=c(0, 1)) 
         c(rmultinom(1, n, diff(pnull(bins, p))))
+      phatD=function(x) grouped_mle_laplace(x, bins, pnull, phat)
       collect_case(environment())
     })(),
     #57
@@ -1191,6 +1228,16 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       pnullD=function(p=c(1,1)) pnull(bins[-1],p)
       rnullD=function(p=c(1,1)) 
         c(rmultinom(1, n, diff(pnull(bins, p))))
+      # grouped-data mle: the truncation point is the upper edge of the last
+      # nonempty bin, the rate maximizes the multinomial likelihood given that
+      phatD=function(x) {
+        up=bins[max(which(x>0))+1]
+        nll=function(r) {
+          pr=diff(pnull(bins, c(r, up)))
+          -sum(x[x>0]*log(pmax(pr[x>0], 1e-300)))
+        }
+        c(stats::optimize(nll, c(0.01, 20))$minimum, up)
+      }
       collect_case(environment())
     })(),
     #58
@@ -1233,7 +1280,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       apar=c(1.75, 1)
       pnull = function(x, a=2/5) a*pgamma(x, 1, 1)+(1-a)*pgamma(x, 3, 1)
       dnull = function(x, a=2/5) a*dgamma(x, 1, 1)+(1-a)*dgamma(x, 3, 1)
-      TSextra=list(qnull = function(x, a=2/5) finv(x, pnull, c(0, 50)))
+      TSextra=list(qnull = function(x, a=2/5) finv(x, function(y) pnull(y, a), c(0, 50)))
       rnull = function(a=2/5) c(rgamma(floor(a*n), 1 ,1), rgamma(ceiling((1-a)*n), 3, 1))
       palt=function(x, a=apar[1]) 0.4*pgamma(x, 1, a)+0.6*pgamma(x, 3, 1)
       ralt = function(a=apar[1]) c(rgamma(floor(2*n/5), 1 ,a), rgamma(ceiling(3*n/5), 3, 1))      
@@ -1250,7 +1297,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       apar=c(9.35, 10)
       pnull = function(x, a=0.3) a*pgamma(x, 3, 1)+(1-a)*pgamma(x, 10, 1)
       dnull = function(x, a=0.3) a*dgamma(x, 3, 1)+(1-a)*dgamma(x, 10, 1)
-      TSextra=list(qnull = function(x, a=0.3) finv(x, pnull, c(0, 50)))
+      TSextra=list(qnull = function(x, a=0.3) finv(x, function(y) pnull(y, a), c(0, 50)))
       rnull = function(a=0.3) c(rgamma(floor(a*n), 3 ,1), rgamma(ceiling((1-a)*n), 10, 1))
       palt=function(x, a=apar[1]) 0.3*pgamma(x, 3, 1)+0.7*pgamma(x, a, 1)
       ralt = function(a=apar[1]) c(rgamma(floor(3*n/10), 3 ,1), rgamma(ceiling(7*n/10), a, 1))      
@@ -1274,6 +1321,7 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
   if (!is.null(study$palt)) palt <- study$palt
   if (!is.null(study$ralt)) ralt <- study$ralt
   if (!is.null(study$phat)) phat <- study$phat
+  phatD <- study$phatD
   if (!is.null(study$pnullD)) pnullD <- study$pnullD
   if (!is.null(study$rnullD)) rnullD <- study$rnullD
   if (!is.null(study$bins)) bins <- study$bins
@@ -1297,6 +1345,10 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
       y=rep(vals, x)
       phat(y)
     }
+    # Where the continuous estimator applied to the bin midpoints is lattice valued
+    # (median, maximum), and the parametric bootstrap therefore fails, the case
+    # study has the grouped-data mle phatD for discrete data
+    if(!is.null(phatD)) phat1=phatD
     if(endsWith(which,"est")) {
       pnull1=pnullD
       rnull=rnullD
@@ -1323,4 +1375,21 @@ case.studies=function(which, which_diff ="mean", data_type="cont",
               phat=phat, dnull=dnull, Range=Ra,
               palt=palt, ralt=ralt, apar=apar[1], apar0=apar[2],
               ralt1=ralt1, vals=NA))
+}
+
+# grouped-data mle of the Laplace distribution (location, scale), for binned data:
+# maximizes the multinomial log-likelihood sum x_j log(F(b_j)-F(b_{j-1})), starting
+# at the estimates of phat applied to the bin midpoints.
+grouped_mle_laplace <- function(x, bins, pnull, phat) {
+  k <- length(bins)-1
+  mids <- (bins[-1]+bins[-(k+1)])/2
+  if(is.infinite(mids[1])) mids[1] <- bins[2]-1
+  if(is.infinite(mids[k])) mids[k] <- bins[k]+1
+  st <- phat(rep(mids, x))
+  nll <- function(q) {
+    pr <- diff(pnull(bins, c(q[1], exp(q[2]))))
+    -sum(x[x>0]*log(pmax(pr[x>0], 1e-300)))
+  }
+  o <- stats::optim(c(st[1], log(max(st[2], 0.01))), nll)
+  c(o$par[1], exp(o$par[2]))
 }

@@ -24,8 +24,9 @@ myTS_cont=function(x, pnull, p=0, TSextra) {
     else m=length(p)
     out[2, i]=1-pchisq(out[1, i], length(O)-1-m)
   }  
-  if(TSextra$statistic) return(round(out[1, ], 4))
-  round(out[2, ],4)
+  # keep the names, out[1, ] drops them if there is only one column
+  if(TSextra$statistic) return(stats::setNames(round(out[1, ], 4), colnames(out)))
+  stats::setNames(round(out[2, ], 4), colnames(out))
 }
 #' Testing routine for discrete data
 #' 

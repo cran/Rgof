@@ -7,6 +7,7 @@ using namespace Rcpp;
 //' @param  TSextra list passed to TS function
 //' @keywords internal
 //' @return A vector of numbers
+//' @noRd
 // [[Rcpp::export]]
 NumericVector calcTS(
      Rcpp::List dta, 

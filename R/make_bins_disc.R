@@ -5,6 +5,7 @@
 #' @param  nbins =c(50, 10) number of bins
 #' @param  minexpcount =5 smallest expected count per bin
 #' @return A list of indices
+#' @noRd
 
 make_bins_disc = function(x, pnull, phat=function(x) -99, nbins=c(50,10), minexpcount=5) {
   n = sum(x)

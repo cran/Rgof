@@ -7,6 +7,7 @@
 #' @param x numeric vector
 #' @keywords internal
 #' @return numeric vector
+#' @noRd
 Cpporder <- function(y, x) {
     .Call(`_Rgof_Cpporder`, y, x)
 }
@@ -18,17 +19,30 @@ Cpporder <- function(y, x) {
 #' @param param parameters for pnull  in case of parameter estimation.
 #' @param qnull An R function, the quantile function under the null hypothesis.
 #' @return A numeric vector with test statistics
+#' @noRd
 TS_cont <- function(x, pnull, param, qnull) {
     .Call(`_Rgof_TS_cont`, x, pnull, param, qnull)
 }
 
 #' Find test statistics for discrete data
-#' 
+#'
+#' With Z(j) = Fn(v(j))-F(v(j)), p(j) = F(v(j))-F(v(j-1)) and
+#' t(j) = (p(j)+p(j+1))/2, with p(k+1)=p(1), the statistics are
+#' KS = max|Z(j)|, Kuiper = max(Z(j),0) + max(-Z(j),0),
+#' CvM = n sum Z(j)^2 t(j), Watson = n sum (Z(j)-Zbar)^2 t(j) with
+#' Zbar = sum Z(j) t(j), AD = n sum Z(j)^2 t(j)/(F(v(j))(1-F(v(j)))), j<k,
+#' as in Choulakian, Lockhart and Stephens (1994), and
+#' Wasserstein = sum |Z(j)| (v(j+1)-v(j)).
+#' NS-B and NS-A are data-driven Neyman smooth tests, with Legendre polynomials in the
+#' mid-cdf made orthonormal w.r.t. the null probabilities and the order chosen by the
+#' Schwarz rule (Ledwina 1994) or by AIC, BJ is the Berk-Jones (1979) statistic.
+#'
 #' @param x An integer vector.
 #' @param pnull cdf.
 #' @param param parameters for pnull in case of parameter estimation.
 #' @param vals A numeric vector with the values of the discrete rv.
 #' @return A vector with test statistics
+#' @noRd
 TS_disc <- function(x, pnull, param, vals) {
     .Call(`_Rgof_TS_disc`, x, pnull, param, vals)
 }
@@ -41,6 +55,7 @@ TS_disc <- function(x, pnull, param, vals) {
 #' @param w numeric vector of weights
 #' @keywords internal
 #' @return A numeric vector with test statistics
+#' @noRd
 TSw_cont <- function(x, pnull, param, w) {
     .Call(`_Rgof_TSw_cont`, x, pnull, param, w)
 }
@@ -54,6 +69,7 @@ TSw_cont <- function(x, pnull, param, w) {
 #' @param w weights 
 #' @keywords internal
 #' @return A vector with test statistics
+#' @noRd
 TSw_disc <- function(x, pnull, param, vals, w) {
     .Call(`_Rgof_TSw_disc`, x, pnull, param, vals, w)
 }
@@ -64,6 +80,7 @@ TSw_disc <- function(x, pnull, param, vals, w) {
 #' @param bins numeric vector
 #' @keywords internal
 #' @return Integer vector of counts
+#' @noRd
 bincounter <- function(x, bins) {
     .Call(`_Rgof_bincounter`, x, bins)
 }
@@ -75,6 +92,7 @@ bincounter <- function(x, bins) {
 #' @param  TSextra list passed to TS function
 #' @keywords internal
 #' @return A vector of numbers
+#' @noRd
 calcTS <- function(dta, TS, typeTS, TSextra) {
     .Call(`_Rgof_calcTS`, dta, TS, typeTS, TSextra)
 }
@@ -89,6 +107,7 @@ calcTS <- function(dta, TS, typeTS, TSextra) {
 #' @param B  =1000 Number of simulation runs
 #' @keywords internal
 #' @return A matrix of powers
+#' @noRd
 gof_adj_C1 <- function(dta, rnull, vals, TS, typeTS, TSextra, B = 1000L) {
     .Call(`_Rgof_gof_adj_C1`, dta, rnull, vals, TS, typeTS, TSextra, B)
 }
@@ -104,6 +123,7 @@ gof_adj_C1 <- function(dta, rnull, vals, TS, typeTS, TSextra, B = 1000L) {
 #' @param B  =1000 Number of simulation runs
 #' @keywords internal
 #' @return A matrix of powers
+#' @noRd
 gof_adj_C2 <- function(dta, rnull, vals, TS, typeTS, TSextra, A, B = 1000L) {
     .Call(`_Rgof_gof_adj_C2`, dta, rnull, vals, TS, typeTS, TSextra, A, B)
 }
@@ -120,6 +140,7 @@ gof_adj_C2 <- function(dta, rnull, vals, TS, typeTS, TSextra, A, B = 1000L) {
 #' @param B  =1000 Number of simulation runs
 #' @keywords internal
 #' @return A matrix of powers
+#' @noRd
 gof_power_C <- function(rnull, vals, ralt, param_alt, TS, typeTS, TSextra, B = 1000L) {
     .Call(`_Rgof_gof_power_C`, rnull, vals, ralt, param_alt, TS, typeTS, TSextra, B)
 }
@@ -134,6 +155,7 @@ gof_power_C <- function(rnull, vals, ralt, param_alt, TS, typeTS, TSextra, B = 1
 #' @param B (=5000) Number of simulation runs 
 #' @keywords internal
 #' @return A matrix of numbers
+#' @noRd
 gof_test_C <- function(dta, rnull, TS, typeTS, TSextra, B = 5000L) {
     .Call(`_Rgof_gof_test_C`, dta, rnull, TS, typeTS, TSextra, B)
 }
@@ -157,6 +179,7 @@ newTSdisc <- function(x, pnull, param, vals) {
 #' @param w numeric vector of weights 
 #' @keywords internal
 #' @return sum of weights in bins
+#' @noRd
 wbincounter <- function(x, bins, w) {
     .Call(`_Rgof_wbincounter`, x, bins, w)
 }

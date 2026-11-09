@@ -45,8 +45,10 @@ test_that("gof_power returns Wilson confidence intervals when requested", {
   expect_named(
     out,
     c("power", "mc.se", "lower", "upper", "B",
-      "conf.level", "interval", "alpha", "param_alt", "seed")
+      "conf.level", "interval", "alpha", "param_alt", "seed", "metadata")
   )
+  expect_type(out$metadata, "list")
+  expect_equal(out$metadata$B, 20)
 
   expect_true(is.matrix(out$power))
   expect_equal(dim(out$power), c(2L, 1L))
@@ -160,4 +162,34 @@ test_that("gof_power validates CI arguments", {
     ),
     "conf.level must be a single number between 0 and 1"
   )
+})
+
+test_that("summary of gof_power gives a study summary", {
+  set.seed(321)
+  z <- local_power_ci_setup()
+
+  out <- gof_power(
+    z$pnull, NA, z$rnull, z$ralt,
+    param_alt = c(0, 0.5),
+    TSextra = z$TSextra,
+    B = 12, maxProcessor = 1
+  )
+  s <- summary(out)
+  expect_s3_class(s, "summary.Rgof_power")
+  expect_equal(unname(s$power), unname(unclass(out)[, , drop = FALSE]),
+               ignore_attr = TRUE)
+  expect_equal(s$metadata$data.type, "continuous")
+  expect_equal(s$metadata$n, 40)
+  expect_output(print(s), "Rgof power study summary")
+  expect_output(print(out), "KS")
+  # subsetting gives plain numbers
+  expect_false(inherits(out[1, ], "Rgof_power_values"))
+
+  ci <- gof_power(
+    z$pnull, NA, z$rnull, z$ralt,
+    param_alt = 0.5,
+    TSextra = z$TSextra,
+    B = 12, maxProcessor = 1, CI = TRUE
+  )
+  expect_output(print(summary(ci)), "Wilson")
 })

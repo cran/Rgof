@@ -2,8 +2,26 @@
 #' 
 #' the results of the included power studies
 #' @format ## 'power_study'
-#' A list of matrices with powers
+#' A list with parts cont and disc, each a list of matrices with powers (case studies
+#' in the rows, methods in the columns). attr(power_study, "Null") has the type I
+#' errors, a list with matrices cont and disc.
 "power_study"
+
+#' power_study_hybrid
+#' 
+#' the results of the included power studies for the hybrid tests (hybrid_power),
+#' with a Monte Carlo data set of the same size as the data (nMC=1)
+#' @format ## 'power_study_hybrid'
+#' As power_study, including attr(power_study_hybrid, "Null").
+"power_study_hybrid"
+
+#' power_study_hybrid_nMC5
+#' 
+#' the results of the included power studies for the hybrid tests (hybrid_power),
+#' with a Monte Carlo data set five times the size of the data (nMC=5)
+#' @format ## 'power_study_hybrid_nMC5'
+#' As power_study, including attr(power_study_hybrid_nMC5, "Null").
+"power_study_hybrid_nMC5"
 
 #' pvaluecdf
 #' 

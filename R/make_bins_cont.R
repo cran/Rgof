@@ -8,6 +8,7 @@
 #' @param  minexpcount =5 smallest expected count per bin
 #' @param  Range  =c(-99999, 99999) limits of possible observations, if any
 #' @return A list of bins and bin probabilities
+#' @noRd
 
 make_bins_cont = function(x, pnull, qnull=NA, phat=function(x) -99, 
                           DataBased=FALSE, nbins=c(50,10), 
@@ -25,65 +26,36 @@ make_bins_cont = function(x, pnull, qnull=NA, phat=function(x) -99,
   out = as.list(1:4)
   names(out) = c("ES-l", "ES-s", "EP-l", "EP-s")
   combine.bins = function(E, bins, minexpcount=5, maxbins=1000) {
-    n = sum(E)
     k = length(E)
     while ( (k>=3) && ( (min(E)<minexpcount) || (k>maxbins) ) ){
       i = which.min(E)[1]
-      if(i==1) {
-        E = c(E[1]+E[2], E[3:k])
-        bins = bins[-2]
-      }
-      if(i==2) {
-        if((E)[1]<(E)[3]) {
-          E = c(E[1]+E[2], E[3:k])
-          bins=bins[-2]
-        }
-        else {
-          E = c(E[1], E[2]+E[3], E[4:k])
-          bins=bins[-3]
-        }
-      }
-      if(i==k-1) {
-        if(E[k-2]<E[k]) {
-          E = c(E[1:(k-3)], E[k-2]+E[k-1], E[k])
-          bins=bins[-(k-1)]
-        }
-        else {
-          E = c(E[1:(k-2)], E[k-1]+E[k])
-          bins=bins[-k]
-        }
-      }
-      if(i==k) {
-        E = c(E[1:(k-2)], E[k-1]+E[k])
-        bins=bins[-k]
-        
-      }
-      if(i>2 && i<k-1) {
-        if( (E)[i-1]<(E)[i+1] ) {
-          E = c(E[1:(i-2)], E[i-1]+E[i], E[(i+1):k])
-          bins=bins[-i]
-        }
-        else {
-          E = c(E[1:(i-1)], E[i]+E[i+1], E[(i+2):k])
-          bins=bins[-(i+1)]
-        }
-      }
+      # merge bin i with its smaller neighbor, bins j and j+1 are combined
+      if(i==1) j = 1
+      else if(i==k) j = k-1
+      else j = ifelse(E[i-1]<E[i+1], i-1, i)
+      E = c(E[seq_len(j-1)], E[j]+E[j+1], E[-seq_len(j+1)])
+      bins = bins[-(j+1)]
       k = k-1
     }
     bins
   }
 
+  # Equal size bins: between the 1/n and 1-1/n quantiles of the null
+  # distribution if the quantile function is available, otherwise over the
+  # range of the data
+  if(is.function(qnull)) lims = qf(c(1/n, 1-1/n))
+  else lims = c(min(x)-1e-5, max(x)+1e-5)
   for(i in 1:2) {
     if(Range[1]==-99999&Range[2]==99999) {
-      bins = seq(min(x)-1e-05, max(x)+1e-05, length=nbins[i]+1)
-      bins[c(1, nbins[i]+1)] = c(-Inf, Inf)
+      bins <- seq(lims[1], lims[2], length.out = nbins[i] + 1)
+      bins[c(1, nbins[i] + 1)] <- c(-Inf, Inf)
     }  
     if(Range[1]!=-99999&Range[2]==99999) {
-      bins = seq(Range[1], max(x)+1e-05, length=nbins[i]+1)   
+      bins = seq(Range[1], lims[2], length=nbins[i]+1)   
       bins[nbins[i]+1] = Inf
     }  
     if(Range[1]==-99999&Range[2]!=99999) {
-      bins = seq(min(x)-1e-05, Range[2], length=nbins[i]+1)
+      bins = seq(lims[1], Range[2], length=nbins[i]+1)
       bins[1] = -Inf 
     }  
     if(Range[1]!=-99999&Range[2]!=99999)

@@ -15,7 +15,12 @@ run.studies(
   alpha = 0.05,
   B = 1000,
   SuppressMessages = TRUE,
-  RerunIncludedCases = FALSE
+  RerunIncludedCases = FALSE,
+  seed = NULL,
+  maxProcessor,
+  Null = FALSE,
+  Hybrid = FALSE,
+  nMC = 1
 )
 }
 \arguments{
@@ -25,7 +30,8 @@ run.studies(
 
 \item{data_type}{="cont", continuous or discrete data}
 
-\item{TS}{routine to calculate test statistics.}
+\item{TS}{routine to calculate test statistics. If Hybrid=TRUE it has to have the
+format required by R2sample (a two-sample test).}
 
 \item{TSextra}{list passed to TS.}
 
@@ -39,7 +45,27 @@ run.studies(
 
 \item{SuppressMessages}{=TRUE}
 
-\item{RerunIncludedCases}{=FALSE, set to true to verify powers in Rgof::power_study}
+\item{RerunIncludedCases}{=FALSE, set to true to verify powers in Rgof::power_study
+(or power_study_hybrid, power_study_hybrid_nMC5)}
+
+\item{seed}{=NULL, optional seed for reproducibility. Case study i in the list of
+studies/types that are run uses the seed seed+i, both for the new test and
+(if they are recomputed) for the included methods.}
+
+\item{maxProcessor}{number of processors used in gof_power or hybrid_power. If missing
+it is chosen automatically. Results with a given seed are reproducible only
+with the same number of processors.}
+
+\item{Null}{=FALSE, if TRUE the data is generated under the null hypothesis (by rnull),
+so the result is the type I error.}
+
+\item{Hybrid}{=FALSE, if TRUE the goodness-of-fit/two-sample hybrid tests
+(hybrid_power, requires package R2sample) are run instead of the
+goodness-of-fit tests.}
+
+\item{nMC}{=1, size of the Monte Carlo data set for the hybrid tests, as a multiple of
+the sample size. Stored results exist for nMC=1 (power_study_hybrid) and
+nMC=5 (power_study_hybrid_nMC5).}
 }
 \value{
 A matrix of power values.

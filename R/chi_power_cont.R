@@ -13,6 +13,7 @@
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat =FALSE, if TRUE param is estimated parameters and no minimization is used
 #' @return A numeric matrix of power values.
+#' @noRd
 
 chi_power_cont = function(
         pnull, ralt, param_alt, qnull=NA,

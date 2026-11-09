@@ -17,6 +17,9 @@
 #'   or -99 if no parameters are estimated.
 #' @param TS User supplied function to find test statistics, if any.
 #' @param TSextra List passed to TS, if desired, or missing.
+#' @param  qnull (optional) quantile function under the null hypothesis, with the same arguments as
+#'   pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+#'   is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.
 #' @param nbins =c(50, 10), number of bins for chi-square tests.
 #' @param rate =0, rate of Poisson if sample size is random, 0 if sample size is fixed.
 #' @param Range =c(-Inf, Inf), limits of possible observations, if any, for
@@ -45,6 +48,8 @@
 #' x <- rnorm(100)
 #' z <- gof_test(x, NA, pnull, rnull, B=500)
 #' z
+#' # with the quantile function the Wasserstein test is included as well
+#' gof_test(x, NA, pnull, rnull, B=500, qnull=function(x) qnorm(x))
 #' z$results
 #' summary(z)
 #' as.data.frame(z)
@@ -54,7 +59,7 @@ gof_test <- function(x, vals=NA, pnull, rnull,
                      TS, TSextra, nbins=c(50, 10), rate=0,
                      Range=c(-Inf, Inf), B=5000, minexpcount=5.0,
                      ChiUsePhat = FALSE, SuppressMessages=FALSE,
-                     seed=NULL, maxProcessor, doMethods="all") {
+                     seed=NULL, maxProcessor, doMethods="all", qnull) {
 
   call <- match.call()
   B_requested <- B
@@ -77,6 +82,11 @@ gof_test <- function(x, vals=NA, pnull, rnull,
                                 abs(phat_data[1] + 99) < 0.001)
   parameters <- if(has_estimated_parameters) phat_data else numeric(0)
 
+  # qnull can be given as an argument or (as in earlier versions) in TSextra
+  if(!missing(qnull)) {
+    if(missing(TSextra)) TSextra <- list()
+    TSextra$qnull <- qnull
+  }
   TSextra <- makeTSextra(TSextra, pnull, phat, w, Continuous)
 
   WithWeights <- TRUE
@@ -182,20 +192,22 @@ gof_test <- function(x, vals=NA, pnull, rnull,
 
   if(typeTS == 1 || typeTS == 5) {
     out <- list(
-      statistics=c(outTS[1, ], outchi[1, ]),
-      p.values=c(outTS[2, ], outchi[2, ])
+      statistics=c(row_named(outTS, 1), row_named(outchi, 1)),
+      p.values=c(row_named(outTS, 2), row_named(outchi, 2))
     )
   }
   else {
-    out <- list(statistics=outTS[1, ], p.values=outTS[2, ])
+    out <- list(statistics=row_named(outTS, 1), p.values=row_named(outTS, 2))
   }
 
-  if(doMethods[1] != "all") {
+  if(!(doMethods[1] %in% c("all", "default"))) {
     out[[1]] <- out[[1]][doMethods]
     out[[2]] <- out[[2]][doMethods]
   }
 
-  if(TSextra$Noqnull) {
+  # without qnull the Wasserstein test can not be done for continuous data
+  # (for discrete data it does not need qnull)
+  if(Continuous && TSextra$Noqnull) {
     out[[1]] <- out[[1]][names(out[[1]]) != "Wassp1"]
     out[[2]] <- out[[2]][names(out[[2]]) != "Wassp1"]
   }
@@ -273,9 +285,12 @@ gof_test <- function(x, vals=NA, pnull, rnull,
 #' @return \code{x}, invisibly.
 #' @export
 print.Rgof_test <- function(x, ...) {
-  cat("\nRgof goodness-of-fit tests\n")
+  hybrid <- isTRUE(x$metadata$hybrid)
+  cat(ifelse(hybrid, "\nRgof hybrid goodness-of-fit tests\n",
+             "\nRgof goodness-of-fit tests\n"))
   cat("Data:", x$metadata$data.type,
       " | n =", x$metadata$n,
+      if(hybrid) paste(" | nMC =", x$metadata$nMC),
       " | B =", x$metadata$B.used, "\n\n")
 
   print(x$results, row.names=FALSE, ...)
@@ -309,9 +324,12 @@ summary.Rgof_test <- function(object, ...) {
 
 #' @export
 print.summary.Rgof_test <- function(x, ...) {
-  cat("\nRgof goodness-of-fit test summary\n\n")
+  hybrid <- isTRUE(x$metadata$hybrid)
+  cat(ifelse(hybrid, "\nRgof hybrid goodness-of-fit test summary\n\n",
+             "\nRgof goodness-of-fit test summary\n\n"))
   cat("Data type: ", x$metadata$data.type, "\n", sep="")
   cat("Sample size: ", x$metadata$n, "\n", sep="")
+  if(hybrid) cat("Monte Carlo sample size: ", x$metadata$nMC, "\n", sep="")
   cat("Simulation runs requested: ", x$metadata$B.requested, "\n", sep="")
   cat("Simulation runs used: ", x$metadata$B.used, "\n", sep="")
 

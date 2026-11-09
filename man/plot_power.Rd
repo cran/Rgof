@@ -4,18 +4,20 @@
 \alias{plot_power}
 \title{This function draws the power graph, with curves sorted by the mean power and smoothed for easier reading.}
 \usage{
-plot_power(pwr, xname = " ", title, Smooth = TRUE, span = 0.25)
+plot_power(pwr, xname = " ", title, Smooth = TRUE, span = 0.75)
 }
 \arguments{
-\item{pwr}{a matrix of power values, usually from the twosample_power command}
+\item{pwr}{a matrix of power values, usually from gof_power or hybrid_power}
 
 \item{xname}{Name of variable on x axis}
 
 \item{title}{(Optional) title of graph}
 
-\item{Smooth}{=TRUE lines are smoothed for easier reading}
+\item{Smooth}{=TRUE lines are smoothed for easier reading. Smoothing needs enough
+alternatives; with fewer than 10 values of the parameter the powers are
+joined by straight lines instead.}
 
-\item{span}{=0.25bandwidth of smoothing method}
+\item{span}{=0.75 span of the loess smoother (as a fraction of the points)}
 }
 \value{
 plt, an object of class ggplot.

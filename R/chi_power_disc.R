@@ -10,6 +10,7 @@
 #' @param  minexpcount =5 minimal expected bin count required
 #' @param  ChiUsePhat = FALSE, should chi square use minimum chi square method?
 #' @return A numeric matrix of power values.
+#' @noRd
 
 chi_power_disc = function(pnull, ralt, param_alt, 
                 phat=function(x) -99, alpha=0.05, B=1000,  

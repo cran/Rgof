@@ -10,6 +10,7 @@ using namespace Rcpp;
 //' @param w numeric vector of weights
 //' @keywords internal
 //' @return A numeric vector with test statistics
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericVector TSw_cont(
         Rcpp::NumericVector x, 
@@ -45,21 +46,20 @@ Rcpp::NumericVector TSw_cont(
     double sw=edf(n-1);
     for(i=0;i<n;++i) edf(i)=edf(i)/sw;
 
-  /*  Kolmogorov-Smirnov and Kuiper*/
+  /*  Kolmogorov-Smirnov and Kuiper with weighted edf G:
+      D+ = max(G(x_(i))-F(x_(i))), D- = max(F(x_(i))-G(x_(i-1))), G(x_(0))=0 */
 
-    TS(0)=0;
-    double mx=0.0, Mx=0.0;
+    double Dp=0.0, Dm=0.0;
     for(i=0;i<n;++i) {
       tmp = edf(i)-Fx(i);
-      if(std::abs(tmp)>std::abs(mx)) mx=std::abs(tmp);
-      if(i>1) {
-        tmp = Fx(i)-edf(i-1);
-        if(std::abs(tmp)>std::abs(Mx)) Mx=std::abs(tmp);
-      }  
+      if(tmp>Dp) Dp=tmp;
+      if(i==0) tmp = Fx(0);
+      else tmp = Fx(i)-edf(i-1);
+      if(tmp>Dm) Dm=tmp;
     }
-    if(std::abs(mx)>std::abs(Mx)) TS(0)=std::abs(mx);
-    else TS(0)=std::abs(Mx);
-    TS(1) = std::abs(mx)+std::abs(Mx);
+    if(Dp>Dm) TS(0)=Dp;
+    else TS(0)=Dm;
+    TS(1) = Dp+Dm;
 
     /* Cramer-von Mises*/
 

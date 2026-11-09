@@ -27,7 +27,8 @@ gof_power(
   CI = FALSE,
   conf.level = 0.95,
   seed = NULL,
-  list.with.everything
+  list.with.everything,
+  qnull
 )
 }
 \arguments{
@@ -76,9 +77,17 @@ gof_power(
 \item{seed}{=NULL, optional seed for reproducibility}
 
 \item{list.with.everything}{A list with all needed info, such as pnull, rnull etc}
+
+\item{qnull}{(optional) quantile function under the null hypothesis, with the same arguments as
+pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.}
 }
 \value{
-By default, a numeric matrix (or vector for one alternative) of power values. If CI=TRUE, an object of class \code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson confidence limits.
+By default, a numeric matrix (or vector for one alternative) of power values, with
+class \code{"Rgof_power_values"} so that \code{summary} gives a summary of the study
+(it prints and is used like the plain matrix). If CI=TRUE, an object of class
+\code{Rgof_power} containing power estimates, Monte Carlo standard errors, and Wilson
+confidence limits.
 }
 \description{
 Find the power of various goodness-of-fit tests.
@@ -92,8 +101,8 @@ For details on the usage of this routine consult the vignette with vignette("Rgo
 pnull = function(x) pnorm(x)
 rnull = function()  rnorm(50)
 ralt = function(mu)  rnorm(50, mu)
-TSextra = list(qnull=function(x) qnorm(x))
-gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), TSextra=TSextra, B=200)
+qnull = function(x) qnorm(x)
+gof_power(pnull, NA, rnull, ralt, c(0.25, 0.5), qnull=qnull, B=200)
 # Power of tests when null hypothesis specifies normal distribution and 
 # mean and standard deviation are estimated from the data. 
 # true data comes from a normal distribution with mean different from 0.

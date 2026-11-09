@@ -11,6 +11,7 @@ using namespace Rcpp;
 //' @param B (=5000) Number of simulation runs 
 //' @keywords internal
 //' @return A matrix of numbers
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericMatrix gof_test_C(
         Rcpp::List dta, 
@@ -50,7 +51,10 @@ Rcpp::NumericMatrix gof_test_C(
     }
     NumericVector TS_sim=calcTS(dta, TS, typeTS, TSextra);
     for(j=0;j<nummethods;++j) {
-      if(TS_data(j)<TS_sim(j)) pvals(j)=pvals(j)+1;
+/* count simulated values at least as large as the observed one. Ties are 
+   common for discrete data and have to be counted. A small relative tolerance 
+   treats values that are equal up to rounding as ties. */
+      if(TS_sim(j)>=TS_data(j)-1e-9*std::abs(TS_data(j))) pvals(j)=pvals(j)+1;
     }
   }
   for(i=0;i<nummethods;++i) {

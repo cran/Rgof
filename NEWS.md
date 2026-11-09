@@ -1,5 +1,7 @@
-# Rgof 4.0.1
-    October 2025. Some minor bug fixes.
+# Rgof 4.1.0
+    November 2026  Added more methods for discrete data
+    Some minor bug fixes and changes
+
 # Rgof 4.0.0
     September 2026  Added 100 more case studies
     Substancial changes to run.studies routine

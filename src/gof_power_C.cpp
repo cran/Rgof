@@ -14,6 +14,7 @@ using namespace Rcpp;
 //' @param B  =1000 Number of simulation runs
 //' @keywords internal
 //' @return A matrix of powers
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List gof_power_C(
         Rcpp::Function rnull,

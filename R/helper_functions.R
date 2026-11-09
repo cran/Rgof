@@ -7,6 +7,7 @@
 #' @param lower smallest permitted value
 #' @return invisibly returns the validated integer
 #' @keywords internal
+#' @noRd
 validate_integer_scalar <- function(x, name, lower=1L) {
   if(!is.numeric(x) || length(x)!=1L || is.na(x) || !is.finite(x) ||
      x != floor(x) || x < lower)
@@ -25,7 +26,7 @@ validate_integer_scalar <- function(x, name, lower=1L) {
 #' @param Continuous is data continuous?
 #' @return a list
 #' @keywords internal
-#' @export
+#' @noRd
 makeTSextra=function(TSextra, pnull, phat, w, Continuous) {
   if(missing(TSextra)) TSextra <- list()
   TSextra$pnull <- pnull
@@ -49,7 +50,7 @@ makeTSextra=function(TSextra, pnull, phat, w, Continuous) {
 #' @param WithWeights with weights?
 #' @return a list
 #' @keywords internal
-#' @export
+#' @noRd
 maketypeTS=function(TS, Continuous, WithWeights) { 
   useSingleProcessor <- FALSE
   if(missing(TS)) {
@@ -108,7 +109,7 @@ maketypeTS=function(TS, Continuous, WithWeights) {
 #' @param useSingleProcessor force a single processor, e.g. for a C++ custom TS
 #' @return an integer giving the number of processors to use
 #' @keywords internal
-#' @export
+#' @noRd
 makemaxProcessor <- function(maxProcessor, dta, TS, typeTS, TSextra, B,
                              SuppressMessages=FALSE,
                              useSingleProcessor=FALSE) {
@@ -138,3 +139,14 @@ makemaxProcessor <- function(maxProcessor, dta, TS, typeTS, TSextra, B,
   
   ans
 }
+
+#' row_named
+#'
+#' Row i of a matrix as a named vector; `m[i, ]` drops the name if m has one column.
+#'
+#' @param m a matrix
+#' @param i row number
+#' @return a named vector
+#' @keywords internal
+#' @noRd
+row_named <- function(m, i) stats::setNames(m[i, ], colnames(m))

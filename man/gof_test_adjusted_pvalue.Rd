@@ -22,7 +22,8 @@ gof_test_adjusted_pvalue(
   maxProcessor,
   SuppressMessages = FALSE,
   seed = NULL,
-  doMethods
+  doMethods,
+  qnull
 )
 }
 \arguments{
@@ -61,9 +62,13 @@ gof_test_adjusted_pvalue(
 \item{seed}{=NULL, optional seed for reproducibility}
 
 \item{doMethods}{a vector of codes for the methods to include. If missing, a default selection of methods are used.}
+
+\item{qnull}{(optional) quantile function under the null hypothesis, with the same arguments as
+pnull. Needed for the Wasserstein test (Wassp1) with continuous data; if it is missing that test
+is not run. It can also be given as TSextra=list(qnull=...), as in earlier versions.}
 }
 \value{
-None
+(invisibly) a list with the p values of the individual tests and the adjusted p value. These are also printed as messages.
 }
 \description{
 This function performs a number of goodness-of-fit tests and finds the adjusted p value for the combined test.
@@ -82,11 +87,11 @@ gof_test_adjusted_pvalue(x, NA, pnull, rnull, B=c(500, 200),
 # and the mean estimated.
 pnull=function(x, m) pnorm(x, m)
 rnull=function(m) rnorm(100, m)
-TSextra = list(qnull=function(x, m=0) qnorm(x, m))
+qnull = function(x, m=0) qnorm(x, m)
 phat=function(x) mean(x)
 x = rnorm(100, 1, 2)
 gof_test_adjusted_pvalue(x, NA, pnull, rnull, phat=phat, 
-                        TSextra=TSextra, B=c(500, 200), maxProcessor=1)
+                        qnull=qnull, B=c(500, 200), maxProcessor=1)
 # Tests to see whether data comes from a binomial (10, 0.5) distribution.
 vals=0:10
 pnull = function() pbinom(0:10, 10, 0.5)

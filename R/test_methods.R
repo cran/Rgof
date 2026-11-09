@@ -8,13 +8,14 @@
 test_methods=function(doMethods, Continuous, WithWeights) {
     if(doMethods[1]%in%c("all","default")) return(FALSE)
     if(Continuous & !WithWeights) 
-       methods=c("KS","Kuiper","CvM","AD","W","ZA","ZK","ZC",
+       methods=c("KS","K","CvM","AD","W","ZA","ZK","ZC",
                  "Wassp1","ES-l-P","ES-s-P","EP-l-P","EP-s-P",
                           "ES-l-L","ES-s-L","EP-l-L","EP-s-L")
     if(Continuous & WithWeights) 
-       methods=c("KS","Kuiper","CvM","AD")
+       methods=c("KS","K","CvM","AD")
     if(!Continuous) 
-       methods=c("KS","Kuiper","CvM","AD","W", "Wassp1","l-P","s-P")
+       methods=c("KS","K","CvM","AD","W", "Wassp1","NS-B","NS-A","BJ",
+                 "l-P","s-P","l-L","s-L")
     Good=TRUE
     for(i in seq_along(doMethods)) {
       if(!(doMethods[i]%in%methods)) {Good=FALSE;break}
@@ -25,7 +26,7 @@ test_methods=function(doMethods, Continuous, WithWeights) {
          message("For continuous data without weights included methods are")
          message("Method               Code")
          message("Kolmogorov-Smirnov   KS")
-         message("Kuiper               Kuiper")
+         message("Kuiper               K")
          message("Cramer-vonMises      CvM")
          message("Anderson-Darling     AD")
          message("Watson               W")
@@ -38,7 +39,7 @@ test_methods=function(doMethods, Continuous, WithWeights) {
       message("For continuous data with weights included methods are")
       message("Method               Code")
       message("Kolmogorov-Smirnov   KS")
-      message("Kuiper               Kuiper")
+      message("Kuiper               K")
       message("Cramer-vonMises      CvM")
       message("Anderson-Darling     AD")
     }
@@ -46,11 +47,13 @@ test_methods=function(doMethods, Continuous, WithWeights) {
       message("For discrete data included methods are")
       message("Method               Code")
       message("Kolmogorov-Smirnov   KS")
-      message("Kuiper               Kuiper")
+      message("Kuiper               K")
       message("Cramer-vonMises      CvM")
       message("Anderson-Darling     AD")
       message("Watson               W")
       message("Wasserstein          Wassp1")
+      message("Smooth tests         NS-B, NS-A")
+      message("Berk-Jones           BJ")
       message("Chi square tests     l-P, s-P, l-L, s-L")
     }
     TRUE

@@ -7,7 +7,9 @@
 \format{
 \subsection{'power_study'}{
 
-A list of matrices with powers
+A list with parts cont and disc, each a list of matrices with powers (case studies
+in the rows, methods in the columns). attr(power_study, "Null") has the type I
+errors, a list with matrices cont and disc.
 }
 }
 \usage{
